@@ -13,7 +13,7 @@
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center">
             <div class="w-12 h-12 bg-amber-500 rounded-xl mx-auto flex items-center justify-center text-white font-bold text-xl mb-4">G</div>
             <h1 class="text-2xl font-bold text-slate-900">Geo Suivi Transit</h1>
-            <p class="text-sm text-slate-500 mb-6">Port Autonome de Lomé • Gestion & Suivi Douanier</p>
+            <p class="text-sm text-slate-500 mb-6">Port Autonome de Lomé • Gestion & Suivi Avancé</p>
             
             <form id="login-form" class="space-y-4 text-left">
                 <div>
@@ -23,9 +23,9 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Poste / Service</label>
                     <select id="agent-role" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
-                        <option value="ADMIN">Administrateur / Superviseur</option>
-                        <option value="DOUANE">Service Douane (IM4, IM8, T1, BACT)</option>
-                        <option value="MANUTENTION">Manutention & Parc (CFS, MAD, BAD)</option>
+                        <option value="ADMIN">Administrateur / Superviseur (Tous droits)</option>
+                        <option value="DOUANE">Service Douane (Enregistrement & Validation)</option>
+                        <option value="MANUTENTION">Manutention & Parc (Suivi & Camions)</option>
                     </select>
                 </div>
                 <div>
@@ -37,29 +37,35 @@
         </div>
     </div>
 
-    <!-- TABLEAU DE BORD -->
+    <!-- TABLEAU DE BORD PRINCIPAL -->
     <div id="dashboard-screen" class="hidden min-h-screen p-4 md:p-8 max-w-7xl mx-auto">
         <header class="flex flex-wrap justify-between items-center gap-4 mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-            <div>
-                <h2 class="text-xl font-bold text-slate-900">Geo Suivi Transit • Port de Lomé</h2>
-                <p class="text-xs text-slate-500">Gestion complète des Dossiers, Clients, Conteneurs (TC) & Camions T1</p>
-            </div>
             <div class="flex items-center gap-3">
-                <span id="user-badge" class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-full font-semibold"></span>
-                <button onclick="location.reload()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-medium">Déconnexion</button>
+                <div id="header-avatar" class="w-12 h-12 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center border-2 border-amber-500">
+                    <span class="text-lg font-bold text-slate-600">👤</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900" id="header-welcome">Geo Suivi Transit</h2>
+                    <p class="text-xs text-slate-500" id="header-role-txt">Port Autonome de Lomé</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="ouvrirModalProfil()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg font-medium border border-slate-300">⚙️ Mon Profil & Mot de passe</button>
+                <button onclick="location.reload()" class="text-xs bg-red-50 hover:bg-red-100 text-red-700 px-3 py-2 rounded-lg font-medium border border-red-200">Déconnexion</button>
             </div>
         </header>
 
-        <!-- FORMULAIRE D'ENREGISTREMENT COMPLET -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
-            <h3 class="font-bold text-slate-800 mb-4 text-base">➕ Enregistrer un Nouveau Dossier Transit</h3>
+        <!-- SECTION ALERTES 72H (BAD & T1) -->
+        <div id="alertes-section" class="mb-6"></div>
+
+        <!-- FORMULAIRE D'ENREGISTREMENT DE DOSSIER (Réservé ADMIN et DOUANE) -->
+        <div id="form-dossier-card" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6 hidden">
+            <h3 class="font-bold text-slate-800 mb-4 text-base">➕ Enregistrer un Nouveau Dossier (Réf automatique : GEO...)</h3>
             <form id="dossier-form" class="space-y-4">
-                
-                <!-- Ligne 1 : Client & BL -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nom du Client / Importateur</label>
-                        <input type="text" id="client-name" required placeholder="Ex: ETS DIALLO & FRERES" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm uppercase">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Client / Importateur</label>
+                        <input type="text" id="client-name" required placeholder="Ex: ETS DIALLO" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm uppercase">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">N° de Connaissement (BL)</label>
@@ -67,7 +73,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Pays de Provenance</label>
-                        <input type="text" id="pays-provenance" required placeholder="Ex: Chine / France / Dubaï" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                        <input type="text" id="pays-provenance" required placeholder="Ex: Chine" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Pays de Destination</label>
@@ -77,106 +83,134 @@
                             <option value="Mali">Mali</option>
                             <option value="Niger">Niger</option>
                             <option value="Côte d'Ivoire">Côte d'Ivoire</option>
-                            <option value="Bénin">Bénin</option>
-                            <option value="Ghana">Ghana</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Ligne 2 : Marchandise, Poids, Régime & Nombre de TC -->
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Quantité / Colisage</label>
-                        <input type="text" id="quantite" required placeholder="Ex: 500 Colis / 20 Palettes" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Quantité / Colis</label>
+                        <input type="text" id="quantite" required placeholder="Ex: 500 Colis" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Poids Total (Kg / Tonnes)</label>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Poids Total</label>
                         <input type="text" id="poids" required placeholder="Ex: 24 500 Kg" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Régime Douanier</label>
                         <select id="regime" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
-                            <option value="T1 (Corridor Transit)">T1 (Corridor Transit)</option>
+                            <option value="T1 (Transit)">T1 (Transit)</option>
                             <option value="IM4 (Mise à consommation)">IM4</option>
                             <option value="IM8 (Transit)">IM8</option>
                             <option value="DDU">DDU</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Terminal / Zone</label>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Terminal</label>
                         <select id="terminal" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
-                            <option value="LCT">Terminal LCT</option>
-                            <option value="PIA">Terminal PIA</option>
-                            <option value="CFS (Dépotage)">CFS (Dépotage)</option>
-                            <option value="MAD (Magasin)">MAD (Magasin)</option>
+                            <option value="LCT">LCT</option>
+                            <option value="PIA">PIA</option>
+                            <option value="CFS (Dépotage)">CFS</option>
+                            <option value="MAD (Magasin)">MAD</option>
                         </select>
                     </div>
                     <div>
+                        <label class="block text-xs font-semibold text-amber-700 mb-1">Validité BAD (Date)</label>
+                        <input type="date" id="date-bad" class="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-amber-700 mb-1">Validité T1 (Date)</label>
+                        <input type="date" id="date-t1" class="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">📎 Pièce jointe (Facture, BAD, T1...)</label>
+                        <input type="file" id="piece-jointe" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs bg-slate-50">
+                    </div>
+                    <div>
                         <label class="block text-xs font-semibold text-amber-700 mb-1">Nombre de TC (Conteneurs)</label>
-                        <input type="number" id="nb-tc" min="1" max="15" value="1" required class="w-full px-3 py-2 border-2 border-amber-400 rounded-lg text-sm font-bold" oninput="genererChampsTC()">
+                        <input type="number" id="nb-tc" min="1" max="10" value="1" required class="w-full px-2 py-2 border border-slate-300 rounded-lg text-sm font-bold" oninput="genererChampsTC()">
                     </div>
                 </div>
 
-                <!-- Zone dynamique pour saisir chaque TC et son Camion rattaché -->
-                <div id="conteneurs-container" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                    <p class="text-xs font-bold text-slate-700 uppercase">📦 Attribution des Conteneurs (TC) et Camions T1 :</p>
-                    <div id="tc-inputs-list" class="space-y-2">
-                        <!-- Généré automatiquement par JavaScript -->
-                    </div>
+                <div id="conteneurs-container" class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <p class="text-xs font-bold text-slate-700 uppercase">📦 Conteneurs (TC) et Camions T1 :</p>
+                    <div id="tc-inputs-list" class="space-y-2"></div>
                 </div>
 
-                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition shadow-sm">Enregistrer le dossier complet</button>
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition shadow-sm">Créer le dossier et générer la référence</button>
             </form>
         </div>
 
-        <!-- TABLEAU DE SUIVI -->
+        <!-- TABLEAU DE SUIVI DES DOSSIERS -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="p-4 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 text-base">📋 Liste des Dossiers & TC en cours</h3>
+                <h3 class="font-bold text-slate-800 text-base">📋 Répertoire des Dossiers en Cours</h3>
                 <span id="dossier-count" class="text-xs font-semibold text-slate-500">0 dossier(s)</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs uppercase">
-                            <th class="p-3">Client & BL</th>
-                            <th class="p-3">Trajet (Provenance ➔ Dest.)</th>
-                            <th class="p-3">Marchandise (Qté / Poids)</th>
-                            <th class="p-3">Conteneurs (TC) & Camions T1</th>
-                            <th class="p-3">Statut & Étape</th>
-                            <th class="p-3">Action</th>
+                            <th class="p-3">Référence & Client</th>
+                            <th class="p-3">Trajet & Validité (BAD / T1)</th>
+                            <th class="p-3">Colis / Poids / Fichier</th>
+                            <th class="p-3">Conteneurs & Camions</th>
+                            <th class="p-3">Étape & Signalement de souci</th>
+                            <th class="p-3">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="dossiers-list" class="divide-y divide-slate-200">
-                        <!-- Rempli par JS -->
-                    </tbody>
+                    <tbody id="dossiers-list" class="divide-y divide-slate-200"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <script>
-        let currentUser = "";
-        let currentRole = "";
-        let dossiers = JSON.parse(localStorage.getItem('geo_transit_dossiers_v2')) || [];
+    <!-- MODAL GESTION PROFIL & MOT DE PASSE -->
+    <div id="profil-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-xl">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">⚙️ Paramètres de votre compte agent</h3>
+            <form id="profil-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Votre Nom</label>
+                    <input type="text" id="profil-name" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nouveau Mot de passe</label>
+                    <input type="password" id="profil-pass" placeholder="Laisser vide pour ne pas changer" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Photo de profil (Lien de l'image ou Avatar URL)</label>
+                    <input type="text" id="profil-avatar" placeholder="https://exemple.com/photo.jpg" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div class="flex gap-2 justify-end mt-4">
+                    <button type="button" onclick="fermerModalProfil()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-medium">Annuler</button>
+                    <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-medium">Enregistrer</comp>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        // Générer dynamiquement les champs TC et Camion dès qu'on tape le nombre de TC
+    <script>
+        let currentUser = { name: "", role: "", pass: "123", avatar: "" };
+        let dossiers = JSON.parse(localStorage.getItem('geo_transit_dossiers_v3')) || [];
+        let agentsComptes = JSON.parse(localStorage.getItem('geo_transit_agents')) || {};
+
         function genererChampsTC() {
             const nb = parseInt(document.getElementById('nb-tc').value) || 1;
             const container = document.getElementById('tc-inputs-list');
             container.innerHTML = '';
-
             for (let i = 1; i <= nb; i++) {
                 const row = document.createElement('div');
-                row.className = "grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-2.5 rounded-lg border border-slate-200";
+                row.className = "grid grid-cols-1 md:grid-cols-2 gap-2 bg-white p-2 rounded border border-slate-200";
                 row.innerHTML = `
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600">N° Conteneur (TC) #${i}</label>
-                        <input type="text" required name="tc-num" placeholder="Ex: TGBU1234567" class="w-full px-2.5 py-1.5 border border-slate-300 rounded text-xs uppercase mt-1">
+                        <input type="text" required name="tc-num" placeholder="N° TC #${i} (Ex: TGBU123)" class="w-full px-2 py-1 border rounded text-xs uppercase">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600">Immatriculation Camion T1 #${i} (Optionnel si pas encore attribué)</label>
-                        <input type="text" name="camion-num" placeholder="Ex: TG 1234 AB" class="w-full px-2.5 py-1.5 border border-slate-300 rounded text-xs uppercase mt-1">
+                        <input type="text" name="camion-num" placeholder="Camion T1 #${i} (Ex: TG 1234 AB)" class="w-full px-2 py-1 border rounded text-xs uppercase">
                     </div>
                 `;
                 container.appendChild(row);
@@ -184,29 +218,84 @@
         }
 
         window.onload = function() {
-            genererChampsTC();
+            if(document.getElementById('nb-tc')) genererChampsTC();
         };
 
         // Connexion
         document.getElementById('login-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            const name = document.getElementById('agent-name').value.trim();
+            const name = document.getElementById('agent-name'].value.trim();
             const role = document.getElementById('agent-role').value;
             const pass = document.getElementById('login-pass').value;
 
-            if (pass === '123' && name !== '') {
-                currentUser = name;
-                currentRole = role;
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dashboard-screen').classList.remove('hidden');
-                document.getElementById('user-badge').textContent = `${name} • ${role}`;
-                afficherDossiers();
+            // Charger le compte agent s'il existe
+            if(agentsComptes[name]) {
+                if(agentsComptes[name].pass !== pass) {
+                    alert("Mot de passe incorrect.");
+                    return;
+                }
+                currentUser = agentsComptes[name];
             } else {
-                alert("Mot de passe incorrect (utilisez 123).");
+                if(pass !== "123") {
+                    alert("Mot de passe incorrect (utilisez 123 pour la première connexion).");
+                    return;
+                }
+                currentUser = { name: name, role: role, pass: "123", avatar: "" };
+                agentsComptes[name] = currentUser;
+                localStorage.setItem('geo_transit_agents', JSON.stringify(agentsComptes));
             }
+
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            
+            // Restreindre l'affichage du formulaire de création (ADMIN et DOUANE uniquement)
+            if(currentUser.role === 'ADMIN' || currentUser.role === 'DOUANE') {
+                document.getElementById('form-dossier-card').classList.remove('hidden');
+            }
+
+            mettreAJourHeaderProfil();
+            afficherDossiers();
         });
 
-        // Enregistrement du dossier complet
+        function mettreAJourHeaderProfil() {
+            document.getElementById('header-welcome').textContent = `Bienvenue, ${currentUser.name}`;
+            document.getElementById('header-role-txt').textContent = `Poste : ${currentUser.role}`;
+            if(currentUser.avatar) {
+                document.getElementById('header-avatar').innerHTML = `<img src="${currentUser.avatar}" class="w-full h-full object-cover rounded-full">`;
+            } else {
+                document.getElementById('header-avatar').innerHTML = `<span class="text-lg font-bold text-slate-600">${currentUser.name.charAt(0).toUpperCase()}</span>`;
+            }
+        }
+
+        function ouvrirModalProfil() {
+            document.getElementById('profil-name').value = currentUser.name;
+            document.getElementById('profil-pass').value = currentUser.pass;
+            document.getElementById('profil-avatar').value = currentUser.avatar || '';
+            document.getElementById('profil-modal').classList.remove('hidden');
+        }
+
+        function fermerModalProfil() {
+            document.getElementById('profil-modal').classList.add('hidden');
+        }
+
+        document.getElementById('profil-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newName = document.getElementById('profil-name').value.trim();
+            const newPass = document.getElementById('profil-pass').value.trim();
+            const newAvatar = document.getElementById('profil-avatar').value.trim();
+
+            currentUser.name = newName;
+            if(newPass) currentUser.pass = newPass;
+            currentUser.avatar = newAvatar;
+
+            agentsComptes[newName] = currentUser;
+            localStorage.setItem('geo_transit_agents', JSON.stringify(agentsComptes));
+            mettreAJourHeaderProfil();
+            fermerModalProfil();
+            alert("Profil mis à jour avec succès !");
+        });
+
+        // Enregistrement d'un nouveau dossier avec génération de référence automatique GEO00001...
         document.getElementById('dossier-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const tcInputs = document.querySelectorAll('input[name="tc-num"]');
@@ -220,8 +309,16 @@
                 });
             }
 
+            // Génération de la référence automatique GEO00001
+            let prochainNum = dossiers.length + 1;
+            let refAuto = "GEO" + String(prochainNum).padStart(5, '0');
+
+            const fichierInput = document.getElementById('piece-jointe');
+            let nomFichier = fichierInput.files.length > 0 ? fichierInput.files[0].name : "Aucun fichier";
+
             const nouveauDossier = {
                 id: Date.now(),
+                ref: refAuto,
                 client: document.getElementById('client-name').value.toUpperCase(),
                 bl: document.getElementById('bl-number').value.toUpperCase(),
                 provenance: document.getElementById('pays-provenance').value,
@@ -230,9 +327,13 @@
                 poids: document.getElementById('poids').value,
                 regime: document.getElementById('regime').value,
                 terminal: document.getElementById('terminal').value,
+                dateBad: document.getElementById('date-bad').value,
+                dateT1: document.getElementById('date-t1').value,
+                fichier: nomFichier,
                 details: detailsTC,
                 statut: "En attente Douane",
-                agent: currentUser
+                souci: "",
+                agent: currentUser.name
             };
 
             dossiers.unshift(nouveauDossier);
@@ -246,13 +347,20 @@
             const index = dossiers.findIndex(d => d.id === id);
             if (index !== -1) {
                 dossiers[index].statut = nouveauStatut;
-                dossiers[index].agent = currentUser;
+                sauvegarderEtAfficher();
+            }
+        }
+
+        function enregistrerSouci(id, texteSouci) {
+            const index = dossiers.findIndex(d => d.id === id);
+            if (index !== -1) {
+                dossiers[index].souci = texteSouci;
                 sauvegarderEtAfficher();
             }
         }
 
         function supprimerDossier(id) {
-            if (currentRole !== 'ADMIN') {
+            if (currentUser.role !== 'ADMIN') {
                 alert("Seul l'Administrateur peut supprimer un dossier.");
                 return;
             }
@@ -261,19 +369,47 @@
         }
 
         function sauvegarderEtAfficher() {
-            localStorage.setItem('geo_transit_dossiers_v2', JSON.stringify(dossiers));
+            localStorage.setItem('geo_transit_dossiers_v3', JSON.stringify(dossiers));
             afficherDossiers();
+        }
+
+        function verifierExpiration(dateStr) {
+            if (!dateStr) return { texte: "Non renseigné", urgent: false };
+            const auj = new Date();
+            const exp = new Date(dateStr);
+            const diffHeures = (exp - auj) / (1000 * 60 * 60);
+
+            if (diffHeures < 0) {
+                return { texte: `Expiré le ${dateStr}`, urgent: true };
+            } else if (diffHeures <= 72) {
+                return { texte: `⚠️ ALERTE 72H (${dateStr})`, urgent: true };
+            }
+            return { texte: `Valide au ${dateStr}`, urgent: false };
         }
 
         function afficherDossiers() {
             const tbody = document.getElementById('dossiers-list');
+            const alertesDiv = document.getElementById('alertes-section');
             document.getElementById('dossier-count').textContent = `${dossiers.length} dossier(s)`;
             tbody.innerHTML = '';
+            let htmlAlertes = '';
 
             dossiers.forEach(d => {
+                let checkBad = verifierExpiration(d.dateBad);
+                let checkT1 = verifierExpiration(d.dateT1);
+
+                if (checkBad.urgent || checkT1.urgent) {
+                    htmlAlertes += `
+                        <div class="bg-red-50 border-l-4 border-red-500 p-3 mb-2 rounded shadow-sm text-xs text-red-800 flex justify-between items-center">
+                            <span>🚨 <strong>Dossier ${d.ref} (${d.client})</strong> - BAD: ${checkBad.texte} | T1: ${checkT1.texte}</span>
+                            <span class="font-bold bg-red-200 px-2 py-0.5 rounded">Action requise sous 72h !</span>
+                        </div>
+                    `;
+                }
+
                 let tcListHtml = d.details.map(item => `
-                    <div class="text-xs bg-slate-50 p-1.5 mb-1 rounded border border-slate-200">
-                        📦 <strong>${item.tc}</strong> ➔ 🚛 <span class="${item.camion === 'En attente camion' ? 'text-amber-600 italic' : 'text-blue-700 font-semibold'}">${item.camion}</span>
+                    <div class="text-[11px] bg-slate-50 p-1 mb-1 rounded border border-slate-200">
+                        📦 <strong>${item.tc}</strong> ➔ 🚛 <span class="text-blue-700 font-semibold">${item.camion}</span>
                     </div>
                 `).join('');
 
@@ -281,37 +417,42 @@
                 tr.className = "hover:bg-slate-50 align-top";
                 tr.innerHTML = `
                     <td class="p-3">
-                        <div class="font-bold text-slate-900 text-xs">${d.client}</div>
-                        <div class="text-amber-700 font-bold text-sm mt-0.5">BL: ${d.bl}</div>
-                        <div class="mt-1 flex gap-1 flex-wrap">
-                            <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[10px] font-semibold">${d.regime}</span>
-                            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-semibold">${d.terminal}</span>
-                        </div>
+                        <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-xs font-bold">${d.ref}</span>
+                        <div class="font-bold text-slate-900 text-xs mt-1">${d.client}</div>
+                        <div class="text-slate-500 text-[11px]">BL: ${d.bl}</div>
+                        <span class="inline-block mt-1 bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-semibold">${d.regime}</span>
                     </td>
                     <td class="p-3 text-xs">
-                        <div class="text-slate-500">De : <strong class="text-slate-800">${d.provenance}</strong></div>
-                        <div class="text-slate-500 mt-1">Vers : <strong class="text-emerald-700">${d.destination}</strong></div>
+                        <div>De: <strong>${d.provenance}</strong> ➔ Vers: <strong class="text-emerald-700">${d.destination}</strong></div>
+                        <div class="mt-1 text-[11px] ${checkBad.urgent ? 'text-red-600 font-bold' : 'text-slate-600'}">BAD: ${checkBad.texte}</div>
+                        <div class="text-[11px] ${checkT1.urgent ? 'text-red-600 font-bold' : 'text-slate-600'}">T1: ${checkT1.texte}</div>
                     </td>
                     <td class="p-3 text-xs">
-                        <div>📦 <strong>${d.quantite}</strong></div>
-                        <div class="mt-1">⚖️ <strong>${d.poids}</strong></div>
+                        <div>📦 ${d.quantite}</div>
+                        <div>⚖️ ${d.poids}</div>
+                        <div class="mt-1 text-slate-500 italic text-[11px]">📎 ${d.fichier}</div>
                     </td>
                     <td class="p-3 max-w-xs">${tcListHtml}</td>
-                    <td class="p-3">
+                    <td class="p-3 space-y-2">
                         <select onchange="changerStatut(${d.id}, this.value)" class="border border-slate-300 rounded px-2 py-1 text-xs bg-white font-medium w-full">
                             <option value="En attente Douane" ${d.statut === 'En attente Douane' ? 'selected' : ''}>⏳ En attente Douane</option>
                             <option value="Déclaration validée (BAD)" ${d.statut === 'Déclaration validée (BAD)' ? 'selected' : ''}>📄 Déclaration validée (BAD)</option>
                             <option value="Facture PIA/LCT payée" ${d.statut === 'Facture PIA/LCT payée' ? 'selected' : ''}>💳 Facture payée</option>
                             <option value="Bon à enlever / Sortie" ${d.statut === 'Bon à enlever / Sortie' ? 'selected' : ''}>✅ Bon à enlever / Sorti</option>
                         </select>
+                        <div>
+                            <input type="text" placeholder="⚠️ Signaler un souci / blocage..." value="${d.souci || ''}" onchange="enregistrerSouci(${d.id}, this.value)" class="w-full px-2 py-1 border border-red-200 bg-red-50/50 rounded text-[11px] text-red-900 placeholder-red-400">
+                        </div>
                     </td>
                     <td class="p-3 text-xs">
                         <span class="text-slate-500 block mb-1">Par <strong>${d.agent}</strong></span>
-                        ${currentRole === 'ADMIN' ? `<button onclick="supprimerDossier(${d.id})" class="text-red-500 hover:underline">Supprimer</button>` : ''}
+                        ${currentUser.role === 'ADMIN' ? `<button onclick="supprimerDossier(${d.id})" class="text-red-500 hover:underline">Supprimer</button>` : ''}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            alertesDiv.innerHTML = htmlAlertes;
         }
     </script>
 </body>
