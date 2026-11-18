@@ -18,14 +18,14 @@
             <form id="login-form" class="space-y-4 text-left">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Nom de l'Agent</label>
-                    <input type="text" id="agent-name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Ex: Madame Soumani / Koffi">
+                    <input type="text" id="agent-name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="Ex: Madame Soumani">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Poste / Service</label>
                     <select id="agent-role" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
-                        <option value="ADMIN">Administrateur / Superviseur (Accès total)</option>
-                        <option value="DOUANE">Service Douane (IM4, IM8, DDU, T1, BACT)</option>
-                        <option value="MANUTENTION">Manutention & Parc (CFS, MAD, Hinterland, BAD)</option>
+                        <option value="ADMIN">Administrateur / Superviseur</option>
+                        <option value="DOUANE">Service Douane (IM4, IM8, T1, BACT)</option>
+                        <option value="MANUTENTION">Manutention & Parc (CFS, MAD, BAD)</option>
                     </select>
                 </div>
                 <div>
@@ -37,12 +37,12 @@
         </div>
     </div>
 
-    <!-- TABLEAU DE BORD PRINCIPAL -->
-    <div id="dashboard-screen" class="hidden min-h-screen p-4 md:p-8 max-w-6xl mx-auto">
+    <!-- TABLEAU DE BORD -->
+    <div id="dashboard-screen" class="hidden min-h-screen p-4 md:p-8 max-w-7xl mx-auto">
         <header class="flex flex-wrap justify-between items-center gap-4 mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
             <div>
                 <h2 class="text-xl font-bold text-slate-900">Geo Suivi Transit • Port de Lomé</h2>
-                <p class="text-xs text-slate-500">Suivi opérationnel en temps réel</p>
+                <p class="text-xs text-slate-500">Gestion complète des Dossiers, Clients, Conteneurs (TC) & Camions T1</p>
             </div>
             <div class="flex items-center gap-3">
                 <span id="user-badge" class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-full font-semibold"></span>
@@ -50,55 +50,105 @@
             </div>
         </header>
 
-        <!-- FORMULAIRE D'ENREGISTREMENT DE DOSSIER -->
+        <!-- FORMULAIRE D'ENREGISTREMENT COMPLET -->
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
-            <h3 class="font-bold text-slate-800 mb-4 text-base">➕ Enregistrer un nouveau dossier / conteneur</h3>
-            <form id="dossier-form" class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                <input type="text" id="bl-number" required placeholder="N° BL ou Conteneur" class="px-3 py-2 border border-slate-300 rounded-lg text-sm">
-                <select id="armateur" class="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
-                    <option value="MSC">MSC</option>
-                    <option value="MAERSK">MAERSK</option>
-                    <option value="CMA CGM">CMA CGM</option>
-                    <option value="PIL">PIL</option>
-                    <option value="COSCO">COSCO</option>
-                    <option value="ONE">ONE</option>
-                </select>
-                <select id="regime" class="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
-                    <option value="IM4 (Mise à la consommation)">IM4</option>
-                    <option value="IM8 (Transit)">IM8</option>
-                    <option value="T1 (Corridor Mali/Niger/BF)">T1</option>
-                    <option value="DDU">DDU</option>
-                </select>
-                <select id="terminal" class="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
-                    <option value="LCT">Terminal LCT</option>
-                    <option value="PIA">Terminal PIA</option>
-                    <option value="CFS (Dépotage)">CFS (Dépotage)</option>
-                    <option value="MAD (Magasin)">MAD (Magasin)</option>
-                </select>
-                <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-4 rounded-lg text-sm transition">Ajouter le dossier</button>
+            <h3 class="font-bold text-slate-800 mb-4 text-base">➕ Enregistrer un Nouveau Dossier Transit</h3>
+            <form id="dossier-form" class="space-y-4">
+                
+                <!-- Ligne 1 : Client & BL -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nom du Client / Importateur</label>
+                        <input type="text" id="client-name" required placeholder="Ex: ETS DIALLO & FRERES" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">N° de Connaissement (BL)</label>
+                        <input type="text" id="bl-number" required placeholder="Ex: MSCU982341" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Pays de Provenance</label>
+                        <input type="text" id="pays-provenance" required placeholder="Ex: Chine / France / Dubaï" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Pays de Destination</label>
+                        <select id="pays-destination" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
+                            <option value="Togo (Lomé)">Togo (Lomé)</option>
+                            <option value="Burkina Faso">Burkina Faso</option>
+                            <option value="Mali">Mali</option>
+                            <option value="Niger">Niger</option>
+                            <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+                            <option value="Bénin">Bénin</option>
+                            <option value="Ghana">Ghana</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Ligne 2 : Marchandise, Poids, Régime & Nombre de TC -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Quantité / Colisage</label>
+                        <input type="text" id="quantite" required placeholder="Ex: 500 Colis / 20 Palettes" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Poids Total (Kg / Tonnes)</label>
+                        <input type="text" id="poids" required placeholder="Ex: 24 500 Kg" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Régime Douanier</label>
+                        <select id="regime" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
+                            <option value="T1 (Corridor Transit)">T1 (Corridor Transit)</option>
+                            <option value="IM4 (Mise à consommation)">IM4</option>
+                            <option value="IM8 (Transit)">IM8</option>
+                            <option value="DDU">DDU</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Terminal / Zone</label>
+                        <select id="terminal" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
+                            <option value="LCT">Terminal LCT</option>
+                            <option value="PIA">Terminal PIA</option>
+                            <option value="CFS (Dépotage)">CFS (Dépotage)</option>
+                            <option value="MAD (Magasin)">MAD (Magasin)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-amber-700 mb-1">Nombre de TC (Conteneurs)</label>
+                        <input type="number" id="nb-tc" min="1" max="15" value="1" required class="w-full px-3 py-2 border-2 border-amber-400 rounded-lg text-sm font-bold" oninput="genererChampsTC()">
+                    </div>
+                </div>
+
+                <!-- Zone dynamique pour saisir chaque TC et son Camion rattaché -->
+                <div id="conteneurs-container" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <p class="text-xs font-bold text-slate-700 uppercase">📦 Attribution des Conteneurs (TC) et Camions T1 :</p>
+                    <div id="tc-inputs-list" class="space-y-2">
+                        <!-- Généré automatiquement par JavaScript -->
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition shadow-sm">Enregistrer le dossier complet</button>
             </form>
         </div>
 
-        <!-- TABLEAU DE SUIVI DES DOSSIERS -->
+        <!-- TABLEAU DE SUIVI -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="p-4 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 text-base">📋 Dossiers en cours de traitement</h3>
+                <h3 class="font-bold text-slate-800 text-base">📋 Liste des Dossiers & TC en cours</h3>
                 <span id="dossier-count" class="text-xs font-semibold text-slate-500">0 dossier(s)</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs uppercase">
-                            <th class="p-3">N° BL / Conteneur</th>
-                            <th class="p-3">Armateur</th>
-                            <th class="p-3">Régime</th>
-                            <th class="p-3">Zone / Terminal</th>
-                            <th class="p-3">Étape actuelle</th>
-                            <th class="p-3">Agent / Action</th>
+                            <th class="p-3">Client & BL</th>
+                            <th class="p-3">Trajet (Provenance ➔ Dest.)</th>
+                            <th class="p-3">Marchandise (Qté / Poids)</th>
+                            <th class="p-3">Conteneurs (TC) & Camions T1</th>
+                            <th class="p-3">Statut & Étape</th>
+                            <th class="p-3">Action</th>
                         </tr>
                     </thead>
                     <tbody id="dossiers-list" class="divide-y divide-slate-200">
-                        <!-- Les dossiers apparaîtront ici -->
+                        <!-- Rempli par JS -->
                     </tbody>
                 </table>
             </div>
@@ -108,12 +158,36 @@
     <script>
         let currentUser = "";
         let currentRole = "";
-        // Chargement des dossiers sauvegardés
-        let dossiers = JSON.parse(localStorage.getItem('geo_transit_dossiers')) || [
-            { id: 1, bl: "MSCU4829104", armateur: "MSC", regime: "T1", terminal: "LCT", statut: "Déclaration validée", agent: "Superviseur" }
-        ];
+        let dossiers = JSON.parse(localStorage.getItem('geo_transit_dossiers_v2')) || [];
 
-        // 1. Gestion de la connexion par rôle
+        // Générer dynamiquement les champs TC et Camion dès qu'on tape le nombre de TC
+        function genererChampsTC() {
+            const nb = parseInt(document.getElementById('nb-tc').value) || 1;
+            const container = document.getElementById('tc-inputs-list');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= nb; i++) {
+                const row = document.createElement('div');
+                row.className = "grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-2.5 rounded-lg border border-slate-200";
+                row.innerHTML = `
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600">N° Conteneur (TC) #${i}</label>
+                        <input type="text" required name="tc-num" placeholder="Ex: TGBU1234567" class="w-full px-2.5 py-1.5 border border-slate-300 rounded text-xs uppercase mt-1">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600">Immatriculation Camion T1 #${i} (Optionnel si pas encore attribué)</label>
+                        <input type="text" name="camion-num" placeholder="Ex: TG 1234 AB" class="w-full px-2.5 py-1.5 border border-slate-300 rounded text-xs uppercase mt-1">
+                    </div>
+                `;
+                container.appendChild(row);
+            }
+        }
+
+        window.onload = function() {
+            genererChampsTC();
+        };
+
+        // Connexion
         document.getElementById('login-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const name = document.getElementById('agent-name').value.trim();
@@ -132,24 +206,42 @@
             }
         });
 
-        // 2. Enregistrer un nouveau dossier
+        // Enregistrement du dossier complet
         document.getElementById('dossier-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            const nouveau = {
+            const tcInputs = document.querySelectorAll('input[name="tc-num"]');
+            const camionInputs = document.querySelectorAll('input[name="camion-num"]');
+            let detailsTC = [];
+
+            for(let i = 0; i < tcInputs.length; i++) {
+                detailsTC.push({
+                    tc: tcInputs[i].value.toUpperCase(),
+                    camion: camionInputs[i].value.trim() !== "" ? camionInputs[i].value.toUpperCase() : "En attente camion"
+                });
+            }
+
+            const nouveauDossier = {
                 id: Date.now(),
+                client: document.getElementById('client-name').value.toUpperCase(),
                 bl: document.getElementById('bl-number').value.toUpperCase(),
-                armateur: document.getElementById('armateur').value,
+                provenance: document.getElementById('pays-provenance').value,
+                destination: document.getElementById('pays-destination').value,
+                quantite: document.getElementById('quantite').value,
+                poids: document.getElementById('poids').value,
                 regime: document.getElementById('regime').value,
                 terminal: document.getElementById('terminal').value,
+                details: detailsTC,
                 statut: "En attente Douane",
                 agent: currentUser
             };
-            dossiers.unshift(nouveau);
+
+            dossiers.unshift(nouveauDossier);
             sauvegarderEtAfficher();
             this.reset();
+            document.getElementById('nb-tc').value = 1;
+            genererChampsTC();
         });
 
-        // 3. Faire évoluer le statut d'un dossier selon l'avancement des agents
         function changerStatut(id, nouveauStatut) {
             const index = dossiers.findIndex(d => d.id === id);
             if (index !== -1) {
@@ -161,7 +253,7 @@
 
         function supprimerDossier(id) {
             if (currentRole !== 'ADMIN') {
-                alert("Seul l'Administrateur / Superviseur peut supprimer un dossier.");
+                alert("Seul l'Administrateur peut supprimer un dossier.");
                 return;
             }
             dossiers = dossiers.filter(d => d.id !== id);
@@ -169,7 +261,7 @@
         }
 
         function sauvegarderEtAfficher() {
-            localStorage.setItem('geo_transit_dossiers', JSON.stringify(dossiers));
+            localStorage.setItem('geo_transit_dossiers_v2', JSON.stringify(dossiers));
             afficherDossiers();
         }
 
@@ -179,24 +271,43 @@
             tbody.innerHTML = '';
 
             dossiers.forEach(d => {
+                let tcListHtml = d.details.map(item => `
+                    <div class="text-xs bg-slate-50 p-1.5 mb-1 rounded border border-slate-200">
+                        📦 <strong>${item.tc}</strong> ➔ 🚛 <span class="${item.camion === 'En attente camion' ? 'text-amber-600 italic' : 'text-blue-700 font-semibold'}">${item.camion}</span>
+                    </div>
+                `).join('');
+
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50";
+                tr.className = "hover:bg-slate-50 align-top";
                 tr.innerHTML = `
-                    <td class="p-3 font-bold text-slate-900">${d.bl}</td>
-                    <td class="p-3">${d.armateur}</td>
-                    <td class="p-3"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">${d.regime}</span></td>
-                    <td class="p-3">${d.terminal}</td>
                     <td class="p-3">
-                        <select onchange="changerStatut(${d.id}, this.value)" class="border border-slate-300 rounded px-2 py-1 text-xs bg-white font-medium">
+                        <div class="font-bold text-slate-900 text-xs">${d.client}</div>
+                        <div class="text-amber-700 font-bold text-sm mt-0.5">BL: ${d.bl}</div>
+                        <div class="mt-1 flex gap-1 flex-wrap">
+                            <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[10px] font-semibold">${d.regime}</span>
+                            <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-semibold">${d.terminal}</span>
+                        </div>
+                    </td>
+                    <td class="p-3 text-xs">
+                        <div class="text-slate-500">De : <strong class="text-slate-800">${d.provenance}</strong></div>
+                        <div class="text-slate-500 mt-1">Vers : <strong class="text-emerald-700">${d.destination}</strong></div>
+                    </td>
+                    <td class="p-3 text-xs">
+                        <div>📦 <strong>${d.quantite}</strong></div>
+                        <div class="mt-1">⚖️ <strong>${d.poids}</strong></div>
+                    </td>
+                    <td class="p-3 max-w-xs">${tcListHtml}</td>
+                    <td class="p-3">
+                        <select onchange="changerStatut(${d.id}, this.value)" class="border border-slate-300 rounded px-2 py-1 text-xs bg-white font-medium w-full">
                             <option value="En attente Douane" ${d.statut === 'En attente Douane' ? 'selected' : ''}>⏳ En attente Douane</option>
-                            <option value="Déclaration validée (BACT/BAD)" ${d.statut === 'Déclaration validée (BACT/BAD)' ? 'selected' : ''}>📄 Déclaration validée (BAD)</option>
-                            <option value="Facture PIA/LCT payée" ${d.statut === 'Facture PIA/LCT payée' ? 'selected' : ''}>💳 Facture PIA/LCT payée</option>
-                            <option value="Bon à enlever / Sortie port" ${d.statut === 'Bon à enlever / Sortie port' ? 'selected' : ''}>✅ Bon à enlever / Sorti</option>
+                            <option value="Déclaration validée (BAD)" ${d.statut === 'Déclaration validée (BAD)' ? 'selected' : ''}>📄 Déclaration validée (BAD)</option>
+                            <option value="Facture PIA/LCT payée" ${d.statut === 'Facture PIA/LCT payée' ? 'selected' : ''}>💳 Facture payée</option>
+                            <option value="Bon à enlever / Sortie" ${d.statut === 'Bon à enlever / Sortie' ? 'selected' : ''}>✅ Bon à enlever / Sorti</option>
                         </select>
                     </td>
-                    <td class="p-3 text-xs text-slate-500 flex items-center justify-between">
-                        <span>Modifié par <strong>${d.agent}</strong></span>
-                        ${currentRole === 'ADMIN' ? `<button onclick="supprimerDossier(${d.id})" class="text-red-500 hover:underline ml-2">Supprimer</button>` : ''}
+                    <td class="p-3 text-xs">
+                        <span class="text-slate-500 block mb-1">Par <strong>${d.agent}</strong></span>
+                        ${currentRole === 'ADMIN' ? `<button onclick="supprimerDossier(${d.id})" class="text-red-500 hover:underline">Supprimer</button>` : ''}
                     </td>
                 `;
                 tbody.appendChild(tr);
