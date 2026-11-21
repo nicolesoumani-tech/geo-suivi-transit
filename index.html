@@ -20,11 +20,14 @@
         };
     </script>
     <style>
+        /* Animation clignotante pour les alertes critiques */
         @keyframes urgentBlink {
             0%, 100% { background-color: #dc2626; box-shadow: 0 0 15px rgba(220, 38, 38, 0.7); }
             50% { background-color: #991b1b; box-shadow: 0 0 5px rgba(153, 27, 27, 0.4); }
         }
         .animate-urgent-blink { animation: urgentBlink 1.4s infinite ease-in-out; }
+
+        /* Défilement horizontal du bandeau d'alerte */
         @keyframes marqueeScroll {
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
@@ -32,7 +35,9 @@
         .marquee-container { overflow: hidden; white-space: nowrap; position: relative; }
         .marquee-content { display: inline-block; padding-left: 10%; animation: marqueeScroll 28s linear infinite; }
         .marquee-container:hover .marquee-content { animation-play-state: paused; }
+
         button, label, select, input, a { touch-action: manipulation; }
+
         .login-bg {
             background-image: radial-gradient(circle at top right, rgba(37, 99, 235, 0.35), transparent 55%),
                               linear-gradient(135deg, #051020 0%, #0f294a 55%, #091b33 100%);
@@ -43,6 +48,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased">
 
+    <!-- Conteneur de notifications flottantes (sans alert()) -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
     <!-- ÉCRAN DE CONNEXION -->
@@ -251,7 +257,13 @@
                         <button type="button" onclick="filterByColor('BLUE')" data-color="BLUE" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-blue-100 text-blue-800 border border-blue-300 cursor-pointer">🔵 Bleu</button>
                         <button type="button" onclick="filterByColor('YELLOW')" data-color="YELLOW" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300 cursor-pointer">🟡 Jaune</button>
                     </div>
-                    <div class="text-slate-500">Affichage : <strong id="visible-count" class="text-slate-800">0</strong> dossier(s)</div>
+                    <div class="text-slate-500 flex flex-wrap items-center gap-3">
+                        <button type="button" onclick="downloadBulkBordereaux()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-file-zipper"></i>
+                            <span>Export Groupé Bordereaux</span>
+                        </button>
+                        <span>Affichage : <strong id="visible-count" class="text-slate-800">0</strong> dossier(s)</span>
+                    </div>
                 </div>
             </section>
 
@@ -331,7 +343,7 @@
 
                 <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-200">
                     <div class="flex items-center justify-between mb-2">
-                        <label class="text-xs font-extrabold uppercase text-navy-900">Numéros de Conteneurs (Automatique)</label>
+                        <label class="text-xs font-extrabold uppercase text-navy-900">Numéros de Conteneurs (Collage multi-TC automatique)</label>
                         <span id="tc-counter-badge" class="text-xs font-bold bg-blue-600 text-white px-2.5 py-0.5 rounded-full">2 champs</span>
                     </div>
                     <div id="dynamic-tc-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
@@ -403,6 +415,14 @@
                     <p id="detail-subtitle" class="text-[11px] sm:text-xs text-slate-300 mt-1 truncate">Navire • Destination</p>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" onclick="downloadDossierBordereau()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-file-arrow-down text-base"></i>
+                        <span class="hidden sm:inline">Télécharger Bordereau</span>
+                    </button>
+                    <button type="button" onclick="sendInvoiceEmailForDossier()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-envelope text-base"></i>
+                        <span class="hidden sm:inline">Envoyer Facture</span>
+                    </button>
                     <button type="button" onclick="sendSingleDossierWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer">
                         <i class="fa-brands fa-whatsapp text-base"></i>
                         <span class="hidden sm:inline">Alerte WhatsApp</span>
@@ -457,7 +477,7 @@
                                 <input type="text" id="set-username" disabled class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl text-sm font-semibold text-slate-700">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Rôle Attribué</label>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Rôles Attribués</label>
                                 <input type="text" id="set-role-display" disabled class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl text-sm font-bold text-navy-900">
                             </div>
                             <div class="sm:col-span-2">
@@ -481,7 +501,7 @@
                 <!-- PANEL ADMIN EXCLUSIF -->
                 <div id="admin-accounts-panel" class="hidden bg-indigo-50/70 p-4 rounded-xl border-2 border-indigo-200 space-y-4">
                     <div class="flex items-center justify-between">
-                        <h4 class="text-xs font-extrabold uppercase text-indigo-950"><i class="fa-solid fa-users-gear text-indigo-600 mr-1.5"></i> Administration : Comptes & Attribution des Profils</h4>
+                        <h4 class="text-xs font-extrabold uppercase text-indigo-950"><i class="fa-solid fa-users-gear text-indigo-600 mr-1.5"></i> Administration : Comptes & Multi-Rôles</h4>
                         <span class="text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-full">ADMIN UNIQUEMENT</span>
                     </div>
 
@@ -495,7 +515,7 @@
                             <input type="text" id="new-acc-password" required placeholder="ex: pass123" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Profil à Attribuer</label>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Profil Principal</label>
                             <select id="new-acc-role" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold">
                                 <option value="ENREGISTREMENT">I. Agent Enregistrement</option>
                                 <option value="ECHANGE">II. Agent Échange</option>
@@ -511,7 +531,34 @@
                         </button>
                     </form>
 
-                    <div id="accounts-list-container" class="space-y-2 max-h-48 overflow-y-auto"></div>
+                    <div id="accounts-list-container" class="space-y-2 max-h-56 overflow-y-auto"></div>
+
+                    <div id="connected-agents-box" class="bg-white p-3.5 rounded-xl border border-indigo-200 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold uppercase text-indigo-950"><i class="fa-solid fa-circle-dot text-emerald-500 mr-1.5"></i> Agents Connectés & Sessions Actives</span>
+                            <span id="connected-agents-count" class="text-[11px] font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full">0 connecté(s)</span>
+                        </div>
+                        <div id="connected-agents-list" class="space-y-1.5 text-xs"></div>
+                    </div>
+                </div>
+
+                <!-- FACTURATION DDU & ADRESSE K -->
+                <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 space-y-3">
+                    <h4 class="text-xs font-extrabold uppercase text-amber-950"><i class="fa-solid fa-file-invoice-dollar text-amber-700 mr-1.5"></i> Facturation par DDU & Envoi Facture (Adresse K)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tarif par DDU</label>
+                            <input type="number" id="set-ddu-rate" min="0" step="100" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold text-amber-900">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Devise</label>
+                            <input type="text" id="set-ddu-currency" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold uppercase">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Adresse E-mail (k)</label>
+                            <input type="email" id="set-invoice-email-k" placeholder="k@geosuvitransit.tg" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
+                        </div>
+                    </div>
                 </div>
 
                 <!-- SEUILS & WHATSAPP -->
@@ -592,15 +639,20 @@
     </div>
 
     <script>
+        // Clés de stockage local
         const STORAGE_KEY_DOSSIERS = 'geo_suivi_transit_dossiers_v1';
         const STORAGE_KEY_SETTINGS = 'geo_suivi_transit_settings_v1';
         const STORAGE_KEY_SESSION  = 'geo_suivi_transit_session_v1';
         const STORAGE_KEY_ACCOUNTS = 'geo_suivi_transit_accounts_v1';
+        const STORAGE_KEY_ONLINE   = 'geo_suivi_transit_online_v1';
 
         const DEFAULT_SETTINGS = {
             daysUnprocessedAlert: 14,
             daysT1Alert: 5,
             hoursExpirationAlert: 72,
+            dduRate: 10000,
+            dduCurrency: 'FCFA',
+            invoiceEmailK: 'k@geosuvitransit.tg',
             waSender: '+228 9217 7057',
             waDest1: '+228 9138 8719',
             waDest2: '+228 9167 9600'
@@ -616,18 +668,43 @@
             'DDU_T1': 'V. Agent DDU & T1'
         };
 
+        // Accès sécurisé à localStorage pour éviter les blocages en environnement restreint
         function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
         function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
+        // Gestion multi-rôles et autorisations strictes
+        function getUserRoles(userObj = session) {
+            if (!userObj) return [];
+            if (Array.isArray(userObj.roles) && userObj.roles.length) return userObj.roles;
+            return userObj.role ? [userObj.role] : [];
+        }
+
+        function formatRolesLabel(userObj = session) {
+            const roles = getUserRoles(userObj);
+            if (!roles.length) return 'Aucun rôle';
+            return roles.map(r => ROLE_LABELS[r] || r).join(' + ');
+        }
+
+        function hasRolePermission(requiredRoles) {
+            const roles = getUserRoles(session);
+            if (roles.includes('ADMIN') || roles.includes('SUPERVISEUR')) return true;
+            return requiredRoles.some(r => roles.includes(r));
+        }
+
+        function isAdminUser() {
+            const roles = getUserRoles(session);
+            return roles.includes('ADMIN') || roles.includes('SUPERVISEUR');
+        }
+
         function getDefaultAccounts() {
             return [
-                { id: 'acc-admin', username: 'admin', password: 'admin123', role: 'ADMIN', avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-sup', username: 'superviseur', password: '123', role: 'SUPERVISEUR', avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-reg', username: 'agent.enregistrement', password: '123', role: 'ENREGISTREMENT', avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-ech', username: 'agent.echange', password: '123', role: 'ECHANGE', avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-man', username: 'manutentionnaire', password: '123', role: 'MANUTENTION', avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-pas', username: 'agent.passation', password: '123', role: 'PASSATION_ENLEVEMENT', avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-ddu', username: 'agent.ddu', password: '123', role: 'DDU_T1', avatar: '', statusMessage: 'Disponible' }
+                { id: 'acc-admin', username: 'admin', password: 'admin123', role: 'ADMIN', roles: ['ADMIN'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-sup', username: 'superviseur', password: '123', role: 'SUPERVISEUR', roles: ['SUPERVISEUR'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-reg', username: 'agent.enregistrement', password: '123', role: 'ENREGISTREMENT', roles: ['ENREGISTREMENT'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-ech', username: 'agent.echange', password: '123', role: 'ECHANGE', roles: ['ECHANGE'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-man', username: 'manutentionnaire', password: '123', role: 'MANUTENTION', roles: ['MANUTENTION'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-pas', username: 'agent.passation', password: '123', role: 'PASSATION_ENLEVEMENT', roles: ['PASSATION_ENLEVEMENT'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-ddu', username: 'agent.ddu', password: '123', role: 'DDU_T1', roles: ['DDU_T1'], avatar: '', statusMessage: 'Disponible' }
             ];
         }
 
@@ -649,8 +726,82 @@
             try { return JSON.parse(safeGet(STORAGE_KEY_SESSION)); } catch (e) { return null; }
         })();
 
+        let onlineAgents = (() => {
+            try {
+                const p = JSON.parse(safeGet(STORAGE_KEY_ONLINE));
+                return Array.isArray(p) ? p : [];
+            } catch (e) { return []; }
+        })();
+
+        function saveOnlineAgents() {
+            safeSet(STORAGE_KEY_ONLINE, JSON.stringify(onlineAgents));
+        }
+
+        function recordAgentConnected(userObj) {
+            if (!userObj || !userObj.username) return;
+            const nowIso = new Date().toISOString();
+            const entry = {
+                accountId: userObj.accountId || userObj.username,
+                username: userObj.username,
+                roles: getUserRoles(userObj),
+                statusMessage: userObj.statusMessage || 'Disponible',
+                isOnline: true,
+                lastSeenAt: nowIso
+            };
+            const idx = onlineAgents.findIndex(x => x.username.toLowerCase() === entry.username.toLowerCase());
+            if (idx >= 0) onlineAgents[idx] = { ...onlineAgents[idx], ...entry, isOnline: true, lastSeenAt: nowIso };
+            else onlineAgents.unshift(entry);
+            saveOnlineAgents();
+        }
+
+        function markAgentDisconnected(username) {
+            if (!username) return;
+            const idx = onlineAgents.findIndex(x => x.username.toLowerCase() === String(username).toLowerCase());
+            if (idx >= 0) {
+                onlineAgents[idx].isOnline = false;
+                onlineAgents[idx].lastSeenAt = new Date().toISOString();
+                saveOnlineAgents();
+            }
+        }
+
+        function renderConnectedAgentsList() {
+            const listEl = document.getElementById('connected-agents-list');
+            const countEl = document.getElementById('connected-agents-count');
+            if (!listEl || !countEl) return;
+
+            const activeList = onlineAgents.filter(a => a.isOnline);
+            countEl.textContent = `${activeList.length} connecté(s)`;
+
+            if (!onlineAgents.length) {
+                listEl.innerHTML = `<p class="text-slate-500 text-xs">Aucune session enregistrée pour le moment.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = onlineAgents.map(ag => {
+                const accMatch = accounts.find(a => a.username.toLowerCase() === ag.username.toLowerCase());
+                const rolesLabel = formatRolesLabel(accMatch || ag);
+                const statusLabel = (accMatch && accMatch.statusMessage) || ag.statusMessage || 'Disponible';
+                const timeLabel = ag.lastSeenAt ? new Date(ag.lastSeenAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+                return `
+                    <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 px-2.5 py-2 rounded-lg border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full ${ag.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}"></span>
+                            <strong class="text-slate-900">${ag.username}</strong>
+                            <span class="text-[11px] text-slate-600">(${rolesLabel})</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-[11px]">
+                            <span class="px-2 py-0.5 rounded-full ${ag.isOnline ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-200 text-slate-700'} font-bold">${ag.isOnline ? 'En ligne' : 'Déconnecté'}</span>
+                            <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold">${statusLabel}</span>
+                            ${timeLabel ? `<span class="text-slate-400">${timeLabel}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         let currentSearchCriterion = 'ALL';
         let currentColorFilter = 'ALL';
+        let currentFilteredDossiers = [];
         let activeDetailDossierId = null;
         let tempProfilePhotoBase64 = '';
 
@@ -684,7 +835,7 @@
                             { tc: 'MSCU7741903', truckNumber: 'TG-9012-AN', driverPhone: '+228 91 44 55 66', photoData: '', exitedPort: false, emptyReturn: '' }
                         ]
                     },
-                    dduT1: { dduNumber: 'DDU-2026-8841', t1Number: 'T1-LME-5520', t1IssuedAt: offsetDate(-7), t1Validity: formatDateInput(offsetDate(4)), t1Cleared: false }
+                    dduT1: { dduNumber: 'DDU-2026-8841', dduCount: 1, t1Number: 'T1-LME-5520', t1IssuedAt: offsetDate(-7), t1Validity: formatDateInput(offsetDate(4)), t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
                 },
                 {
                     id: 'dos-2', rep: 'GEO0002', bl: 'LOM55910', client: 'FASO IMPORT SARL',
@@ -698,7 +849,7 @@
                     manutention: { invoiceRequested: false, invoiceReceived: false, invoicePaid: false, bactDone: false, dfuPaid: false, gatePassSubmitted: false, gatePassReceived: false, truckRequested: false, validated: false },
                     passation: { bonEnlever: false, bonConduire: false, brigadeDone: false, customsReportDone: false, t1Requested: false, t1Validated: false, bonSortie: false, validated: false },
                     enlevement: { trucks: [{ tc: 'CMAU4412098', truckNumber: '', driverPhone: '', photoData: '', exitedPort: false, emptyReturn: '' }] },
-                    dduT1: { dduNumber: '', t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false }
+                    dduT1: { dduNumber: '', dduCount: 1, t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
                 },
                 {
                     id: 'dos-3', rep: 'GEO0003', bl: 'LOM66302', client: 'TRANSIT SAHEL',
@@ -712,7 +863,7 @@
                     manutention: { invoiceRequested: false, invoiceReceived: false, invoicePaid: false, bactDone: false, dfuPaid: false, gatePassSubmitted: false, gatePassReceived: false, truckRequested: false, validated: false },
                     passation: { bonEnlever: false, bonConduire: false, brigadeDone: false, customsReportDone: false, t1Requested: false, t1Validated: false, bonSortie: false, validated: false },
                     enlevement: { trucks: [] },
-                    dduT1: { dduNumber: '', t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false }
+                    dduT1: { dduNumber: '', dduCount: 1, t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
                 }
             ];
         }
@@ -745,8 +896,14 @@
             setTimeout(() => el.remove(), 3500);
         }
 
-        function isAdminUser() {
-            return session && (session.role === 'ADMIN' || session.role === 'SUPERVISEUR');
+        function computeDduInvoiceAmount(d) {
+            const count = Math.max(1, parseInt(d?.dduT1?.dduCount || '1', 10));
+            const rate = Math.max(0, Number(settings.dduRate ?? 10000));
+            return { count, rate, total: count * rate, currency: settings.dduCurrency || 'FCFA' };
+        }
+
+        function formatMoney(val, currency = 'FCFA') {
+            return `${Number(val || 0).toLocaleString('fr-FR')} ${currency}`;
         }
 
         function handleLoginSubmit(e) {
@@ -756,7 +913,7 @@
 
             let found = accounts.find(a => a.username.toLowerCase() === u && a.password === p);
             if (!found && u === 'admin' && (p === 'admin123' || p === '123456')) {
-                found = accounts[0] || { id: 'acc-admin', username: 'admin', password: p, role: 'ADMIN', avatar: '', statusMessage: 'Disponible' };
+                found = accounts[0] || { id: 'acc-admin', username: 'admin', password: p, role: 'ADMIN', roles: ['ADMIN'], avatar: '', statusMessage: 'Disponible' };
             }
             if (!found) {
                 showToast('Identifiant ou mot de passe incorrect (admin / admin123).', 'error');
@@ -766,20 +923,23 @@
             session = {
                 accountId: found.id,
                 username: found.username,
-                role: found.role,
+                roles: getUserRoles(found),
+                role: found.role || getUserRoles(found)[0] || 'ENREGISTREMENT',
                 avatar: found.avatar || '',
                 statusMessage: found.statusMessage || ''
             };
             safeSet(STORAGE_KEY_SESSION, JSON.stringify(session));
+            recordAgentConnected(session);
 
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
             initAppView();
-            showToast(`Connecté : ${found.username} (${ROLE_LABELS[found.role] || found.role})`, 'success');
+            showToast(`Connecté : ${found.username} (${formatRolesLabel(session)})`, 'success');
             return false;
         }
 
         function logout() {
+            if (session && session.username) markAgentDisconnected(session.username);
             session = null;
             safeSet(STORAGE_KEY_SESSION, '');
             document.getElementById('app-screen').classList.add('hidden');
@@ -788,7 +948,7 @@
 
         function initAppView() {
             if (!session) return;
-            document.getElementById('header-role-badge').textContent = `${session.username} (${ROLE_LABELS[session.role] || session.role})`;
+            document.getElementById('header-role-badge').textContent = `${session.username} (${formatRolesLabel(session)})`;
             const badge = document.getElementById('header-avatar-badge');
             if (session.avatar) {
                 badge.innerHTML = `<img src="${session.avatar}" alt="" class="w-full h-full object-cover rounded-full">`;
@@ -859,7 +1019,7 @@
             const marquee = document.getElementById('urgent-marquee-text');
             marquee.textContent = alerts.length
                 ? `🚨 ALERTE URGENTE : ${alerts.join('  |  ')}  —  Alerte WhatsApp : ${settings.waSender} → ${settings.waDest1} & ${settings.waDest2}`
-                : `✅ Aucun dossier en souffrance ou à < ${settings.hoursExpirationAlert}h de l'expiration. Service WhatsApp : ${settings.waSender}.`;
+                : `✅ Aucun dossier en souffrance ou à < ${settings.hoursExpirationAlert}h de l'expiration. Tarif DDU : ${formatMoney(settings.dduRate, settings.dduCurrency)} • Facture → ${settings.invoiceEmailK}.`;
         }
 
         function setSearchCriterion(crit) {
@@ -900,15 +1060,17 @@
                 const bl = (d.bl || '').toLowerCase();
                 const tcs = (d.tcNumbers || []).join(' ').toLowerCase();
                 const t1 = (d.dduT1?.t1Number || '').toLowerCase();
+                const ddu = (d.dduT1?.dduNumber || '').toLowerCase();
                 if (currentSearchCriterion === 'REP') return rep.includes(q);
                 if (currentSearchCriterion === 'BL') return bl.includes(q);
                 if (currentSearchCriterion === 'TC') return tcs.includes(q);
                 if (currentSearchCriterion === 'T1') return t1.includes(q);
-                return rep.includes(q) || bl.includes(q) || tcs.includes(q) || t1.includes(q) || (d.client || '').toLowerCase().includes(q);
+                return rep.includes(q) || bl.includes(q) || tcs.includes(q) || t1.includes(q) || ddu.includes(q) || (d.client || '').toLowerCase().includes(q);
             });
 
             const tbody = document.getElementById('dossiers-table-body');
             const empty = document.getElementById('empty-state');
+            currentFilteredDossiers = filtered.slice();
             document.getElementById('visible-count').textContent = filtered.length;
 
             if (!filtered.length) {
@@ -961,6 +1123,45 @@
             return 'GEO' + String(maxNum + 1).padStart(4, '0');
         }
 
+        // Analyse intelligente d'un texte collé contenant plusieurs numéros de conteneurs
+        function parsePastedContainers(rawText) {
+            return String(rawText || '')
+                .split(/[\r\n,;\t]+|\s{2,}/)
+                .flatMap(chunk => {
+                    const tokens = chunk.trim().split(/\s+/).filter(Boolean);
+                    if (tokens.length > 1 && tokens.every(t => /^[A-Z]{3,4}U?\d{6,7}$/i.test(t))) {
+                        return tokens;
+                    }
+                    return chunk.trim() ? [chunk.trim()] : [];
+                })
+                .map(s => s.replace(/^[\-\•\*]+/, '').trim().toUpperCase())
+                .filter(Boolean);
+        }
+
+        function handleFirstTcPaste(e) {
+            const clipboard = e.clipboardData || window.clipboardData;
+            const text = clipboard ? clipboard.getData('text') : '';
+            const items = parsePastedContainers(text);
+            if (items.length > 1) {
+                e.preventDefault();
+                const nbInput = document.getElementById('create-nb-tc');
+                nbInput.value = Math.min(30, items.length);
+                generateTcFields(items.slice(0, 30));
+                showToast(`${items.length} conteneurs détectés et répartis automatiquement.`, 'success');
+            }
+        }
+
+        function handleSingleTcInput(idx, val) {
+            if (idx !== 0) return;
+            const items = parsePastedContainers(val);
+            if (items.length > 1) {
+                const nbInput = document.getElementById('create-nb-tc');
+                nbInput.value = Math.min(30, items.length);
+                generateTcFields(items.slice(0, 30));
+                showToast(`${items.length} conteneurs répartis automatiquement.`, 'success');
+            }
+        }
+
         function generateTcFields(existing = []) {
             const count = Math.max(1, Math.min(30, parseInt(document.getElementById('create-nb-tc').value || '1', 10)));
             document.getElementById('tc-counter-badge').textContent = `${count} champ(s)`;
@@ -968,12 +1169,16 @@
             container.innerHTML = Array.from({ length: count }, (_, i) => `
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 mb-1">NUMERO TC ${i + 1} *</label>
-                    <input type="text" required value="${existing[i] || ''}" placeholder="Ex: MSCU123456${i}" class="tc-number-input w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold uppercase">
+                    <input type="text" required value="${existing[i] || ''}" ${i === 0 ? 'onpaste="handleFirstTcPaste(event)" oninput="handleSingleTcInput(0, this.value)"' : ''} placeholder="Ex: MSCU123456${i}" class="tc-number-input w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold uppercase">
                 </div>
             `).join('');
         }
 
         function openCreateModal() {
+            if (!hasRolePermission(['ENREGISTREMENT'])) {
+                showToast('Accès refusé : rôle Enregistrement non attribué à votre compte.', 'error');
+                return;
+            }
             document.getElementById('create-dossier-form').reset();
             document.getElementById('create-rep').value = generateNextRep();
             document.getElementById('create-nb-tc').value = 2;
@@ -1017,7 +1222,7 @@
                 manutention: { invoiceRequested: false, invoiceReceived: false, invoicePaid: false, bactDone: false, dfuPaid: false, gatePassSubmitted: false, gatePassReceived: false, truckRequested: false, validated: false },
                 passation: { bonEnlever: false, bonConduire: false, brigadeDone: false, customsReportDone: false, t1Requested: false, t1Validated: false, bonSortie: false, validated: false },
                 enlevement: { trucks: tcNumbers.map(tc => ({ tc, truckNumber: '', driverPhone: '', photoData: '', exitedPort: false, emptyReturn: '' })) },
-                dduT1: { dduNumber: '', t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false }
+                dduT1: { dduNumber: '', dduCount: 1, t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
             };
 
             dossiers.unshift(newDos);
@@ -1026,11 +1231,116 @@
             showToast(`Dossier ${newDos.rep} créé avec succès.`, 'success');
         }
 
+        // Génération du texte du bordereau (sans facturation)
+        function buildDossierBordereauText(d) {
+            const st = evaluateDossierStatus(d);
+            const trucksLines = (d.enlevement?.trucks || []).length
+                ? d.enlevement.trucks.map((tr, i) =>
+                    `  ${i + 1}. TC ${tr.tc} | Camion: ${tr.truckNumber || 'Non saisi'} | Chauffeur: ${tr.driverPhone || 'Non saisi'} | Sorti port: ${tr.exitedPort ? 'OUI' : 'NON'}${d.depotage === 'Sur camion (SC)' ? ` | Retour vide: ${tr.emptyReturn || 'En attente'}` : ''} | Photo: ${tr.photoData ? 'Déposée' : 'Non déposée'}`
+                  ).join('\n')
+                : '  Aucun camion/conteneur enregistré';
+
+            return [
+                '============================================================',
+                '           GEO SUIVI TRANSIT — BORDEREAU DE SUIVI',
+                '============================================================',
+                `Répertoire       : ${d.rep}`,
+                `BL               : ${d.bl}`,
+                `Client           : ${d.client}`,
+                `Navire           : ${d.navire}`,
+                `Origine -> Dest. : ${d.origine} -> ${d.destination}`,
+                `Type Dépotage    : ${d.depotage}`,
+                `Conteneurs       : ${d.nbTc} TC (${d.tcType}) — ${(d.tcNumbers || []).join(', ') || '—'}`,
+                `Poids / Quantité : ${d.poids} | ${d.quantite}`,
+                `Désignation      : ${d.designation}`,
+                `Date Arrivée     : ${formatDateInput(d.dateArrivee) || '—'}`,
+                `Statut Actuel    : ${st.label} (${st.color})${st.alertReason ? ` — Alerte: ${st.alertReason}` : ''}`,
+                '',
+                '--- POINTS & ÉTAPES D\'AVANCEMENT ---',
+                `• I. Enregistrement : Créé le ${formatDateInput(d.createdAt)} | Modif. en attente: ${d.modificationPending ? 'OUI' : 'NON'}`,
+                `• II. Échange       : Doc ${d.echange?.docType || '—'} | Télex: ${d.echange?.telexConfirmed ? 'OK' : 'En attente'} | Facture reçue: ${d.echange?.invoiceReceived ? 'OK' : 'Non'} | Facture payée: ${d.echange?.invoicePaid ? 'OK' : 'Non'} | BAD reçu: ${d.echange?.badReceived ? 'OK' : 'Non'} (Val. ${d.echange?.badValidity || '—'}) | Validé: ${d.echange?.validated ? 'OUI' : 'NON'}`,
+                `• III. Manutention  : Facture dem.: ${d.manutention?.invoiceRequested ? 'OK' : 'Non'} | Reçue: ${d.manutention?.invoiceReceived ? 'OK' : 'Non'} | Payée: ${d.manutention?.invoicePaid ? 'OK' : 'Non'} | BACT: ${d.manutention?.bactDone ? 'OK' : 'Non'} | DFU: ${d.manutention?.dfuPaid ? 'OK' : 'Non'} | GatePass soumis/reçu: ${d.manutention?.gatePassSubmitted ? 'OK' : 'Non'}/${d.manutention?.gatePassReceived ? 'OK' : 'Non'} | Camion dem.: ${d.manutention?.truckRequested ? 'OK' : 'Non'} | Validé: ${d.manutention?.validated ? 'OUI' : 'NON'}`,
+                `• IV. Passation/Enl.: BAE: ${d.passation?.bonEnlever ? 'OK' : 'Non'} | BAC: ${d.passation?.bonConduire ? 'OK' : 'Non'} | Brigade: ${d.passation?.brigadeDone ? 'OK' : 'Non'} | Rapport douane: ${d.passation?.customsReportDone ? 'OK' : 'Non'} | T1 dem./val.: ${d.passation?.t1Requested ? 'OK' : 'Non'}/${d.passation?.t1Validated ? 'OK' : 'Non'} | Bon sortie: ${d.passation?.bonSortie ? 'OK' : 'Non'} | Validé: ${d.passation?.validated ? 'OUI' : 'NON'}`,
+                trucksLines,
+                `• V. DDU & T1       : N° DDU: ${d.dduT1?.dduNumber || '—'} | N° T1: ${d.dduT1?.t1Number || '—'} | Validité T1: ${d.dduT1?.t1Validity || '—'} | T1 apuré: ${d.dduT1?.t1Cleared ? 'OUI' : 'NON'}`,
+                '============================================================'
+            ].join('\n');
+        }
+
+        function triggerTextDownload(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function downloadDossierBordereau() {
+            const d = dossiers.find(x => x.id === activeDetailDossierId);
+            if (!d) return;
+            triggerTextDownload(`Bordereau_${d.rep}_${d.bl || 'DOSSIER'}.txt`, buildDossierBordereauText(d));
+            showToast(`Bordereau ${d.rep} téléchargé.`, 'success');
+        }
+
+        function downloadBulkBordereaux() {
+            const list = currentFilteredDossiers.length ? currentFilteredDossiers : dossiers;
+            if (!list.length) {
+                showToast('Aucun dossier à exporter.', 'error');
+                return;
+            }
+            const combined = [
+                `EXPORT GROUPÉ DES BORDEREAUX — GEO SUIVI TRANSIT (${list.length} dossier(s))`,
+                `Généré le : ${new Date().toLocaleString('fr-FR')}`,
+                '',
+                ...list.map(d => buildDossierBordereauText(d))
+            ].join('\n\n');
+            const stamp = new Date().toISOString().slice(0, 10);
+            triggerTextDownload(`Export_Groupe_Bordereaux_${stamp}.txt`, combined);
+            showToast(`${list.length} bordereau(x) exporté(s) sans la facturation.`, 'success');
+        }
+
+        function sendInvoiceEmailForDossier() {
+            const d = dossiers.find(x => x.id === activeDetailDossierId);
+            if (!d) return;
+            const inv = computeDduInvoiceAmount(d);
+            const targetEmail = (settings.invoiceEmailK || 'k@geosuvitransit.tg').trim();
+            const subject = `Facture DDU - Dossier ${d.rep} (BL ${d.bl} - ${d.client})`;
+            const body = [
+                `Bonjour,`,
+                `Veuillez trouver ci-dessous les informations de facturation DDU pour le dossier ${d.rep} :`,
+                `- BL : ${d.bl}`,
+                `- Client : ${d.client}`,
+                `- Navire : ${d.navire} | Destination : ${d.destination}`,
+                `- N° DDU : ${d.dduT1?.dduNumber || 'Non renseigné'}`,
+                `- Nombre de DDU : ${inv.count}`,
+                `- Tarif unitaire par DDU : ${formatMoney(inv.rate, inv.currency)}`,
+                `- Montant total facturé : ${formatMoney(inv.total, inv.currency)}`,
+                `Cordialement, GEO SUIVI TRANSIT.`
+            ].join('\n');
+
+            d.dduT1 = d.dduT1 || {};
+            d.dduT1.invoiceSent = true;
+            d.dduT1.invoiceSentAt = new Date().toISOString();
+            saveDossiers();
+
+            const mailtoUrl = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailtoUrl, '_blank', 'noopener');
+            openDetailModal(d.id);
+            showToast(`Facture (${formatMoney(inv.total, inv.currency)}) préparée pour envoi à ${targetEmail}.`, 'success');
+        }
+
         function openDetailModal(id) {
             const d = dossiers.find(x => x.id === id);
             if (!d) return;
             activeDetailDossierId = id;
             const st = evaluateDossierStatus(d);
+            const inv = computeDduInvoiceAmount(d);
+            const targetEmail = settings.invoiceEmailK || 'k@geosuvitransit.tg';
+
             document.getElementById('detail-rep-badge').textContent = d.rep;
             document.getElementById('detail-title').textContent = `BL : ${d.bl} — ${d.client}`;
             document.getElementById('detail-subtitle').textContent = `Navire : ${d.navire} • Destination : ${d.destination} • Dépotage : ${d.depotage}`;
@@ -1045,19 +1355,19 @@
                 </div>
 
                 <!-- I. ENREGISTREMENT -->
-                <div class="border border-slate-200 rounded-xl p-4 space-y-3">
-                    <h4 class="font-extrabold text-sm text-navy-900">I. ENREGISTREMENT (Suppression interdite aux agents • Modification sous validation superviseur/admin)</h4>
+                <div class="border border-slate-200 rounded-xl p-4 space-y-3 ${hasRolePermission(['ENREGISTREMENT']) ? '' : 'opacity-60'}">
+                    <h4 class="font-extrabold text-sm text-navy-900">I. ENREGISTREMENT ${hasRolePermission(['ENREGISTREMENT']) ? '(Autorisé)' : '(Lecture seule - Non autorisé)'}</h4>
                     <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="requestModif('${d.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer">Demander modification</button>
+                        <button type="button" ${hasRolePermission(['ENREGISTREMENT']) ? '' : 'disabled'} onclick="requestModif('${d.id}')" class="bg-amber-100 hover:bg-amber-200 disabled:opacity-50 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer">Demander modification</button>
                         ${isAdminUser() ? `<button type="button" onclick="approveModif('${d.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg cursor-pointer">Valider modification (Admin/Superviseur)</button>` : ''}
                     </div>
                     ${d.modificationPending ? `<p class="text-xs font-bold text-amber-800 bg-amber-50 p-2 rounded-lg">En attente de validation superviseur/admin.</p>` : ''}
                 </div>
 
                 <!-- II. ÉCHANGE -->
-                <div class="border border-slate-200 rounded-xl p-4 space-y-3">
-                    <h4 class="font-extrabold text-sm text-navy-900">II. ÉCHANGE</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="border border-slate-200 rounded-xl p-4 space-y-3 ${hasRolePermission(['ECHANGE']) ? '' : 'opacity-60'}">
+                    <h4 class="font-extrabold text-sm text-navy-900">II. ÉCHANGE ${hasRolePermission(['ECHANGE']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
+                    <fieldset ${hasRolePermission(['ECHANGE']) ? '' : 'disabled'} class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <label class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
                             <span class="font-bold">Type de document</span>
                             <select onchange="updateField('${d.id}', 'echange.docType', this.value)" class="border rounded px-2 py-1 font-bold">
@@ -1097,118 +1407,139 @@
                             <input type="checkbox" ${d.echange.validated ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.validated', this.checked)" class="w-4 h-4">
                             <span>Validation Échange</span>
                         </label>
-                    </div>
+                    </fieldset>
                 </div>
 
                 <!-- III. LE MANUTENTIONNAIRE -->
-                <div class="border border-slate-200 rounded-xl p-4 space-y-3">
-                    <h4 class="font-extrabold text-sm text-navy-900">III. LE MANUTENTIONNAIRE</h4>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                        ${[
-                            ['invoiceRequested', 'Demande facture'],
-                            ['invoiceReceived', 'Réception facture'],
-                            ['invoicePaid', 'Paiement facture'],
-                            ['bactDone', 'BACT'],
-                            ['dfuPaid', 'Paiement DFU'],
-                            ['gatePassSubmitted', 'Soumission Gate Pass'],
-                            ['gatePassReceived', 'Réception Gate Pass'],
-                            ['truckRequested', 'Demande camion']
-                        ].map(([k, lbl]) => `
-                            <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
-                                <input type="checkbox" ${d.manutention[k] ? 'checked' : ''} onchange="updateField('${d.id}', 'manutention.${k}', this.checked)" class="w-4 h-4">
-                                <span>${lbl}</span>
-                            </label>
-                        `).join('')}
-                    </div>
-                    <label class="inline-flex items-center gap-2 bg-emerald-50 px-3 py-2 rounded-lg text-xs font-extrabold text-emerald-900 cursor-pointer">
-                        <input type="checkbox" ${d.manutention.validated ? 'checked' : ''} onchange="updateField('${d.id}', 'manutention.validated', this.checked)" class="w-4 h-4">
-                        <span>Validation Manutention</span>
-                    </label>
+                <div class="border border-slate-200 rounded-xl p-4 space-y-3 ${hasRolePermission(['MANUTENTION']) ? '' : 'opacity-60'}">
+                    <h4 class="font-extrabold text-sm text-navy-900">III. LE MANUTENTIONNAIRE ${hasRolePermission(['MANUTENTION']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
+                    <fieldset ${hasRolePermission(['MANUTENTION']) ? '' : 'disabled'} class="space-y-3">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                            ${[
+                                ['invoiceRequested', 'Demande facture'],
+                                ['invoiceReceived', 'Réception facture'],
+                                ['invoicePaid', 'Paiement facture'],
+                                ['bactDone', 'BACT'],
+                                ['dfuPaid', 'Paiement DFU'],
+                                ['gatePassSubmitted', 'Soumission Gate Pass'],
+                                ['gatePassReceived', 'Réception Gate Pass'],
+                                ['truckRequested', 'Demande camion']
+                            ].map(([k, lbl]) => `
+                                <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
+                                    <input type="checkbox" ${d.manutention[k] ? 'checked' : ''} onchange="updateField('${d.id}', 'manutention.${k}', this.checked)" class="w-4 h-4">
+                                    <span>${lbl}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                        <label class="inline-flex items-center gap-2 bg-emerald-50 px-3 py-2 rounded-lg text-xs font-extrabold text-emerald-900 cursor-pointer">
+                            <input type="checkbox" ${d.manutention.validated ? 'checked' : ''} onchange="updateField('${d.id}', 'manutention.validated', this.checked)" class="w-4 h-4">
+                            <span>Validation Manutention</span>
+                        </label>
+                    </fieldset>
                 </div>
 
                 <!-- IV. PASSATION ET ENLÈVEMENT -->
-                <div class="border border-slate-200 rounded-xl p-4 space-y-4">
-                    <h4 class="font-extrabold text-sm text-navy-900">IV. PASSATION ET ENLÈVEMENT</h4>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                        ${[
-                            ['bonEnlever', 'Bon à enlever'],
-                            ['bonConduire', 'Bon à conduire'],
-                            ['brigadeDone', 'Brigade'],
-                            ['customsReportDone', 'Rapport douane'],
-                            ['t1Requested', 'Demande T1'],
-                            ['t1Validated', 'Validation T1'],
-                            ['bonSortie', 'Bon de sortie'],
-                            ['validated', 'Validation Passation']
-                        ].map(([k, lbl]) => `
-                            <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
-                                <input type="checkbox" ${d.passation[k] ? 'checked' : ''} onchange="updateField('${d.id}', 'passation.${k}', this.checked)" class="w-4 h-4">
-                                <span>${lbl}</span>
-                            </label>
-                        `).join('')}
-                    </div>
+                <div class="border border-slate-200 rounded-xl p-4 space-y-4 ${hasRolePermission(['PASSATION_ENLEVEMENT']) ? '' : 'opacity-60'}">
+                    <h4 class="font-extrabold text-sm text-navy-900">IV. PASSATION ET ENLÈVEMENT ${hasRolePermission(['PASSATION_ENLEVEMENT']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
+                    <fieldset ${hasRolePermission(['PASSATION_ENLEVEMENT']) ? '' : 'disabled'} class="space-y-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                            ${[
+                                ['bonEnlever', 'Bon à enlever'],
+                                ['bonConduire', 'Bon à conduire'],
+                                ['brigadeDone', 'Brigade'],
+                                ['customsReportDone', 'Rapport douane'],
+                                ['t1Requested', 'Demande T1'],
+                                ['t1Validated', 'Validation T1'],
+                                ['bonSortie', 'Bon de sortie'],
+                                ['validated', 'Validation Passation']
+                            ].map(([k, lbl]) => `
+                                <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
+                                    <input type="checkbox" ${d.passation[k] ? 'checked' : ''} onchange="updateField('${d.id}', 'passation.${k}', this.checked)" class="w-4 h-4">
+                                    <span>${lbl}</span>
+                                </label>
+                            `).join('')}
+                        </div>
 
-                    <div class="space-y-3">
-                        <p class="text-xs font-extrabold uppercase text-blue-900">Enleveur : Camions, Chauffeurs, Photos TC/Camion, Sortie & Retour Vide</p>
-                        ${(d.enlevement.trucks || []).map((tr, idx) => `
-                            <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3.5 space-y-3 text-xs">
-                                <div class="font-extrabold text-navy-900">Conteneur : ${tr.tc}</div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block font-bold mb-1">N° Camion</label>
-                                        <input type="text" value="${tr.truckNumber || ''}" onchange="updateTruck('${d.id}', ${idx}, 'truckNumber', this.value.toUpperCase())" placeholder="Ex: TG-0000-AA" class="w-full px-3 py-2 bg-white border rounded-lg font-bold uppercase">
+                        <div class="space-y-3">
+                            <p class="text-xs font-extrabold uppercase text-blue-900">Enleveur : Camions, Chauffeurs, Photos TC/Camion, Sortie & Retour Vide</p>
+                            ${(d.enlevement.trucks || []).map((tr, idx) => `
+                                <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3.5 space-y-3 text-xs">
+                                    <div class="font-extrabold text-navy-900">Conteneur : ${tr.tc}</div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block font-bold mb-1">N° Camion</label>
+                                            <input type="text" value="${tr.truckNumber || ''}" onchange="updateTruck('${d.id}', ${idx}, 'truckNumber', this.value.toUpperCase())" placeholder="Ex: TG-0000-AA" class="w-full px-3 py-2 bg-white border rounded-lg font-bold uppercase">
+                                        </div>
+                                        <div>
+                                            <label class="block font-bold mb-1">Tél. Chauffeur</label>
+                                            <input type="text" value="${tr.driverPhone || ''}" onchange="updateTruck('${d.id}', ${idx}, 'driverPhone', this.value)" placeholder="+228 90..." class="w-full px-3 py-2 bg-white border rounded-lg font-semibold">
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block font-bold mb-1">Tél. Chauffeur</label>
-                                        <input type="text" value="${tr.driverPhone || ''}" onchange="updateTruck('${d.id}', ${idx}, 'driverPhone', this.value)" placeholder="+228 90..." class="w-full px-3 py-2 bg-white border rounded-lg font-semibold">
+                                    <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="document.getElementById('tc-photo-${d.id}-${idx}').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-lg cursor-pointer">
+                                                <i class="fa-solid fa-camera mr-1"></i> Déposer Photo TC/Camion
+                                            </button>
+                                            <input type="file" id="tc-photo-${d.id}-${idx}" accept="image/*" class="hidden" onchange="handleTruckPhoto('${d.id}', ${idx}, this)">
+                                            <span class="text-slate-600 font-semibold">${tr.photoData ? 'Photo déposée ✓' : 'Aucune photo'}</span>
+                                        </div>
+                                        <label class="inline-flex items-center gap-2 font-bold text-emerald-900 cursor-pointer">
+                                            <input type="checkbox" ${tr.exitedPort ? 'checked' : ''} onchange="updateTruck('${d.id}', ${idx}, 'exitedPort', this.checked)" class="w-4 h-4">
+                                            <span>Camion sorti du port</span>
+                                        </label>
                                     </div>
+                                    ${d.depotage === 'Sur camion (SC)' ? `
+                                        <div>
+                                            <label class="block font-bold text-amber-800 mb-1">Retour vide (réservé Sur camion)</label>
+                                            <input type="text" value="${tr.emptyReturn || ''}" onchange="updateTruck('${d.id}', ${idx}, 'emptyReturn', this.value)" placeholder="Réservé / Date retour vide..." class="w-full px-3 py-2 bg-amber-50 border border-amber-300 rounded-lg">
+                                        </div>
+                                    ` : ''}
                                 </div>
-                                <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-                                    <div class="flex items-center gap-2">
-                                        <button type="button" onclick="document.getElementById('tc-photo-${d.id}-${idx}').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-lg cursor-pointer">
-                                            <i class="fa-solid fa-camera mr-1"></i> Déposer Photo TC/Camion
-                                        </button>
-                                        <input type="file" id="tc-photo-${d.id}-${idx}" accept="image/*" class="hidden" onchange="handleTruckPhoto('${d.id}', ${idx}, this)">
-                                        <span class="text-slate-600 font-semibold">${tr.photoData ? 'Photo déposée ✓' : 'Aucune photo'}</span>
-                                    </div>
-                                    <label class="inline-flex items-center gap-2 font-bold text-emerald-900 cursor-pointer">
-                                        <input type="checkbox" ${tr.exitedPort ? 'checked' : ''} onchange="updateTruck('${d.id}', ${idx}, 'exitedPort', this.checked)" class="w-4 h-4">
-                                        <span>Camion sorti du port</span>
-                                    </label>
-                                </div>
-                                ${d.depotage === 'Sur camion (SC)' ? `
-                                    <div>
-                                        <label class="block font-bold text-amber-800 mb-1">Retour vide (réservé Sur camion)</label>
-                                        <input type="text" value="${tr.emptyReturn || ''}" onchange="updateTruck('${d.id}', ${idx}, 'emptyReturn', this.value)" placeholder="Réservé / Date retour vide..." class="w-full px-3 py-2 bg-amber-50 border border-amber-300 rounded-lg">
-                                    </div>
-                                ` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
+                            `).join('')}
+                        </div>
+                    </fieldset>
                 </div>
 
-                <!-- V. DDU ET T1 -->
-                <div class="border border-slate-200 rounded-xl p-4 space-y-3">
-                    <h4 class="font-extrabold text-sm text-navy-900">V. DDU ET T1</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                        <div>
-                            <label class="block font-bold mb-1">N° Déclaration DDU</label>
-                            <input type="text" value="${d.dduT1.dduNumber || ''}" onchange="updateField('${d.id}', 'dduT1.dduNumber', this.value.toUpperCase())" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold uppercase">
+                <!-- V. DDU ET T1 + FACTURATION 10 000 PAR DDU -->
+                <div class="border border-slate-200 rounded-xl p-4 space-y-4 ${hasRolePermission(['DDU_T1']) ? '' : 'opacity-60'}">
+                    <h4 class="font-extrabold text-sm text-navy-900">V. DDU ET T1 • FACTURATION DDU (${formatMoney(inv.rate, inv.currency)} / DDU) ${hasRolePermission(['DDU_T1']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
+                    <fieldset ${hasRolePermission(['DDU_T1']) ? '' : 'disabled'} class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                            <div>
+                                <label class="block font-bold mb-1">N° Déclaration DDU</label>
+                                <input type="text" value="${d.dduT1.dduNumber || ''}" onchange="updateField('${d.id}', 'dduT1.dduNumber', this.value.toUpperCase())" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold uppercase">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1">Nombre de DDU</label>
+                                <input type="number" min="1" value="${inv.count}" onchange="updateField('${d.id}', 'dduT1.dduCount', Math.max(1, parseInt(this.value || '1', 10)))" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold text-amber-900">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1">N° T1</label>
+                                <input type="text" value="${d.dduT1.t1Number || ''}" onchange="updateField('${d.id}', 'dduT1.t1Number', this.value.toUpperCase())" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold uppercase">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1">Validité T1 (Destination)</label>
+                                <input type="date" value="${d.dduT1.t1Validity || ''}" onchange="updateField('${d.id}', 'dduT1.t1Validity', this.value)" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold">
+                            </div>
+                            <div class="flex items-end">
+                                <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold w-full cursor-pointer">
+                                    <input type="checkbox" ${d.dduT1.t1Cleared ? 'checked' : ''} onchange="updateField('${d.id}', 'dduT1.t1Cleared', this.checked)" class="w-4 h-4">
+                                    <span>T1 apuré</span>
+                                </label>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block font-bold mb-1">N° T1</label>
-                            <input type="text" value="${d.dduT1.t1Number || ''}" onchange="updateField('${d.id}', 'dduT1.t1Number', this.value.toUpperCase())" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold uppercase">
+
+                        <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                            <div>
+                                <div class="font-extrabold text-amber-950">Facturation DDU : ${inv.count} × ${formatMoney(inv.rate, inv.currency)} = <span class="text-sm text-blue-800">${formatMoney(inv.total, inv.currency)}</span></div>
+                                <div class="text-slate-600 mt-0.5">Destinataire facture (k) : <strong class="text-slate-800">${targetEmail}</strong> ${d.dduT1.invoiceSent ? `<span class="ml-2 text-emerald-700 font-bold">• Envoyée ✓</span>` : ''}</div>
+                            </div>
+                            <button type="button" onclick="sendInvoiceEmailForDossier()" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shrink-0 cursor-pointer">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Envoyer Facture à ${targetEmail}</span>
+                            </button>
                         </div>
-                        <div>
-                            <label class="block font-bold mb-1">Validité T1 (Destination)</label>
-                            <input type="date" value="${d.dduT1.t1Validity || ''}" onchange="updateField('${d.id}', 'dduT1.t1Validity', this.value)" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold">
-                        </div>
-                        <div class="flex items-end">
-                            <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold w-full cursor-pointer">
-                                <input type="checkbox" ${d.dduT1.t1Cleared ? 'checked' : ''} onchange="updateField('${d.id}', 'dduT1.t1Cleared', this.checked)" class="w-4 h-4">
-                                <span>T1 apuré</span>
-                            </label>
-                        </div>
-                    </div>
+                    </fieldset>
                 </div>
             `;
 
@@ -1275,7 +1606,7 @@
             if (!session) return;
             tempProfilePhotoBase64 = session.avatar || '';
             document.getElementById('set-username').value = session.username;
-            document.getElementById('set-role-display').value = ROLE_LABELS[session.role] || session.role;
+            document.getElementById('set-role-display').value = formatRolesLabel(session);
             document.getElementById('set-new-password').value = '';
             document.getElementById('set-status-message').value = session.statusMessage || '';
 
@@ -1291,6 +1622,10 @@
                 ini.textContent = (session.username || 'GEO').slice(0, 2).toUpperCase();
             }
 
+            document.getElementById('set-ddu-rate').value = settings.dduRate ?? 10000;
+            document.getElementById('set-ddu-currency').value = settings.dduCurrency || 'FCFA';
+            document.getElementById('set-invoice-email-k').value = settings.invoiceEmailK || 'k@geosuvitransit.tg';
+
             document.getElementById('set-days-unprocessed').value = settings.daysUnprocessedAlert;
             document.getElementById('set-days-t1').value = settings.daysT1Alert;
             document.getElementById('set-hours-exp').value = settings.hoursExpirationAlert;
@@ -1302,6 +1637,7 @@
             if (isAdminUser()) {
                 adminPanel.classList.remove('hidden');
                 renderAccountsList();
+                renderConnectedAgentsList();
             } else {
                 adminPanel.classList.add('hidden');
             }
@@ -1334,20 +1670,29 @@
 
         function renderAccountsList() {
             const cont = document.getElementById('accounts-list-container');
-            cont.innerHTML = accounts.map(acc => `
-                <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-2.5 rounded-lg border border-indigo-100 text-xs">
-                    <div>
-                        <strong class="text-slate-900">${acc.username}</strong>
-                        ${acc.statusMessage ? `<span class="ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold">${acc.statusMessage}</span>` : ''}
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <select onchange="changeAccountRole('${acc.id}', this.value)" class="border rounded px-2 py-1 text-xs font-bold">
-                            ${Object.entries(ROLE_LABELS).map(([k, v]) => `<option value="${k}" ${acc.role === k ? 'selected' : ''}>${v}</option>`).join('')}
-                        </select>
+            const assignableRoles = ['ENREGISTREMENT', 'ECHANGE', 'MANUTENTION', 'PASSATION_ENLEVEMENT', 'DDU_T1', 'SUPERVISEUR', 'ADMIN'];
+            cont.innerHTML = accounts.map(acc => {
+                const accRoles = getUserRoles(acc);
+                return `
+                <div class="bg-white p-3 rounded-lg border border-indigo-100 text-xs space-y-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <strong class="text-slate-900">${acc.username}</strong>
+                            ${acc.statusMessage ? `<span class="ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold">${acc.statusMessage}</span>` : ''}
+                        </div>
                         ${acc.username !== 'admin' ? `<button type="button" onclick="deleteAccount('${acc.id}')" class="text-red-600 hover:bg-red-50 px-2 py-1 rounded font-bold cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : ''}
                     </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        ${assignableRoles.map(rk => `
+                            <label class="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-50 border border-slate-200 font-semibold cursor-pointer">
+                                <input type="checkbox" ${accRoles.includes(rk) ? 'checked' : ''} onchange="toggleAccountRole('${acc.id}', '${rk}', this.checked)" class="w-3.5 h-3.5">
+                                <span>${ROLE_LABELS[rk]}</span>
+                            </label>
+                        `).join('')}
+                    </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function handleCreateAccount(e) {
@@ -1360,24 +1705,35 @@
                 showToast('Cet identifiant existe déjà.', 'error');
                 return;
             }
-            accounts.push({ id: 'acc-' + Date.now(), username: u, password: p, role: r, avatar: '', statusMessage: 'Disponible' });
+            accounts.push({ id: 'acc-' + Date.now(), username: u, password: p, role: r, roles: [r], avatar: '', statusMessage: 'Disponible' });
             saveAccounts();
             renderAccountsList();
             document.getElementById('create-account-form').reset();
             showToast(`Compte ${u} créé avec le profil ${ROLE_LABELS[r]}.`, 'success');
         }
 
-        function changeAccountRole(id, newRole) {
+        function toggleAccountRole(id, roleKey, checked) {
             const acc = accounts.find(a => a.id === id);
             if (!acc) return;
-            acc.role = newRole;
+            let current = new Set(getUserRoles(acc));
+            if (checked) current.add(roleKey);
+            else if (current.size > 1) current.delete(roleKey);
+            else {
+                showToast('Au moins un rôle doit rester attribué au compte.', 'error');
+                renderAccountsList();
+                return;
+            }
+            const nextRoles = Array.from(current);
+            acc.roles = nextRoles;
+            acc.role = nextRoles[0];
             saveAccounts();
             if (session && session.accountId === id) {
-                session.role = newRole;
+                session.roles = nextRoles;
+                session.role = acc.role;
                 safeSet(STORAGE_KEY_SESSION, JSON.stringify(session));
                 initAppView();
             }
-            showToast('Profil mis à jour par l’Administrateur.', 'success');
+            showToast(`Rôles mis à jour pour ${acc.username}.`, 'success');
         }
 
         function deleteAccount(id) {
@@ -1401,11 +1757,15 @@
             session.avatar = tempProfilePhotoBase64;
             session.statusMessage = newStatus;
             safeSet(STORAGE_KEY_SESSION, JSON.stringify(session));
+            recordAgentConnected(session);
 
             settings = {
                 daysUnprocessedAlert: Math.max(1, parseInt(document.getElementById('set-days-unprocessed').value || '14', 10)),
                 daysT1Alert: Math.max(1, parseInt(document.getElementById('set-days-t1').value || '5', 10)),
                 hoursExpirationAlert: Math.max(1, parseInt(document.getElementById('set-hours-exp').value || '72', 10)),
+                dduRate: Math.max(0, Number(document.getElementById('set-ddu-rate').value ?? 10000)),
+                dduCurrency: (document.getElementById('set-ddu-currency').value || 'FCFA').trim().toUpperCase(),
+                invoiceEmailK: (document.getElementById('set-invoice-email-k').value || 'k@geosuvitransit.tg').trim(),
                 waSender: document.getElementById('set-wa-sender').value.trim() || DEFAULT_SETTINGS.waSender,
                 waDest1: document.getElementById('set-wa-dest1').value.trim() || DEFAULT_SETTINGS.waDest1,
                 waDest2: document.getElementById('set-wa-dest2').value.trim() || DEFAULT_SETTINGS.waDest2
@@ -1413,6 +1773,7 @@
             safeSet(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
 
             initAppView();
+            if (activeDetailDossierId) openDetailModal(activeDetailDossierId);
             closeSettingsModal();
             showToast('Profil et paramètres enregistrés.', 'success');
         }
@@ -1455,6 +1816,7 @@
         }
 
         if (session && session.username) {
+            recordAgentConnected(session);
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
             initAppView();
