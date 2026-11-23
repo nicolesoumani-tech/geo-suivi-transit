@@ -1,1830 +1,1524 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEO SUIVI TRANSIT | Gestion & Suivi Portuaire</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        navy: { 800: '#0f294a', 900: '#091b33', 950: '#051020' }
-                    }
-                }
-            }
-        };
-    </script>
-    <style>
-        /* Animation clignotante pour les alertes critiques */
-        @keyframes urgentBlink {
-            0%, 100% { background-color: #dc2626; box-shadow: 0 0 15px rgba(220, 38, 38, 0.7); }
-            50% { background-color: #991b1b; box-shadow: 0 0 5px rgba(153, 27, 27, 0.4); }
-        }
-        .animate-urgent-blink { animation: urgentBlink 1.4s infinite ease-in-out; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEO SUIVI TRANSIT</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --warning: #b45309;
+      --warning-bg: #fef3c7;
+      --danger: #b91c1c;
+      --danger-bg: #fee2e2;
+      --info: #0369a1;
+      --info-bg: #e0f2fe;
+      --radius: 10px;
+      --shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+    }
 
-        /* Défilement horizontal du bandeau d'alerte */
-        @keyframes marqueeScroll {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        .marquee-container { overflow: hidden; white-space: nowrap; position: relative; }
-        .marquee-content { display: inline-block; padding-left: 10%; animation: marqueeScroll 28s linear infinite; }
-        .marquee-container:hover .marquee-content { animation-play-state: paused; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
 
-        button, label, select, input, a { touch-action: manipulation; }
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: 14px;
+    }
 
-        .login-bg {
-            background-image: radial-gradient(circle at top right, rgba(37, 99, 235, 0.35), transparent 55%),
-                              linear-gradient(135deg, #051020 0%, #0f294a 55%, #091b33 100%);
-            background-size: cover;
-            background-position: center;
-        }
-    </style>
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 8px 13px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover {
+      background: var(--surface-alt);
+      border-color: #cbd5e1;
+    }
+
+    button.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    button.primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    button.success {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+
+    button.danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #fff;
+    }
+
+    button.sm {
+      padding: 5px 10px;
+      font-size: 12.5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+    }
+
+    /* Login screen */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+    }
+
+    .login-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .login-brand h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.4px;
+    }
+
+    .login-sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #334155;
+    }
+
+    .error-box {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #fca5a5;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .hint-box {
+      margin-top: 14px;
+      padding: 10px 12px;
+      background: var(--surface-alt);
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* App layout */
+    #appScreen {
+      display: none;
+      min-height: 100vh;
+    }
+
+    header.topbar {
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .user-badge {
+      background: rgba(255, 255, 255, 0.12);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .topbar-actions button {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    .topbar-actions button:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .topbar-actions button.primary {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+
+    .topbar-actions button.danger {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+
+    main.container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .toolbar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .toolbar-group input, .toolbar-group select {
+      width: auto;
+      min-width: 180px;
+    }
+
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+    }
+
+    th, td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 13.5px;
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--surface-alt);
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    tr:hover td {
+      background: #f8fafc;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .pill.rouge { background: var(--danger-bg); color: var(--danger); }
+    .pill.vert { background: var(--success-bg); color: var(--success); }
+    .pill.bleu { background: var(--info-bg); color: var(--info); }
+    .pill.jaune { background: var(--warning-bg); color: var(--warning); }
+
+    .row-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 780px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .modal-body {
+      padding: 18px 20px;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--surface-alt);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .section-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: var(--surface-alt);
+    }
+
+    .section-box h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #1e293b;
+    }
+
+    .role-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .role-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      width: auto;
+    }
+
+    .role-chip input {
+      width: auto;
+      margin: 0;
+    }
+
+    .invoice-preview {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+
+    .invoice-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: #fff;
+      padding: 11px 16px;
+      border-radius: 9px;
+      font-size: 13px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 100;
+      display: none;
+    }
+
+    /* Print / PDF styles */
+    @media print {
+      body * { visibility: hidden; }
+      #printArea, #printArea * { visibility: visible; }
+      #printArea {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 18px;
+        background: #fff;
+        color: #000;
+      }
+      .no-print { display: none !important; }
+    }
+
+    #printArea {
+      display: none;
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans antialiased">
+<body>
 
-    <!-- Conteneur de notifications flottantes (sans alert()) -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+  <!-- ÉCRAN DE CONNEXION -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-brand">
+        <span style="font-size:24px;">🚢</span>
+        <h1>GEO SUIVI TRANSIT</h1>
+      </div>
+      <div class="login-sub">Connectez-vous à votre espace de suivi et transit</div>
 
-    <!-- ÉCRAN DE CONNEXION -->
-    <div id="login-screen" class="login-bg min-h-screen flex flex-col justify-between p-4 sm:p-8">
-        <div class="max-w-7xl w-full mx-auto flex justify-between items-center text-white/90">
-            <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
-                    <i class="fa-solid fa-ship text-xl text-white"></i>
-                </div>
-                <div>
-                    <span class="font-extrabold text-xl tracking-tight block leading-none">GEO SUIVI TRANSIT</span>
-                    <span class="text-xs text-blue-300 font-medium tracking-wider uppercase">Port Autonome & Corridor Transit</span>
-                </div>
-            </div>
-            <div class="hidden sm:flex items-center gap-2 text-xs bg-white/10 px-3.5 py-2 rounded-full border border-white/15">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Système Opérationnel • Lomé / Corridor</span>
-            </div>
+      <div id="loginError" class="error-box"></div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="field">
+          <label for="loginUsername">Identifiant / Utilisateur</label>
+          <input type="text" id="loginUsername" autocomplete="username" placeholder="Ex: admin" required />
         </div>
-
-        <div class="max-w-md w-full mx-auto my-8 bg-white/95 rounded-2xl shadow-2xl border border-white/40 overflow-hidden">
-            <div class="bg-navy-900 p-6 text-white text-center relative overflow-hidden">
-                <div class="w-14 h-14 mx-auto bg-blue-600 rounded-2xl flex items-center justify-center mb-3 shadow-lg">
-                    <i class="fa-solid fa-globe text-2xl text-white"></i>
-                </div>
-                <h1 class="text-2xl font-extrabold tracking-tight">GEO SUIVI TRANSIT</h1>
-                <p class="text-slate-300 text-sm mt-1">Plateforme de Traçabilité Douanière & Logistique</p>
-            </div>
-
-            <form id="login-form" onsubmit="return handleLoginSubmit(event)" class="p-6 sm:p-8 space-y-5">
-                <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-xl p-3 text-xs flex items-start gap-2.5">
-                    <i class="fa-solid fa-shield-halved text-blue-600 mt-0.5"></i>
-                    <span>Les comptes agents et profils sont attribués exclusivement par l'<strong>Administrateur</strong>.</span>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Identifiant / Nom d'utilisateur</label>
-                    <div class="relative">
-                        <input type="text" id="login-username" value="admin" required
-                               class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 outline-none">
-                        <i class="fa-solid fa-id-badge absolute left-3.5 top-3.5 text-slate-400"></i>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Mot de passe</label>
-                    <div class="relative">
-                        <input type="password" id="login-password" value="admin123" required
-                               class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 outline-none">
-                        <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400"></i>
-                    </div>
-                </div>
-
-                <div class="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                    Compte Administrateur par défaut : <strong class="text-slate-700">admin</strong> / <strong class="text-slate-700">admin123</strong>
-                </div>
-
-                <button type="submit" id="btn-login-submit" onclick="return handleLoginSubmit(event)" class="w-full py-3.5 px-6 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 text-sm cursor-pointer">
-                    <span>SE CONNECTER</span>
-                    <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </form>
+        <div class="field">
+          <label for="loginPassword">Mot de passe</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" required />
         </div>
+        <button type="submit" class="primary" style="width:100%; padding:10px;">Se connecter</button>
+      </form>
 
-        <footer class="max-w-7xl w-full mx-auto flex flex-col sm:flex-row justify-between items-center text-xs text-slate-300/90 gap-2 border-t border-white/10 pt-4">
-            <p>© 2026 <strong class="text-white">GEO SUIVI TRANSIT</strong> — Tous droits réservés.</p>
-            <p class="bg-white/10 px-3 py-1 rounded-full border border-white/10">Créateur : <strong class="text-white tracking-wide">LEBDE Isaac</strong></p>
-        </footer>
+      <div class="hint-box">
+        <strong>Accès administrateur par défaut :</strong><br />
+        Identifiant : <code>admin</code> &nbsp;|&nbsp; Mot de passe : <code>admin123</code>
+      </div>
     </div>
+  </div>
 
-    <!-- APPLICATION PRINCIPALE -->
-    <div id="app-screen" class="hidden min-h-screen flex flex-col">
-        <header class="bg-navy-900 text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
-            <div class="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md">
-                        <i class="fa-solid fa-ship text-lg text-white"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-extrabold text-base sm:text-lg tracking-tight leading-tight">GEO SUIVI TRANSIT</h1>
-                        <p class="text-[11px] text-blue-300 hidden sm:block">Suivi Intégral • Enregistrement, Douane, Manutention & Corridor</p>
-                    </div>
-                </div>
+  <!-- APPLICATION PRINCIPALE -->
+  <div id="appScreen">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand-title">🚢 GEO SUIVI TRANSIT</div>
+        <div class="user-badge">
+          <span id="currentUserLabel">Utilisateur</span>
+          <span id="currentRolesLabel" style="opacity:0.85;"></span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button onclick="openDduBillingModal()" class="primary">🧾 Facturation DDU</button>
+        <button onclick="exportBulkBordereauPdf()">📄 Bordereau PDF (Groupé)</button>
+        <button id="btnAdminPanel" onclick="openAdminModal()" style="display:none;">🛡️ Administration</button>
+        <button onclick="openSettingsModal()">⚙️ Paramètres</button>
+        <button onclick="logout()" class="danger sm">Déconnexion</button>
+      </div>
+    </header>
 
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <div class="hidden md:flex items-center gap-2 bg-navy-800 px-3 py-1.5 rounded-xl border border-slate-700 text-xs">
-                        <div id="header-avatar-badge" class="w-6 h-6 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center text-[11px] border border-blue-400">A</div>
-                        <span class="text-slate-300">Rôle :</span>
-                        <strong id="header-role-badge" class="text-white font-semibold">Administrateur</strong>
-                        <span id="header-status-badge" class="hidden ml-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[10px] font-bold"></span>
-                    </div>
+    <main class="container">
+      <!-- KPIs -->
+      <div class="kpis" id="kpiContainer"></div>
 
-                    <button type="button" onclick="openSettingsModal()" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition cursor-pointer">
-                        <i class="fa-solid fa-sliders text-blue-400"></i>
-                        <span>PROFIL / PARAMÈTRES / RÉGLAGES</span>
-                    </button>
-
-                    <button type="button" onclick="logout()" title="Déconnexion" class="bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/30 p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span class="hidden lg:inline">Quitter</span>
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- BANDEAU D'ALERTE ROUGE CLIGNOTANT -->
-        <div id="urgent-alert-banner" class="animate-urgent-blink text-white border-b-2 border-red-950 shadow-md">
-            <div class="max-w-[1440px] mx-auto px-4 py-2.5 flex flex-col lg:flex-row items-center justify-between gap-2">
-                <div class="flex items-center gap-2 shrink-0 bg-red-950/60 px-3 py-1 rounded-lg border border-red-400/40">
-                    <i class="fa-solid fa-triangle-exclamation text-yellow-300 animate-bounce"></i>
-                    <span class="text-xs font-extrabold uppercase tracking-wider">Dossiers en Souffrance & Alerte &lt; 72H</span>
-                </div>
-                <div class="marquee-container flex-1 w-full py-0.5 text-xs sm:text-sm font-bold tracking-wide">
-                    <div id="urgent-marquee-text" class="marquee-content">Chargement des alertes urgentes en cours...</div>
-                </div>
-                <button type="button" onclick="openWhatsAppAlertModal()" class="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition border border-emerald-400/40 cursor-pointer">
-                    <i class="fa-brands fa-whatsapp text-base"></i>
-                    <span>Alerter WhatsApp</span>
-                </button>
-            </div>
+      <!-- Barre d'outils et filtres -->
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <input type="text" id="searchInput" placeholder="Rechercher répertoire, BL, client, navire..." oninput="renderDossiers()" />
+          <select id="circuitFilter" onchange="renderDossiers()">
+            <option value="TOUS">Tous les circuits</option>
+            <option value="ROUGE">Rouge (Circuit / Douane)</option>
+            <option value="VERT">Vert (Circuit normal)</option>
+            <option value="BLEU">Bleu (Dépotage / CFS)</option>
+            <option value="JAUNE">Jaune (En attente)</option>
+          </select>
+          <label style="display:inline-flex; align-items:center; gap:5px; font-size:13px; cursor:pointer;">
+            <input type="checkbox" id="dduOnlyFilter" style="width:auto;" onchange="renderDossiers()" />
+            DDU uniquement
+          </label>
         </div>
 
-        <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-            <!-- STATISTIQUES -->
-            <section class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-                <div onclick="filterByColor('ALL')" class="cursor-pointer bg-white p-4 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 transition flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-slate-500 uppercase">Total Dossiers</p>
-                        <p id="stat-total" class="text-2xl font-extrabold text-slate-900 mt-1">0</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-lg"><i class="fa-solid fa-folder-open"></i></div>
-                </div>
-                <div onclick="filterByColor('RED')" class="cursor-pointer bg-red-50 p-4 rounded-2xl shadow-sm border border-red-200 hover:border-red-500 transition flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-red-700 uppercase">Rouge (Urgent / Validé)</p>
-                        <p id="stat-red" class="text-2xl font-extrabold text-red-800 mt-1">0</p>
-                        <p class="text-[10px] text-red-600 mt-0.5">&lt;72h exp. / Souffrance / Prêt</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-bell"></i></div>
-                </div>
-                <div onclick="filterByColor('GREEN')" class="cursor-pointer bg-emerald-50 p-4 rounded-2xl shadow-sm border border-emerald-200 hover:border-emerald-500 transition flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-emerald-700 uppercase">Vert (Circuit Normal)</p>
-                        <p id="stat-green" class="text-2xl font-extrabold text-emerald-800 mt-1">0</p>
-                        <p class="text-[10px] text-emerald-600 mt-0.5">En cours sans blocage</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-route"></i></div>
-                </div>
-                <div onclick="filterByColor('BLUE')" class="cursor-pointer bg-blue-50 p-4 rounded-2xl shadow-sm border border-blue-200 hover:border-blue-500 transition flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-blue-700 uppercase">Bleu (Dépotage / Palan)</p>
-                        <p id="stat-blue" class="text-2xl font-extrabold text-blue-800 mt-1">0</p>
-                        <p class="text-[10px] text-blue-600 mt-0.5">Dépotage CFS / Sous palan</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-boxes-stacked"></i></div>
-                </div>
-                <div onclick="filterByColor('YELLOW')" class="cursor-pointer col-span-2 lg:col-span-1 bg-amber-50 p-4 rounded-2xl shadow-sm border border-amber-200 hover:border-amber-500 transition flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-amber-700 uppercase">Jaune (Sans Mouvement)</p>
-                        <p id="stat-yellow" class="text-2xl font-extrabold text-amber-800 mt-1">0</p>
-                        <p class="text-[10px] text-amber-600 mt-0.5">Créés, en attente d'action</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-clock"></i></div>
-                </div>
-            </section>
-
-            <!-- RECHERCHE & CRÉATION -->
-            <section class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-                <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-                    <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2.5 flex-1">
-                        <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0 overflow-x-auto">
-                            <button type="button" onclick="setSearchCriterion('ALL')" data-crit="ALL" class="crit-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-navy-900 text-white cursor-pointer">TOUT</button>
-                            <button type="button" onclick="setSearchCriterion('REP')" data-crit="REP" class="crit-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">RÉPERTOIRE</button>
-                            <button type="button" onclick="setSearchCriterion('BL')" data-crit="BL" class="crit-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">BL</button>
-                            <button type="button" onclick="setSearchCriterion('TC')" data-crit="TC" class="crit-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">TC</button>
-                            <button type="button" onclick="setSearchCriterion('T1')" data-crit="T1" class="crit-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">T1</button>
-                        </div>
-
-                        <div class="relative flex-1">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-                            <input type="text" id="search-input" oninput="renderTable()" placeholder="Rechercher par Répertoire (GEO0001), BL, N° TC ou N° T1..."
-                                   class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-600 outline-none">
-                        </div>
-
-                        <div class="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5">
-                            <i class="fa-regular fa-calendar text-slate-500 text-sm"></i>
-                            <input type="date" id="date-filter" onchange="renderTable()" class="bg-transparent text-xs font-medium text-slate-700 outline-none">
-                            <button type="button" onclick="clearDateFilter()" id="clear-date-btn" class="hidden text-slate-400 hover:text-red-600 text-xs cursor-pointer">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="button" onclick="openCreateModal()" class="w-full xl:w-auto bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-extrabold text-sm px-5 py-3 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition cursor-pointer">
-                        <i class="fa-solid fa-folder-plus text-base"></i>
-                        <span>+ CRÉER UN NOUVEAU DOSSIER</span>
-                    </button>
-                </div>
-
-                <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="font-bold text-slate-500 uppercase mr-1">Code Couleur Lignes :</span>
-                        <button type="button" onclick="filterByColor('ALL')" data-color="ALL" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-slate-800 text-white cursor-pointer">Tous</button>
-                        <button type="button" onclick="filterByColor('RED')" data-color="RED" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-red-100 text-red-800 border border-red-300 cursor-pointer">🔴 Rouge</button>
-                        <button type="button" onclick="filterByColor('GREEN')" data-color="GREEN" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 cursor-pointer">🟢 Vert</button>
-                        <button type="button" onclick="filterByColor('BLUE')" data-color="BLUE" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-blue-100 text-blue-800 border border-blue-300 cursor-pointer">🔵 Bleu</button>
-                        <button type="button" onclick="filterByColor('YELLOW')" data-color="YELLOW" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300 cursor-pointer">🟡 Jaune</button>
-                    </div>
-                    <div class="text-slate-500 flex flex-wrap items-center gap-2">
-                        <button type="button" onclick="sendInvoiceEmailForFiltered()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-envelope"></i>
-                            <span>Envoyer Facture (k)</span>
-                        </button>
-                        <button type="button" onclick="downloadBulkBordereaux()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-file-zipper"></i>
-                            <span>Export Groupé Bordereaux</span>
-                        </button>
-                        <span>Affichage : <strong id="visible-count" class="text-slate-800">0</strong> dossier(s)</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TABLEAU DES DOSSIERS -->
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-navy-900 text-white text-xs uppercase tracking-wider">
-                                <th class="py-3.5 px-4 font-bold">REP.</th>
-                                <th class="py-3.5 px-4 font-bold">BL</th>
-                                <th class="py-3.5 px-4 font-bold">NOM DU CLIENT</th>
-                                <th class="py-3.5 px-4 font-bold">N/BRE TC</th>
-                                <th class="py-3.5 px-4 font-bold">NAVIRE</th>
-                                <th class="py-3.5 px-4 font-bold">DESTINATION</th>
-                                <th class="py-3.5 px-4 font-bold">STATUT / ÉTAPE</th>
-                                <th class="py-3.5 px-4 font-bold text-right">VOIR DÉTAILS DU DOSSIER</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dossiers-table-body" class="divide-y divide-slate-200 text-sm"></tbody>
-                    </table>
-                </div>
-                <div id="empty-state" class="hidden p-12 text-center">
-                    <h3 class="text-base font-bold text-slate-800">Aucun dossier trouvé</h3>
-                    <p class="text-xs text-slate-500 mt-1">Modifiez vos filtres ou créez un nouveau dossier.</p>
-                </div>
-            </section>
-        </main>
-
-        <footer class="bg-white border-t border-slate-200 py-4 px-4 sm:px-6 mt-8">
-            <div class="max-w-[1440px] mx-auto flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
-                <div><strong class="text-navy-900">GEO SUIVI TRANSIT</strong> • Ordre : Enregistrement → DDU/Échange → Manutention → Passation → Enlèvement → Sortie & Retour Vide</div>
-                <div>Créateur : <strong class="text-navy-900">LEBDE Isaac</strong></div>
-            </div>
-        </footer>
-    </div>
-
-    <!-- MODALE CRÉATION DOSSIER -->
-    <div id="create-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 my-8">
-            <div class="bg-navy-900 text-white px-6 py-4 flex items-center justify-between">
-                <div>
-                    <h2 class="text-lg font-extrabold tracking-tight">CRÉATION D'UN NOUVEAU DOSSIER</h2>
-                    <p class="text-xs text-blue-300">Étape I : Enregistrement initial</p>
-                </div>
-                <button type="button" onclick="closeCreateModal()" class="text-slate-300 hover:text-white p-2 rounded-lg cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-
-            <form id="create-dossier-form" onsubmit="submitCreateDossier(event)" class="p-6 space-y-5 max-h-[82vh] overflow-y-auto">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <div>
-                        <label class="block text-xs font-extrabold uppercase text-blue-700 mb-1">N° Répertoire</label>
-                        <input type="text" id="create-rep" readonly class="w-full px-3 py-2.5 bg-blue-100/70 border border-blue-300 rounded-xl text-sm font-extrabold text-navy-900">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">BL *</label>
-                        <input type="text" id="create-bl" required placeholder="Ex: LOM40231" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold uppercase">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Nombre de TCs *</label>
-                        <input type="number" id="create-nb-tc" min="1" max="30" value="2" required oninput="generateTcFields()" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-700">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Type à Sélectionner *</label>
-                        <select id="create-tc-type" required class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
-                            <option value="40'">40'</option>
-                            <option value="20'">20'</option>
-                            <option value="40' HC">40' HC</option>
-                            <option value="RORO">RORO</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Nom du Client *</label>
-                        <input type="text" id="create-client" required placeholder="Ex: STE DG" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold uppercase">
-                    </div>
-                </div>
-
-                <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-200">
-                    <div class="flex items-center justify-between mb-2">
-                        <label class="text-xs font-extrabold uppercase text-navy-900">Numéros de Conteneurs (Collage multi-TC automatique)</label>
-                        <span id="tc-counter-badge" class="text-xs font-bold bg-blue-600 text-white px-2.5 py-0.5 rounded-full">2 champs</span>
-                    </div>
-                    <div id="dynamic-tc-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Poids Brut *</label>
-                        <input type="text" id="create-poids" required placeholder="Ex: 48 500 KG" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Quantité Totale *</label>
-                        <input type="text" id="create-quantite" required placeholder="Ex: 1 250 Colis" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Désignation *</label>
-                        <input type="text" id="create-designation" required placeholder="Ex: Marchandise générale" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Pays d'Origine *</label>
-                        <input type="text" id="create-origine" required placeholder="Ex: CHINE" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm uppercase">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Pays de Destination *</label>
-                        <input type="text" id="create-destination" required placeholder="Ex: OUAGA BF" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm uppercase">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Type de Dépotage *</label>
-                        <select id="create-depotage" required class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
-                            <option value="Sur camion (SC)">Sur camion (SC)</option>
-                            <option value="Dépotage CFS">Dépotage CFS</option>
-                            <option value="Sous palan">Sous palan</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Nom du Navire *</label>
-                        <input type="text" id="create-navire" required placeholder="Ex: MSC LOME" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold uppercase">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Date d'Arrivée *</label>
-                        <input type="date" id="create-date-arrivee" required class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
-                    <button type="button" onclick="closeCreateModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">Annuler</button>
-                    <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-extrabold bg-blue-600 hover:bg-blue-700 text-white shadow-lg cursor-pointer">ENREGISTRER LE DOSSIER</button>
-                </div>
-            </form>
+        <div class="toolbar-group">
+          <button onclick="openDossierModal()" class="primary">+ Nouveau Dossier</button>
         </div>
-    </div>
+      </div>
 
-    <!-- MODALE DÉTAILS DOSSIER -->
-    <div id="detail-modal" class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-5">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
-            <div id="detail-modal-header" class="bg-navy-900 text-white px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 shrink-0">
-                <div class="min-w-0">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span id="detail-rep-badge" class="bg-blue-600 text-white font-extrabold px-2.5 py-0.5 rounded-lg text-xs sm:text-sm">GEO0001</span>
-                        <h2 id="detail-title" class="text-sm sm:text-lg font-extrabold truncate">BL</h2>
-                        <span id="detail-color-pill" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase bg-white text-slate-900">STATUT</span>
-                    </div>
-                    <p id="detail-subtitle" class="text-[11px] sm:text-xs text-slate-300 mt-1 truncate">Navire • Destination</p>
-                </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    <button type="button" onclick="downloadDossierBordereau()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-file-arrow-down text-base"></i>
-                        <span class="hidden sm:inline">Télécharger Bordereau</span>
-                    </button>
-                    <button type="button" onclick="sendInvoiceEmailForDossier()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-envelope text-base"></i>
-                        <span class="hidden sm:inline">Envoyer Facture</span>
-                    </button>
-                    <button type="button" onclick="sendSingleDossierWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-brands fa-whatsapp text-base"></i>
-                        <span class="hidden sm:inline">Alerte WhatsApp</span>
-                    </button>
-                    <button type="button" onclick="closeDetailModal()" aria-label="Fermer" class="bg-red-600 hover:bg-red-700 text-white w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer">
-                        <i class="fa-solid fa-xmark text-xl"></i>
-                    </button>
-                </div>
+      <!-- Tableau des dossiers -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:36px;"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)" /></th>
+              <th>Répertoire</th>
+              <th>N° BL</th>
+              <th>Client</th>
+              <th>Navire / Destination</th>
+              <th>DDU</th>
+              <th>Statut / Étape</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="dossiersTableBody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL DOSSIER (CRÉATION / ÉDITION / BORDEREAU) -->
+  <div id="dossierModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="dossierModalTitle">Dossier</h2>
+        <button onclick="closeModal('dossierModal')" class="sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editDossierId" />
+
+        <div class="section-box">
+          <h3>Informations générales</h3>
+          <div class="grid-2">
+            <div class="field">
+              <label>N° Répertoire</label>
+              <input type="text" id="fRepertoire" placeholder="Ex: GEO00001" />
             </div>
-
-            <div class="p-4 sm:p-6 flex-1 overflow-y-auto space-y-6" id="detail-modal-body"></div>
-
-            <div class="bg-slate-50 border-t border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 shrink-0">
-                <span class="text-[11px] font-semibold text-slate-500"><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Sauvegarde automatique</span>
-                <button type="button" onclick="closeDetailModal()" class="bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer">Fermer le dossier</button>
+            <div class="field">
+              <label>N° Bill of Lading (BL)</label>
+              <input type="text" id="fBl" placeholder="Ex: LOM40231" />
             </div>
+            <div class="field">
+              <label>Client / Importateur</label>
+              <input type="text" id="fClient" placeholder="Nom du client" />
+            </div>
+            <div class="field">
+              <label>Navire</label>
+              <input type="text" id="fNavire" placeholder="Ex: MSC LOME" />
+            </div>
+            <div class="field">
+              <label>Destination</label>
+              <input type="text" id="fDestination" placeholder="Ex: OUAGA BF / LOMÉ" />
+            </div>
+            <div class="field">
+              <label>Circuit</label>
+              <select id="fCircuit">
+                <option value="VERT">VERT</option>
+                <option value="ROUGE">ROUGE</option>
+                <option value="BLEU">BLEU</option>
+                <option value="JAUNE">JAUNE</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Statut actuel</label>
+              <input type="text" id="fStatut" placeholder="Ex: En transit / Dépotage CFS" />
+            </div>
+            <div class="field">
+              <label>Régime DDU</label>
+              <select id="fIsDdu">
+                <option value="true">Oui (DDU facturable)</option>
+                <option value="false">Non</option>
+              </select>
+            </div>
+          </div>
         </div>
-    </div>
 
-    <!-- MODALE PROFIL / PARAMÈTRES / RÉGLAGES -->
-    <div id="settings-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm p-4 flex items-center justify-center">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 my-8">
-            <div class="bg-navy-900 text-white px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <i class="fa-solid fa-sliders text-blue-400 text-lg"></i>
-                    <h3 class="font-extrabold text-base">PROFIL / PARAMÈTRES / RÉGLAGES</h3>
-                </div>
-                <button type="button" onclick="closeSettingsModal()" class="text-slate-300 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-
-            <div class="p-6 space-y-5 max-h-[82vh] overflow-y-auto">
-                <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200 space-y-4">
-                    <h4 class="text-xs font-extrabold uppercase text-navy-900 flex items-center justify-between">
-                        <span><i class="fa-solid fa-user-gear text-blue-600 mr-1.5"></i> Mon Profil Connecté</span>
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Rôle attribué par Admin</span>
-                    </h4>
-                    <div class="flex flex-col sm:flex-row items-center gap-4">
-                        <div class="flex flex-col items-center gap-2 shrink-0">
-                            <div id="profile-avatar-box" class="w-20 h-20 rounded-2xl bg-navy-900 text-white font-extrabold text-2xl flex items-center justify-center border-2 border-blue-500 overflow-hidden">
-                                <span id="profile-avatar-initials">AD</span>
-                                <img id="profile-avatar-preview" src="" alt="Photo de profil" class="hidden w-full h-full object-cover">
-                            </div>
-                            <button type="button" onclick="document.getElementById('profile-photo-input').click()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg cursor-pointer">
-                                <i class="fa-solid fa-camera mr-1"></i> Photo de profil
-                            </button>
-                            <input type="file" id="profile-photo-input" accept="image/*" class="hidden" onchange="handleProfilePhotoChange(this)">
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 w-full">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Identifiant</label>
-                                <input type="text" id="set-username" disabled class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl text-sm font-semibold text-slate-700">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Rôles Attribués</label>
-                                <input type="text" id="set-role-display" disabled class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl text-sm font-bold text-navy-900">
-                            </div>
-                            <div class="sm:col-span-2">
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Nouveau Mot de Passe</label>
-                                <input type="password" id="set-new-password" placeholder="Laisser vide pour conserver le mot de passe actuel" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2 pt-2 border-t border-blue-200/70">
-                        <label class="block text-xs font-bold text-slate-700">Message de statut / disponibilité</label>
-                        <div class="flex flex-wrap gap-1.5">
-                            <button type="button" onclick="setQuickStatusMessage('Disponible')" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 text-[11px] font-bold cursor-pointer">Disponible</button>
-                            <button type="button" onclick="setQuickStatusMessage('En congé')" class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 text-[11px] font-bold cursor-pointer">En congé</button>
-                            <button type="button" onclick="setQuickStatusMessage('En mission au port')" class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-900 text-[11px] font-bold cursor-pointer">En mission au port</button>
-                        </div>
-                        <input type="text" id="set-status-message" placeholder="Ex: En congé, En mission..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm">
-                    </div>
-                </div>
-
-                <!-- PANEL ADMIN EXCLUSIF -->
-                <div id="admin-accounts-panel" class="hidden bg-indigo-50/70 p-4 rounded-xl border-2 border-indigo-200 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h4 class="text-xs font-extrabold uppercase text-indigo-950"><i class="fa-solid fa-users-gear text-indigo-600 mr-1.5"></i> Administration : Comptes & Multi-Rôles</h4>
-                        <span class="text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-full">ADMIN UNIQUEMENT</span>
-                    </div>
-
-                    <form id="create-account-form" onsubmit="handleCreateAccount(event)" class="bg-white p-3.5 rounded-xl border border-indigo-200 grid grid-cols-1 sm:grid-cols-4 gap-2.5 items-end">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Identifiant</label>
-                            <input type="text" id="new-acc-username" required placeholder="ex: agent.t1" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Mot de passe</label>
-                            <input type="text" id="new-acc-password" required placeholder="ex: pass123" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Profil Principal</label>
-                            <select id="new-acc-role" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold">
-                                <option value="ENREGISTREMENT">I. Agent Enregistrement</option>
-                                <option value="ECHANGE">II. Agent Échange</option>
-                                <option value="MANUTENTION">III. Le Manutentionnaire</option>
-                                <option value="PASSATION_ENLEVEMENT">IV. Passation & Enlèvement</option>
-                                <option value="DDU_T1">V. Agent DDU & T1</option>
-                                <option value="SUPERVISEUR">👑 Superviseur</option>
-                                <option value="ADMIN">🛡️ Administrateur</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs py-2 px-3 rounded-lg cursor-pointer">
-                            <i class="fa-solid fa-user-plus mr-1"></i> Créer Compte
-                        </button>
-                    </form>
-
-                    <div id="accounts-list-container" class="space-y-2 max-h-56 overflow-y-auto"></div>
-
-                    <div id="connected-agents-box" class="bg-white p-3.5 rounded-xl border border-indigo-200 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-extrabold uppercase text-indigo-950"><i class="fa-solid fa-circle-dot text-emerald-500 mr-1.5"></i> Agents Connectés & Sessions Actives</span>
-                            <span id="connected-agents-count" class="text-[11px] font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full">0 connecté(s)</span>
-                        </div>
-                        <div id="connected-agents-list" class="space-y-1.5 text-xs"></div>
-                    </div>
-                </div>
-
-                <!-- FACTURATION DDU & ADRESSE K -->
-                <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 space-y-3">
-                    <h4 class="text-xs font-extrabold uppercase text-amber-950"><i class="fa-solid fa-file-invoice-dollar text-amber-700 mr-1.5"></i> Facturation par DDU & Envoi Facture (Adresse K)</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Tarif par DDU</label>
-                            <input type="number" id="set-ddu-rate" min="0" step="100" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold text-amber-900">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Devise</label>
-                            <input type="text" id="set-ddu-currency" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold uppercase">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Adresse E-mail (k)</label>
-                            <input type="email" id="set-invoice-email-k" placeholder="k@geosuvitransit.tg" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SEUILS & WHATSAPP -->
-                <div class="bg-red-50/60 p-4 rounded-xl border border-red-200 space-y-3">
-                    <h4 class="text-xs font-extrabold uppercase text-red-900">Règles d'Alerte Souffrance & Expiration</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Enregistrement sans action (Jours)</label>
-                            <input type="number" id="set-days-unprocessed" min="1" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold text-red-700">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">T1 sans apurement (Jours)</label>
-                            <input type="number" id="set-days-t1" min="1" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold text-red-700">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Expiration (Heures)</label>
-                            <input type="number" id="set-hours-exp" min="1" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold text-red-700">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200 space-y-3">
-                    <h4 class="text-xs font-extrabold uppercase text-emerald-900">Numéros WhatsApp d'Alerte</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Service (Expéditeur)</label>
-                            <input type="text" id="set-wa-sender" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Destinataire 1</label>
-                            <input type="text" id="set-wa-dest1" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Destinataire 2</label>
-                            <input type="text" id="set-wa-dest2" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-200">
-                    <button type="button" onclick="resetDemoData()" class="text-xs font-bold text-red-600 hover:underline cursor-pointer">Réinitialiser les dossiers démo</button>
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">Annuler</button>
-                        <button type="button" onclick="saveSettings()" class="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-blue-600 hover:bg-blue-700 text-white shadow cursor-pointer">Enregistrer</button>
-                    </div>
-                </div>
-            </div>
+        <div class="section-box">
+          <h3>Conteneurs (collage rapide accepté)</h3>
+          <div class="field">
+            <label>Liste des conteneurs (un par ligne, ou séparés par virgule/espace)</label>
+            <textarea id="fContainersPaste" rows="2" placeholder="Ex: MSCU1234567&#10;CMAU9876543" oninput="syncContainersFromPaste()"></textarea>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Conteneurs normalisés</label>
+            <input type="text" id="fContainersNormalized" placeholder="MSCU1234567, CMAU9876543" />
+          </div>
         </div>
+
+        <div class="section-box" style="margin-bottom:0;">
+          <h3>Points / Étapes d'avancement (PO / Milestones)</h3>
+          <div class="field">
+            <label>Points de suivi et observations (sans données de facturation sur le bordereau)</label>
+            <textarea id="fPoints" rows="3" placeholder="Ex:&#10;- Arrivée navire et BAD récupéré&#10;- Déclaration validée&#10;- Enlèvement / Transport vers destination"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="printSingleBordereauPdf()">📄 Télécharger / Imprimer Bordereau PDF</button>
+        <button onclick="closeModal('dossierModal')">Annuler</button>
+        <button onclick="saveDossier()" class="primary">Enregistrer le dossier</button>
+      </div>
     </div>
+  </div>
 
-    <!-- MODALE WHATSAPP -->
-    <div id="whatsapp-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm p-4 flex items-center justify-center">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
-        function sendInvoiceEmailForDossier(targetDossier = null) {
-            const d = targetDossier || dossiers.find(x => x.id === activeDetailDossierId);
-            if (!d) return;
-            const inv = computeDduInvoiceAmount(d);
-            const targetEmail = (settings.invoiceEmailK || 'k@geosuvitransit.tg').trim();
-            const subject = `Facture DDU - Dossier ${d.rep} (BL ${d.bl} - ${d.client})`;
-            const body = [
-                `Bonjour,`,
-                `Veuillez trouver ci-dessous les informations de facturation DDU pour le dossier ${d.rep} :`,
-                `- BL : ${d.bl}`,
-                `- Client : ${d.client}`,
-                `- Navire : ${d.navire} | Destination : ${d.destination}`,
-                `- N° DDU : ${d.dduT1?.dduNumber || 'Non renseigné'}`,
-                `- Nombre de DDU : ${inv.count}`,
-                `- Tarif unitaire par DDU : ${formatMoney(inv.rate, inv.currency)}`,
-                `- Montant total facturé : ${formatMoney(inv.total, inv.currency)}`,
-                `Cordialement, GEO SUIVI TRANSIT.`
-            ].join('\n');
+  <!-- MODAL FACTURATION DDU (PLAGE RÉPERTOIRE A -> X & TRANSMISSION STE GEO) -->
+  <div id="billingModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>🧾 Facturation DDU par Plage de Répertoires (STE GEO)</h2>
+        <button onclick="closeModal('billingModal')" class="sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="section-box">
+          <h3>Filtrage par numéro de répertoire (De A à X)</h3>
+          <div class="grid-2">
+            <div class="field">
+              <label>Répertoire de début (A)</label>
+              <input type="text" id="billRepStart" placeholder="Ex: GEO00001" oninput="computeDduInvoice()" />
+            </div>
+            <div class="field">
+              <label>Répertoire de fin (X)</label>
+              <input type="text" id="billRepEnd" placeholder="Ex: GEO00010" oninput="computeDduInvoice()" />
+            </div>
+            <div class="field">
+              <label>Tarif unitaire par DDU</label>
+              <input type="number" id="billUnitPrice" value="10000" min="0" step="100" oninput="computeDduInvoice()" />
+            </div>
+            <div class="field">
+              <label>Adresse destinataire STE GEO (k)</label>
+              <input type="email" id="billRecipientEmail" oninput="computeDduInvoice()" />
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="sm" onclick="prefillRangeFromDossiers()">Remplir min → max automatiquement</button>
+            <button type="button" class="sm" onclick="computeDduInvoice()">Calculer la facture</button>
+          </div>
+        </div>
 
-            d.dduT1 = d.dduT1 || {};
-            d.dduT1.invoiceSent = true;
-            d.dduT1.invoiceSentAt = new Date().toISOString();
-            saveDossiers();
+        <div id="invoicePreviewBox" class="invoice-preview"></div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="printInvoicePdf()">🖨️ Imprimer / Enregistrer Facture PDF</button>
+        <button onclick="sendInvoiceToGeo()" class="success">✉️ Transmettre Facture à STE GEO</button>
+        <button onclick="closeModal('billingModal')">Fermer</button>
+      </div>
+    </div>
+  </div>
 
-            const mailtoUrl = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.open(mailtoUrl, '_blank', 'noopener');
-            if (activeDetailDossierId === d.id) openDetailModal(d.id);
-            showToast(`Facture (${formatMoney(inv.total, inv.currency)}) préparée pour envoi à ${targetEmail}.`, 'success');
+  <!-- MODAL ADMINISTRATION (AGENTS CONNECTÉS & RÔLES) -->
+  <div id="adminModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>🛡️ Administration — Agents Connectés & Rôles</h2>
+        <button onclick="closeModal('adminModal')" class="sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="section-box">
+          <h3>Agents & Sessions actives</h3>
+          <div class="table-wrap" style="box-shadow:none;">
+            <table style="min-width:560px;">
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>Identifiant</th>
+                  <th>Rôles</th>
+                  <th>État</th>
+                  <th>Dernière activité</th>
+                </tr>
+              </thead>
+              <tbody id="adminSessionsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section-box" style="margin-bottom:0;">
+          <h3>Gestion multi-rôles des agents</h3>
+          <div id="adminUsersList"></div>
+          <hr style="border:none; border-top:1px solid var(--border); margin:14px 0;" />
+          <div class="grid-2">
+            <div class="field">
+              <label>Nom complet nouvel agent</label>
+              <input type="text" id="newAgentName" placeholder="Ex: Koffi Mensah" />
+            </div>
+            <div class="field">
+              <label>Identifiant de connexion</label>
+              <input type="text" id="newAgentUser" placeholder="Ex: koffi" />
+            </div>
+            <div class="field">
+              <label>Mot de passe</label>
+              <input type="text" id="newAgentPass" placeholder="Ex: pass123" />
+            </div>
+            <div class="field">
+              <label>Rôles attribués</label>
+              <div class="role-grid" id="newAgentRoles"></div>
+            </div>
+          </div>
+          <button onclick="createNewAgent()" class="primary sm">Ajouter l'agent</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeModal('adminModal')">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PARAMÈTRES -->
+  <div id="settingsModal" class="modal-backdrop">
+    <div class="modal" style="max-width:520px;">
+      <div class="modal-header">
+        <h2>⚙️ Paramètres GEO SUIVI TRANSIT</h2>
+        <button onclick="closeModal('settingsModal')" class="sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Adresse e-mail STE GEO (k)</label>
+          <input type="email" id="settingEmailK" placeholder="k@geosuvitransit.tg" />
+        </div>
+        <div class="field">
+          <label>Tarif par défaut par DDU</label>
+          <input type="number" id="settingDefaultDduPrice" min="0" step="100" />
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Devise affichée</label>
+          <input type="text" id="settingCurrency" placeholder="FCFA" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeModal('settingsModal')">Annuler</button>
+        <button onclick="saveSettings()" class="primary">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE D'IMPRESSION / EXPORT PDF -->
+  <div id="printArea"></div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V1";
+    const AVAILABLE_ROLES = ["ADMIN", "SUPERVISEUR", "AGENT_DDU_T1", "AGENT_TRANSIT", "AGENT_EXPLOITATION"];
+
+    const DEFAULT_STATE = {
+      settings: {
+        emailK: "k@geosuvitransit.tg",
+        dduUnitPrice: 10000,
+        currency: "FCFA"
+      },
+      users: [
+        {
+          id: "u_admin",
+          name: "Administrateur Système",
+          username: "admin",
+          passwordHash: btoa("admin123"),
+          roles: ["ADMIN"],
+          online: false,
+          lastSeen: "Jamais connecté"
+        },
+        {
+          id: "u_esta",
+          name: "ESTA",
+          username: "esta",
+          passwordHash: btoa("esta123"),
+          roles: ["AGENT_DDU_T1"],
+          online: false,
+          lastSeen: "Jamais connecté"
+        },
+        {
+          id: "u_sup",
+          name: "Superviseur Transit",
+          username: "superviseur",
+          passwordHash: btoa("sup123"),
+          roles: ["SUPERVISEUR"],
+          online: false,
+          lastSeen: "Jamais connecté"
         }
-
-        function sendInvoiceEmailForFiltered() {
-            const list = currentFilteredDossiers.length ? currentFilteredDossiers : dossiers;
-            if (!list.length) {
-                showToast('Aucun dossier disponible pour envoyer la facture.', 'error');
-                return;
-            }
-            if (list.length === 1) {
-                sendInvoiceEmailForDossier(list[0]);
-                return;
-            }
-            const targetEmail = (settings.invoiceEmailK || 'k@geosuvitransit.tg').trim();
-            const rate = Math.max(0, Number(settings.dduRate ?? 10000));
-            const currency = settings.dduCurrency || 'FCFA';
-            let totalCount = 0;
-            let totalAmount = 0;
-
-            const lines = list.map(d => {
-                const inv = computeDduInvoiceAmount(d);
-                totalCount += inv.count;
-                totalAmount += inv.total;
-                return `- ${d.rep} | BL ${d.bl} | Client ${d.client} | ${inv.count} DDU × ${formatMoney(inv.rate, inv.currency)} = ${formatMoney(inv.total, inv.currency)}`;
-            });
-
-            const subject = `Facture Globale DDU - GEO SUIVI TRANSIT (${list.length} dossier(s))`;
-            const body = [
-                'Bonjour,',
-                `Récapitulatif de facturation DDU (${formatMoney(rate, currency)} par DDU) :`,
-                ...lines,
-                `Total DDU : ${totalCount} | Montant global : ${formatMoney(totalAmount, currency)}`,
-                'Cordialement, GEO SUIVI TRANSIT.'
-            ].join('\n');
-
-            const mailtoUrl = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.open(mailtoUrl, '_blank', 'noopener');
-            showToast(`Facture globale (${formatMoney(totalAmount, currency)}) préparée pour ${targetEmail}.`, 'success');
+      ],
+      dossiers: [
+        {
+          id: "d1",
+          repertoire: "GEO00001",
+          bl: "LOM40231",
+          client: "STE LOG",
+          navire: "MSC LOME",
+          destination: "OUAGA BF",
+          circuit: "ROUGE",
+          statut: "Alerte < 72h - Douane",
+          isDdu: true,
+          containers: ["MSCU4512091", "MSCU8841203"],
+          points: "- Arrivée navire à Lomé\n- BAD émis\n- Contrôle documentaire en cours"
+        },
+        {
+          id: "d2",
+          repertoire: "GEO00002",
+          bl: "LOM55891",
+          client: "FASO IMPORT SARL",
+          navire: "CMA CGM AFRICA",
+          destination: "NIAMEY NE",
+          circuit: "BLEU",
+          statut: "Dépotage CFS",
+          isDdu: true,
+          containers: ["CMAU3019942"],
+          points: "- Transfert CFS effectué\n- Dépotage programmé\n- Préparation expédition route"
+        },
+        {
+          id: "d3",
+          repertoire: "GEO00003",
+          bl: "LOM60122",
+          client: "TRANSIT SAHL",
+          navire: "MAERSK KENSINGTON",
+          destination: "BAMAKO ML",
+          circuit: "JAUNE",
+          statut: "En attente validation",
+          isDdu: false,
+          containers: ["MRKU7721004"],
+          points: "- Dossier créé\n- En attente confirmation pièces client"
+        },
+        {
+          id: "d4",
+          repertoire: "GEO00004",
+          bl: "MEDU4987822",
+          client: "STE APECME MOTO BF",
+          navire: "MSC BETTINA",
+          destination: "OUAGA BF",
+          circuit: "VERT",
+          statut: "Circuit normal",
+          isDdu: true,
+          containers: ["MSCU1190442", "MSCU5501928"],
+          points: "- Circuit vert validé\n- Mise sur camion planifiée"
         }
-
-        function formatRolesLabel(userObj = session) {
-            const roles = getUserRoles(userObj);
-            if (!roles.length) return 'Aucun rôle';
-            return roles.map(r => ROLE_LABELS[r] || r).join(' + ');
-        }
-
-        function hasRolePermission(requiredRoles) {
-            const roles = getUserRoles(session);
-            if (roles.includes('ADMIN') || roles.includes('SUPERVISEUR')) return true;
-            return requiredRoles.some(r => roles.includes(r));
-        }
-
-        function isAdminUser() {
-            const roles = getUserRoles(session);
-            return roles.includes('ADMIN') || roles.includes('SUPERVISEUR');
-        }
-
-        function getDefaultAccounts() {
-            return [
-                { id: 'acc-admin', username: 'admin', password: 'admin123', role: 'ADMIN', roles: ['ADMIN'], avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-sup', username: 'superviseur', password: '123', role: 'SUPERVISEUR', roles: ['SUPERVISEUR'], avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-reg', username: 'agent.enregistrement', password: '123', role: 'ENREGISTREMENT', roles: ['ENREGISTREMENT'], avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-ech', username: 'agent.echange', password: '123', role: 'ECHANGE', roles: ['ECHANGE'], avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-man', username: 'manutentionnaire', password: '123', role: 'MANUTENTION', roles: ['MANUTENTION'], avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-pas', username: 'agent.passation', password: '123', role: 'PASSATION_ENLEVEMENT', roles: ['PASSATION_ENLEVEMENT'], avatar: '', statusMessage: 'Disponible' },
-                { id: 'acc-ddu', username: 'agent.ddu', password: '123', role: 'DDU_T1', roles: ['DDU_T1'], avatar: '', statusMessage: 'Disponible' }
-            ];
-        }
-
-        let accounts = (() => {
-            try {
-                const p = JSON.parse(safeGet(STORAGE_KEY_ACCOUNTS));
-                return Array.isArray(p) && p.length ? p : getDefaultAccounts();
-            } catch (e) { return getDefaultAccounts(); }
-        })();
-
-        let settings = (() => {
-            try {
-                const p = JSON.parse(safeGet(STORAGE_KEY_SETTINGS));
-                return p ? { ...DEFAULT_SETTINGS, ...p } : { ...DEFAULT_SETTINGS };
-            } catch (e) { return { ...DEFAULT_SETTINGS }; }
-        })();
-
-        let session = (() => {
-            try { return JSON.parse(safeGet(STORAGE_KEY_SESSION)); } catch (e) { return null; }
-        })();
-
-        let onlineAgents = (() => {
-            try {
-                const p = JSON.parse(safeGet(STORAGE_KEY_ONLINE));
-                return Array.isArray(p) ? p : [];
-            } catch (e) { return []; }
-        })();
-
-        function saveOnlineAgents() {
-            safeSet(STORAGE_KEY_ONLINE, JSON.stringify(onlineAgents));
-        }
-
-        function recordAgentConnected(userObj) {
-            if (!userObj || !userObj.username) return;
-            const nowIso = new Date().toISOString();
-            const entry = {
-                accountId: userObj.accountId || userObj.username,
-                username: userObj.username,
-                roles: getUserRoles(userObj),
-                statusMessage: userObj.statusMessage || 'Disponible',
-                isOnline: true,
-                lastSeenAt: nowIso
-            };
-            const idx = onlineAgents.findIndex(x => x.username.toLowerCase() === entry.username.toLowerCase());
-            if (idx >= 0) onlineAgents[idx] = { ...onlineAgents[idx], ...entry, isOnline: true, lastSeenAt: nowIso };
-            else onlineAgents.unshift(entry);
-            saveOnlineAgents();
-        }
-
-        function markAgentDisconnected(username) {
-            if (!username) return;
-            const idx = onlineAgents.findIndex(x => x.username.toLowerCase() === String(username).toLowerCase());
-            if (idx >= 0) {
-                onlineAgents[idx].isOnline = false;
-                onlineAgents[idx].lastSeenAt = new Date().toISOString();
-                saveOnlineAgents();
-            }
-        }
-
-        function renderConnectedAgentsList() {
-            const listEl = document.getElementById('connected-agents-list');
-            const countEl = document.getElementById('connected-agents-count');
-            if (!listEl || !countEl) return;
-
-            const activeList = onlineAgents.filter(a => a.isOnline);
-            countEl.textContent = `${activeList.length} connecté(s)`;
-
-            if (!onlineAgents.length) {
-                listEl.innerHTML = `<p class="text-slate-500 text-xs">Aucune session enregistrée pour le moment.</p>`;
-                return;
-            }
-
-            listEl.innerHTML = onlineAgents.map(ag => {
-                const accMatch = accounts.find(a => a.username.toLowerCase() === ag.username.toLowerCase());
-                const rolesLabel = formatRolesLabel(accMatch || ag);
-                const statusLabel = (accMatch && accMatch.statusMessage) || ag.statusMessage || 'Disponible';
-                const timeLabel = ag.lastSeenAt ? new Date(ag.lastSeenAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
-                return `
-                    <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 px-2.5 py-2 rounded-lg border border-slate-200">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full ${ag.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}"></span>
-                            <strong class="text-slate-900">${ag.username}</strong>
-                            <span class="text-[11px] text-slate-600">(${rolesLabel})</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-[11px]">
-                            <span class="px-2 py-0.5 rounded-full ${ag.isOnline ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-200 text-slate-700'} font-bold">${ag.isOnline ? 'En ligne' : 'Déconnecté'}</span>
-                            <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold">${statusLabel}</span>
-                            ${timeLabel ? `<span class="text-slate-400">${timeLabel}</span>` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        let currentSearchCriterion = 'ALL';
-        let currentColorFilter = 'ALL';
-        let currentFilteredDossiers = [];
-        let activeDetailDossierId = null;
-        let tempProfilePhotoBase64 = '';
-
-        function offsetDate(days, hours = 0) {
-            const d = new Date();
-            d.setDate(d.getDate() + days);
-            d.setHours(d.getHours() + hours);
-            return d.toISOString();
-        }
-
-        function formatDateInput(iso) {
-            return iso ? iso.split('T')[0] : '';
-        }
-
-        function getInitialDossiers() {
-            return [
-                {
-                    id: 'dos-1', rep: 'GEO0001', bl: 'LOM40231', client: 'STE DG',
-                    nbTc: 2, tcType: "40'", tcNumbers: ['MRKU2094812', 'MSCU7741903'],
-                    poids: '52 400 KG', quantite: '980 Colis', designation: 'Équipements industriels',
-                    origine: 'CHINE', destination: 'OUAGA BF', depotage: 'Sur camion (SC)',
-                    navire: 'MSC LOME', dateArrivee: offsetDate(-6), createdAt: offsetDate(-16),
-                    expirationAt: offsetDate(2, 6),
-                    modificationPending: false, modificationNote: '',
-                    echange: { docType: 'TELEX', telexConfirmed: true, invoiceReceived: true, invoicePaid: true, depotageValidated: 'Sur camion (SC)', badReceived: true, badValidity: formatDateInput(offsetDate(5)), validated: true },
-                    manutention: { invoiceRequested: true, invoiceReceived: true, invoicePaid: true, bactDone: true, dfuPaid: true, gatePassSubmitted: true, gatePassReceived: true, truckRequested: true, validated: true },
-                    passation: { bonEnlever: true, bonConduire: true, brigadeDone: true, customsReportDone: true, t1Requested: true, t1Validated: true, bonSortie: true, validated: true },
-                    enlevement: {
-                        trucks: [
-                            { tc: 'MRKU2094812', truckNumber: 'TG-4821-AM', driverPhone: '+228 90 11 22 33', photoData: '', exitedPort: true, emptyReturn: '' },
-                            { tc: 'MSCU7741903', truckNumber: 'TG-9012-AN', driverPhone: '+228 91 44 55 66', photoData: '', exitedPort: false, emptyReturn: '' }
-                        ]
-                    },
-                    dduT1: { dduNumber: 'DDU-2026-8841', dduCount: 1, t1Number: 'T1-LME-5520', t1IssuedAt: offsetDate(-7), t1Validity: formatDateInput(offsetDate(4)), t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
-                },
-                {
-                    id: 'dos-2', rep: 'GEO0002', bl: 'LOM55910', client: 'FASO IMPORT SARL',
-                    nbTc: 1, tcType: "20'", tcNumbers: ['CMAU4412098'],
-                    poids: '21 150 KG', quantite: '420 Sacs', designation: 'Intrants agricoles',
-                    origine: 'INDE', destination: 'NIAMEY NE', depotage: 'Dépotage CFS',
-                    navire: 'CMA CGM AFRICA', dateArrivee: offsetDate(-3), createdAt: offsetDate(-3),
-                    expirationAt: offsetDate(12),
-                    modificationPending: false, modificationNote: '',
-                    echange: { docType: 'ORIGINALE', telexConfirmed: false, invoiceReceived: true, invoicePaid: false, depotageValidated: 'Dépotage CFS', badReceived: false, badValidity: '', validated: false },
-                    manutention: { invoiceRequested: false, invoiceReceived: false, invoicePaid: false, bactDone: false, dfuPaid: false, gatePassSubmitted: false, gatePassReceived: false, truckRequested: false, validated: false },
-                    passation: { bonEnlever: false, bonConduire: false, brigadeDone: false, customsReportDone: false, t1Requested: false, t1Validated: false, bonSortie: false, validated: false },
-                    enlevement: { trucks: [{ tc: 'CMAU4412098', truckNumber: '', driverPhone: '', photoData: '', exitedPort: false, emptyReturn: '' }] },
-                    dduT1: { dduNumber: '', dduCount: 1, t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
-                },
-                {
-                    id: 'dos-3', rep: 'GEO0003', bl: 'LOM66302', client: 'TRANSIT SAHEL',
-                    nbTc: 3, tcType: "40' HC", tcNumbers: ['TCLU9001122', 'TCLU9001123', 'TCLU9001124'],
-                    poids: '74 000 KG', quantite: '1 600 Cartons', designation: 'Pièces détachées auto',
-                    origine: 'ÉMIRATS ARABES UNIS', destination: 'BAMAKO ML', depotage: 'Sur camion (SC)',
-                    navire: 'MAERSK KENSINGTON', dateArrivee: offsetDate(-1), createdAt: offsetDate(-1),
-                    expirationAt: offsetDate(20),
-                    modificationPending: false, modificationNote: '',
-                    echange: { docType: 'TELEX', telexConfirmed: false, invoiceReceived: false, invoicePaid: false, depotageValidated: 'Sur camion (SC)', badReceived: false, badValidity: '', validated: false },
-                    manutention: { invoiceRequested: false, invoiceReceived: false, invoicePaid: false, bactDone: false, dfuPaid: false, gatePassSubmitted: false, gatePassReceived: false, truckRequested: false, validated: false },
-                    passation: { bonEnlever: false, bonConduire: false, brigadeDone: false, customsReportDone: false, t1Requested: false, t1Validated: false, bonSortie: false, validated: false },
-                    enlevement: { trucks: [] },
-                    dduT1: { dduNumber: '', dduCount: 1, t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
-                }
-            ];
-        }
-
-        let dossiers = (() => {
-            try {
-                const p = JSON.parse(safeGet(STORAGE_KEY_DOSSIERS));
-                return Array.isArray(p) && p.length ? p : getInitialDossiers();
-            } catch (e) { return getInitialDossiers(); }
-        })();
-
-        function saveDossiers() {
-            safeSet(STORAGE_KEY_DOSSIERS, JSON.stringify(dossiers));
-            updateAlertsAndStats();
-            renderTable();
-        }
-
-        function saveAccounts() {
-            safeSet(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
-        }
-
-        function showToast(msg, type = 'info') {
-            const box = document.getElementById('toast-container');
-            if (!box) return;
-            const colors = { success: 'bg-emerald-700 border-emerald-400', error: 'bg-red-700 border-red-400', info: 'bg-navy-900 border-blue-400' };
-            const el = document.createElement('div');
-            el.className = `${colors[type] || colors.info} text-white px-4 py-3 rounded-xl shadow-xl border text-xs font-bold pointer-events-auto`;
-            el.textContent = msg;
-            box.appendChild(el);
-            setTimeout(() => el.remove(), 3500);
-        }
-
-        function computeDduInvoiceAmount(d) {
-            const count = Math.max(1, parseInt(d?.dduT1?.dduCount || '1', 10));
-            const rate = Math.max(0, Number(settings.dduRate ?? 10000));
-            return { count, rate, total: count * rate, currency: settings.dduCurrency || 'FCFA' };
-        }
-
-        function formatMoney(val, currency = 'FCFA') {
-            return `${Number(val || 0).toLocaleString('fr-FR')} ${currency}`;
-        }
-
-        function handleLoginSubmit(e) {
-            if (e && e.preventDefault) e.preventDefault();
-            const u = (document.getElementById('login-username')?.value || 'admin').trim().toLowerCase();
-            const p = (document.getElementById('login-password')?.value || 'admin123').trim();
-
-            let found = accounts.find(a => a.username.toLowerCase() === u && a.password === p);
-            if (!found && u === 'admin' && (p === 'admin123' || p === '123456')) {
-                found = accounts[0] || { id: 'acc-admin', username: 'admin', password: p, role: 'ADMIN', roles: ['ADMIN'], avatar: '', statusMessage: 'Disponible' };
-            }
-            if (!found) {
-                showToast('Identifiant ou mot de passe incorrect (admin / admin123).', 'error');
-                return false;
-            }
-
-            session = {
-                accountId: found.id,
-                username: found.username,
-                roles: getUserRoles(found),
-                role: found.role || getUserRoles(found)[0] || 'ENREGISTREMENT',
-                avatar: found.avatar || '',
-                statusMessage: found.statusMessage || ''
-            };
-            safeSet(STORAGE_KEY_SESSION, JSON.stringify(session));
-            recordAgentConnected(session);
-
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
-            initAppView();
-            showToast(`Connecté : ${found.username} (${formatRolesLabel(session)})`, 'success');
-            return false;
-        }
-
-        function logout() {
-            if (session && session.username) markAgentDisconnected(session.username);
-            session = null;
-            safeSet(STORAGE_KEY_SESSION, '');
-            document.getElementById('app-screen').classList.add('hidden');
-            document.getElementById('login-screen').classList.remove('hidden');
-        }
-
-        function initAppView() {
-            if (!session) return;
-            document.getElementById('header-role-badge').textContent = `${session.username} (${formatRolesLabel(session)})`;
-            const badge = document.getElementById('header-avatar-badge');
-            if (session.avatar) {
-                badge.innerHTML = `<img src="${session.avatar}" alt="" class="w-full h-full object-cover rounded-full">`;
-            } else {
-                badge.textContent = (session.username || 'A').slice(0, 2).toUpperCase();
-            }
-            const stBadge = document.getElementById('header-status-badge');
-            if (session.statusMessage) {
-                stBadge.textContent = session.statusMessage;
-                stBadge.classList.remove('hidden');
-            } else {
-                stBadge.classList.add('hidden');
-            }
-            updateAlertsAndStats();
-            renderTable();
-        }
-
-        function evaluateDossierStatus(d) {
-            const now = Date.now();
-            const daysSinceCreated = (now - new Date(d.createdAt).getTime()) / 86400000;
-            const hoursToExp = d.expirationAt ? (new Date(d.expirationAt).getTime() - now) / 3600000 : 999;
-            const hasT1Pending = d.dduT1 && d.dduT1.t1Number && !d.dduT1.t1Cleared && d.dduT1.t1IssuedAt &&
-                ((now - new Date(d.dduT1.t1IssuedAt).getTime()) / 86400000 >= settings.daysT1Alert);
-
-            const isSuffering = (daysSinceCreated >= settings.daysUnprocessedAlert && !d.echange?.validated) || hasT1Pending;
-            const isNearExp = hoursToExp <= settings.hoursExpirationAlert;
-            const allValidated = Boolean(d.echange?.validated && d.manutention?.validated && d.passation?.validated);
-            const hasMovement = Boolean(d.echange?.validated || d.echange?.invoiceReceived || d.manutention?.invoiceRequested || d.dduT1?.dduNumber || d.dduT1?.t1Number);
-            const isDepotage = d.depotage === 'Dépotage CFS' || d.depotage === 'Sous palan' || d.echange?.depotageValidated === 'Dépotage CFS' || d.echange?.depotageValidated === 'Sous palan';
-
-            let color = 'GREEN';
-            let label = 'Circuit Normal';
-            let alertReason = '';
-
-            if (isSuffering || isNearExp || allValidated) {
-                color = 'RED';
-                if (isNearExp) { alertReason = `Expiration < ${settings.hoursExpirationAlert}h`; label = `⚠️ Expire < ${settings.hoursExpirationAlert}h`; }
-                else if (isSuffering) { alertReason = hasT1Pending ? `T1 > ${settings.daysT1Alert}j sans apurement` : `Enregistrement > ${settings.daysUnprocessedAlert}j sans traitement`; label = `🚨 En Souffrance`; }
-                else { label = 'Validé / Prêt'; }
-            } else if (isDepotage) {
-                color = 'BLUE';
-                label = d.depotage;
-            } else if (!hasMovement) {
-                color = 'YELLOW';
-                label = 'Créé • Sans mouvement';
-            }
-
-            return { color, label, isUrgentAlert: Boolean(isSuffering || isNearExp), alertReason };
-        }
-
-        function updateAlertsAndStats() {
-            let r = 0, g = 0, b = 0, y = 0;
-            const alerts = [];
-            dossiers.forEach(d => {
-                const st = evaluateDossierStatus(d);
-                if (st.color === 'RED') r++;
-                else if (st.color === 'GREEN') g++;
-                else if (st.color === 'BLUE') b++;
-                else y++;
-                if (st.isUrgentAlert) alerts.push(`${d.rep} (${d.bl} - ${d.client}) : ${st.alertReason}`);
-            });
-            document.getElementById('stat-total').textContent = dossiers.length;
-            document.getElementById('stat-red').textContent = r;
-            document.getElementById('stat-green').textContent = g;
-            document.getElementById('stat-blue').textContent = b;
-            document.getElementById('stat-yellow').textContent = y;
-
-            const marquee = document.getElementById('urgent-marquee-text');
-            marquee.textContent = alerts.length
-                ? `🚨 ALERTE URGENTE : ${alerts.join('  |  ')}  —  Alerte WhatsApp : ${settings.waSender} → ${settings.waDest1} & ${settings.waDest2}`
-                : `✅ Aucun dossier en souffrance ou à < ${settings.hoursExpirationAlert}h de l'expiration. Tarif DDU : ${formatMoney(settings.dduRate, settings.dduCurrency)} • Facture → ${settings.invoiceEmailK}.`;
-        }
-
-        function setSearchCriterion(crit) {
-            currentSearchCriterion = crit;
-            document.querySelectorAll('.crit-btn').forEach(btn => {
-                const active = btn.dataset.crit === crit;
-                btn.className = active ? 'crit-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-navy-900 text-white cursor-pointer' : 'crit-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 cursor-pointer';
-            });
-            renderTable();
-        }
-
-        function filterByColor(color) {
-            currentColorFilter = color;
-            renderTable();
-        }
-
-        function clearDateFilter() {
-            document.getElementById('date-filter').value = '';
-            document.getElementById('clear-date-btn').classList.add('hidden');
-            renderTable();
-        }
-
-        function renderTable() {
-            const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
-            const dateVal = document.getElementById('date-filter')?.value || '';
-            document.getElementById('clear-date-btn').classList.toggle('hidden', !dateVal);
-
-            const filtered = dossiers.filter(d => {
-                const st = evaluateDossierStatus(d);
-                if (currentColorFilter !== 'ALL' && st.color !== currentColorFilter) return false;
-                if (dateVal) {
-                    const arr = formatDateInput(d.dateArrivee);
-                    const cre = formatDateInput(d.createdAt);
-                    if (arr !== dateVal && cre !== dateVal) return false;
-                }
-                if (!q) return true;
-                const rep = (d.rep || '').toLowerCase();
-                const bl = (d.bl || '').toLowerCase();
-                const tcs = (d.tcNumbers || []).join(' ').toLowerCase();
-                const t1 = (d.dduT1?.t1Number || '').toLowerCase();
-                const ddu = (d.dduT1?.dduNumber || '').toLowerCase();
-                if (currentSearchCriterion === 'REP') return rep.includes(q);
-                if (currentSearchCriterion === 'BL') return bl.includes(q);
-                if (currentSearchCriterion === 'TC') return tcs.includes(q);
-                if (currentSearchCriterion === 'T1') return t1.includes(q);
-                return rep.includes(q) || bl.includes(q) || tcs.includes(q) || t1.includes(q) || ddu.includes(q) || (d.client || '').toLowerCase().includes(q);
-            });
-
-            const tbody = document.getElementById('dossiers-table-body');
-            const empty = document.getElementById('empty-state');
-            currentFilteredDossiers = filtered.slice();
-            document.getElementById('visible-count').textContent = filtered.length;
-
-            if (!filtered.length) {
-                tbody.innerHTML = '';
-                empty.classList.remove('hidden');
-                return;
-            }
-            empty.classList.add('hidden');
-
-            const rowClasses = {
-                RED: 'bg-red-50 hover:bg-red-100/80 border-l-4 border-l-red-600',
-                GREEN: 'bg-emerald-50/70 hover:bg-emerald-100/70 border-l-4 border-l-emerald-600',
-                BLUE: 'bg-blue-50/70 hover:bg-blue-100/70 border-l-4 border-l-blue-600',
-                YELLOW: 'bg-amber-50/80 hover:bg-amber-100/80 border-l-4 border-l-amber-500'
-            };
-
-            const badgeClasses = {
-                RED: 'bg-red-600 text-white',
-                GREEN: 'bg-emerald-600 text-white',
-                BLUE: 'bg-blue-600 text-white',
-                YELLOW: 'bg-amber-500 text-white'
-            };
-
-            tbody.innerHTML = filtered.map(d => {
-                const st = evaluateDossierStatus(d);
-                return `
-                    <tr class="${rowClasses[st.color] || ''}">
-                        <td class="py-3.5 px-4 font-extrabold text-navy-900">${d.rep}</td>
-                        <td class="py-3.5 px-4 font-bold">${d.bl}</td>
-                        <td class="py-3.5 px-4 font-semibold">${d.client}</td>
-                        <td class="py-3.5 px-4 text-xs font-bold">${String(d.nbTc).padStart(2, '0')} TC de ${d.tcType}</td>
-                        <td class="py-3.5 px-4 font-semibold">${d.navire}</td>
-                        <td class="py-3.5 px-4 font-bold">${d.destination}</td>
-                        <td class="py-3.5 px-4"><span class="${badgeClasses[st.color]} px-2.5 py-1 rounded-full text-[11px] font-extrabold">${st.label}</span></td>
-                        <td class="py-3.5 px-4 text-right">
-                            <button type="button" onclick="openDetailModal('${d.id}')" class="bg-navy-900 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl cursor-pointer">
-                                Voir les détails
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function generateNextRep() {
-            const maxNum = dossiers.reduce((max, d) => {
-                const m = String(d.rep || '').match(/(\d+)$/);
-                return m ? Math.max(max, parseInt(m[1], 10)) : max;
-            }, 0);
-            return 'GEO' + String(maxNum + 1).padStart(4, '0');
-        }
-
-        // Analyse intelligente d'un texte collé contenant plusieurs numéros de conteneurs
-        function parsePastedContainers(rawText) {
-            return String(rawText || '')
-                .split(/[\r\n,;\t]+|\s{2,}/)
-                .flatMap(chunk => {
-                    const tokens = chunk.trim().split(/\s+/).filter(Boolean);
-                    if (tokens.length > 1 && tokens.every(t => /^[A-Z]{3,4}U?\d{6,7}$/i.test(t))) {
-                        return tokens;
-                    }
-                    return chunk.trim() ? [chunk.trim()] : [];
-                })
-                .map(s => s.replace(/^[\-\•\*]+/, '').trim().toUpperCase())
-                .filter(Boolean);
-        }
-
-        function handleFirstTcPaste(e) {
-            const clipboard = e.clipboardData || window.clipboardData;
-            const text = clipboard ? clipboard.getData('text') : '';
-            const items = parsePastedContainers(text);
-            if (items.length > 1) {
-                e.preventDefault();
-                const nbInput = document.getElementById('create-nb-tc');
-                nbInput.value = Math.min(30, items.length);
-                generateTcFields(items.slice(0, 30));
-                showToast(`${items.length} conteneurs détectés et répartis automatiquement.`, 'success');
-            }
-        }
-
-        function handleSingleTcInput(idx, val) {
-            if (idx !== 0) return;
-            const items = parsePastedContainers(val);
-            if (items.length > 1) {
-                const nbInput = document.getElementById('create-nb-tc');
-                nbInput.value = Math.min(30, items.length);
-                generateTcFields(items.slice(0, 30));
-                showToast(`${items.length} conteneurs répartis automatiquement.`, 'success');
-            }
-        }
-
-        function generateTcFields(existing = []) {
-            const count = Math.max(1, Math.min(30, parseInt(document.getElementById('create-nb-tc').value || '1', 10)));
-            document.getElementById('tc-counter-badge').textContent = `${count} champ(s)`;
-            const container = document.getElementById('dynamic-tc-container');
-            container.innerHTML = Array.from({ length: count }, (_, i) => `
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-600 mb-1">NUMERO TC ${i + 1} *</label>
-                    <input type="text" required value="${existing[i] || ''}" ${i === 0 ? 'onpaste="handleFirstTcPaste(event)" oninput="handleSingleTcInput(0, this.value)"' : ''} placeholder="Ex: MSCU123456${i}" class="tc-number-input w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold uppercase">
-                </div>
-            `).join('');
-        }
-
-        function openCreateModal() {
-            if (!hasRolePermission(['ENREGISTREMENT'])) {
-                showToast('Accès refusé : rôle Enregistrement non attribué à votre compte.', 'error');
-                return;
-            }
-            document.getElementById('create-dossier-form').reset();
-            document.getElementById('create-rep').value = generateNextRep();
-            document.getElementById('create-nb-tc').value = 2;
-            document.getElementById('create-date-arrivee').value = formatDateInput(new Date().toISOString());
-            generateTcFields();
-            document.getElementById('create-modal').classList.remove('hidden');
-        }
-
-        function closeCreateModal() {
-            document.getElementById('create-modal').classList.add('hidden');
-        }
-
-        function submitCreateDossier(e) {
-            e.preventDefault();
-            const tcInputs = Array.from(document.querySelectorAll('.tc-number-input'));
-            const tcNumbers = tcInputs.map(inp => inp.value.trim().toUpperCase()).filter(Boolean);
-            const nbTc = parseInt(document.getElementById('create-nb-tc').value, 10) || tcNumbers.length;
-            const depotage = document.getElementById('create-depotage').value;
-
-            const newDos = {
-                id: 'dos-' + Date.now(),
-                rep: document.getElementById('create-rep').value,
-                bl: document.getElementById('create-bl').value.trim().toUpperCase(),
-                client: document.getElementById('create-client').value.trim().toUpperCase(),
-                nbTc,
-                tcType: document.getElementById('create-tc-type').value,
-                tcNumbers,
-                poids: document.getElementById('create-poids').value.trim(),
-                quantite: document.getElementById('create-quantite').value.trim(),
-                designation: document.getElementById('create-designation').value.trim(),
-                origine: document.getElementById('create-origine').value.trim().toUpperCase(),
-                destination: document.getElementById('create-destination').value.trim().toUpperCase(),
-                depotage,
-                navire: document.getElementById('create-navire').value.trim().toUpperCase(),
-                dateArrivee: new Date(document.getElementById('create-date-arrivee').value).toISOString(),
-                createdAt: new Date().toISOString(),
-                expirationAt: offsetDate(15),
-                modificationPending: false,
-                modificationNote: '',
-                echange: { docType: 'TELEX', telexConfirmed: false, invoiceReceived: false, invoicePaid: false, depotageValidated: depotage, badReceived: false, badValidity: '', validated: false },
-                manutention: { invoiceRequested: false, invoiceReceived: false, invoicePaid: false, bactDone: false, dfuPaid: false, gatePassSubmitted: false, gatePassReceived: false, truckRequested: false, validated: false },
-                passation: { bonEnlever: false, bonConduire: false, brigadeDone: false, customsReportDone: false, t1Requested: false, t1Validated: false, bonSortie: false, validated: false },
-                enlevement: { trucks: tcNumbers.map(tc => ({ tc, truckNumber: '', driverPhone: '', photoData: '', exitedPort: false, emptyReturn: '' })) },
-                dduT1: { dduNumber: '', dduCount: 1, t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
-            };
-
-            dossiers.unshift(newDos);
-            saveDossiers();
-            closeCreateModal();
-            showToast(`Dossier ${newDos.rep} créé avec succès.`, 'success');
-        }
-
-        // Génération du texte du bordereau (sans facturation)
-        function buildDossierBordereauText(d) {
-            const st = evaluateDossierStatus(d);
-            const trucksLines = (d.enlevement?.trucks || []).length
-                ? d.enlevement.trucks.map((tr, i) =>
-                    `  ${i + 1}. TC ${tr.tc} | Camion: ${tr.truckNumber || 'Non saisi'} | Chauffeur: ${tr.driverPhone || 'Non saisi'} | Sorti port: ${tr.exitedPort ? 'OUI' : 'NON'}${d.depotage === 'Sur camion (SC)' ? ` | Retour vide: ${tr.emptyReturn || 'En attente'}` : ''} | Photo: ${tr.photoData ? 'Déposée' : 'Non déposée'}`
-                  ).join('\n')
-                : '  Aucun camion/conteneur enregistré';
-
-            return [
-                '============================================================',
-                '           GEO SUIVI TRANSIT — BORDEREAU DE SUIVI',
-                '============================================================',
-                `Répertoire       : ${d.rep}`,
-                `BL               : ${d.bl}`,
-                `Client           : ${d.client}`,
-                `Navire           : ${d.navire}`,
-                `Origine -> Dest. : ${d.origine} -> ${d.destination}`,
-                `Type Dépotage    : ${d.depotage}`,
-                `Conteneurs       : ${d.nbTc} TC (${d.tcType}) — ${(d.tcNumbers || []).join(', ') || '—'}`,
-                `Poids / Quantité : ${d.poids} | ${d.quantite}`,
-                `Désignation      : ${d.designation}`,
-                `Date Arrivée     : ${formatDateInput(d.dateArrivee) || '—'}`,
-                `Statut Actuel    : ${st.label} (${st.color})${st.alertReason ? ` — Alerte: ${st.alertReason}` : ''}`,
-                '',
-                '--- POINTS & ÉTAPES D\'AVANCEMENT ---',
-                `• I. Enregistrement : Créé le ${formatDateInput(d.createdAt)} | Modif. en attente: ${d.modificationPending ? 'OUI' : 'NON'}`,
-                `• II. Échange       : Doc ${d.echange?.docType || '—'} | Télex: ${d.echange?.telexConfirmed ? 'OK' : 'En attente'} | Facture reçue: ${d.echange?.invoiceReceived ? 'OK' : 'Non'} | Facture payée: ${d.echange?.invoicePaid ? 'OK' : 'Non'} | BAD reçu: ${d.echange?.badReceived ? 'OK' : 'Non'} (Val. ${d.echange?.badValidity || '—'}) | Validé: ${d.echange?.validated ? 'OUI' : 'NON'}`,
-                `• III. Manutention  : Facture dem.: ${d.manutention?.invoiceRequested ? 'OK' : 'Non'} | Reçue: ${d.manutention?.invoiceReceived ? 'OK' : 'Non'} | Payée: ${d.manutention?.invoicePaid ? 'OK' : 'Non'} | BACT: ${d.manutention?.bactDone ? 'OK' : 'Non'} | DFU: ${d.manutention?.dfuPaid ? 'OK' : 'Non'} | GatePass soumis/reçu: ${d.manutention?.gatePassSubmitted ? 'OK' : 'Non'}/${d.manutention?.gatePassReceived ? 'OK' : 'Non'} | Camion dem.: ${d.manutention?.truckRequested ? 'OK' : 'Non'} | Validé: ${d.manutention?.validated ? 'OUI' : 'NON'}`,
-                `• IV. Passation/Enl.: BAE: ${d.passation?.bonEnlever ? 'OK' : 'Non'} | BAC: ${d.passation?.bonConduire ? 'OK' : 'Non'} | Brigade: ${d.passation?.brigadeDone ? 'OK' : 'Non'} | Rapport douane: ${d.passation?.customsReportDone ? 'OK' : 'Non'} | T1 dem./val.: ${d.passation?.t1Requested ? 'OK' : 'Non'}/${d.passation?.t1Validated ? 'OK' : 'Non'} | Bon sortie: ${d.passation?.bonSortie ? 'OK' : 'Non'} | Validé: ${d.passation?.validated ? 'OUI' : 'NON'}`,
-                trucksLines,
-                `• V. DDU & T1       : N° DDU: ${d.dduT1?.dduNumber || '—'} | N° T1: ${d.dduT1?.t1Number || '—'} | Validité T1: ${d.dduT1?.t1Validity || '—'} | T1 apuré: ${d.dduT1?.t1Cleared ? 'OUI' : 'NON'}`,
-                '============================================================'
-            ].join('\n');
-        }
-
-        function triggerTextDownload(filename, content) {
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        }
-
-        function downloadDossierBordereau() {
-            const d = dossiers.find(x => x.id === activeDetailDossierId);
-            if (!d) return;
-            triggerTextDownload(`Bordereau_${d.rep}_${d.bl || 'DOSSIER'}.txt`, buildDossierBordereauText(d));
-            showToast(`Bordereau ${d.rep} téléchargé.`, 'success');
-        }
-
-        function downloadBulkBordereaux() {
-            const list = currentFilteredDossiers.length ? currentFilteredDossiers : dossiers;
-            if (!list.length) {
-                showToast('Aucun dossier à exporter.', 'error');
-                return;
-            }
-            const combined = [
-                `EXPORT GROUPÉ DES BORDEREAUX — GEO SUIVI TRANSIT (${list.length} dossier(s))`,
-                `Généré le : ${new Date().toLocaleString('fr-FR')}`,
-                '',
-                ...list.map(d => buildDossierBordereauText(d))
-            ].join('\n\n');
-            const stamp = new Date().toISOString().slice(0, 10);
-            triggerTextDownload(`Export_Groupe_Bordereaux_${stamp}.txt`, combined);
-            showToast(`${list.length} bordereau(x) exporté(s) sans la facturation.`, 'success');
-        }
-
-        function sendInvoiceEmailForDossier() {
-            const d = dossiers.find(x => x.id === activeDetailDossierId);
-            if (!d) return;
-            const inv = computeDduInvoiceAmount(d);
-            const targetEmail = (settings.invoiceEmailK || 'k@geosuvitransit.tg').trim();
-            const subject = `Facture DDU - Dossier ${d.rep} (BL ${d.bl} - ${d.client})`;
-            const body = [
-                `Bonjour,`,
-                `Veuillez trouver ci-dessous les informations de facturation DDU pour le dossier ${d.rep} :`,
-                `- BL : ${d.bl}`,
-                `- Client : ${d.client}`,
-                `- Navire : ${d.navire} | Destination : ${d.destination}`,
-                `- N° DDU : ${d.dduT1?.dduNumber || 'Non renseigné'}`,
-                `- Nombre de DDU : ${inv.count}`,
-                `- Tarif unitaire par DDU : ${formatMoney(inv.rate, inv.currency)}`,
-                `- Montant total facturé : ${formatMoney(inv.total, inv.currency)}`,
-                `Cordialement, GEO SUIVI TRANSIT.`
-            ].join('\n');
-
-            d.dduT1 = d.dduT1 || {};
-            d.dduT1.invoiceSent = true;
-            d.dduT1.invoiceSentAt = new Date().toISOString();
-            saveDossiers();
-
-            const mailtoUrl = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.open(mailtoUrl, '_blank', 'noopener');
-            openDetailModal(d.id);
-            showToast(`Facture (${formatMoney(inv.total, inv.currency)}) préparée pour envoi à ${targetEmail}.`, 'success');
-        }
-
-        function openDetailModal(id) {
-            const d = dossiers.find(x => x.id === id);
-            if (!d) return;
-            activeDetailDossierId = id;
-            const st = evaluateDossierStatus(d);
-            const inv = computeDduInvoiceAmount(d);
-            const targetEmail = settings.invoiceEmailK || 'k@geosuvitransit.tg';
-
-            document.getElementById('detail-rep-badge').textContent = d.rep;
-            document.getElementById('detail-title').textContent = `BL : ${d.bl} — ${d.client}`;
-            document.getElementById('detail-subtitle').textContent = `Navire : ${d.navire} • Destination : ${d.destination} • Dépotage : ${d.depotage}`;
-            document.getElementById('detail-color-pill').textContent = st.label;
-
-            document.getElementById('detail-modal-body').innerHTML = `
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    <div><span class="text-slate-400 block">TCs (${d.tcType})</span><strong>${(d.tcNumbers || []).join(', ') || '—'}</strong></div>
-                    <div><span class="text-slate-400 block">Poids / Quantité</span><strong>${d.poids} • ${d.quantite}</strong></div>
-                    <div><span class="text-slate-400 block">Origine → Dest.</span><strong>${d.origine} → ${d.destination}</strong></div>
-                    <div><span class="text-slate-400 block">Désignation</span><strong>${d.designation}</strong></div>
-                </div>
-
-                <!-- I. ENREGISTREMENT -->
-                <div class="border border-slate-200 rounded-xl p-4 space-y-3 ${hasRolePermission(['ENREGISTREMENT']) ? '' : 'opacity-60'}">
-                    <h4 class="font-extrabold text-sm text-navy-900">I. ENREGISTREMENT ${hasRolePermission(['ENREGISTREMENT']) ? '(Autorisé)' : '(Lecture seule - Non autorisé)'}</h4>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" ${hasRolePermission(['ENREGISTREMENT']) ? '' : 'disabled'} onclick="requestModif('${d.id}')" class="bg-amber-100 hover:bg-amber-200 disabled:opacity-50 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer">Demander modification</button>
-                        ${isAdminUser() ? `<button type="button" onclick="approveModif('${d.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg cursor-pointer">Valider modification (Admin/Superviseur)</button>` : ''}
-                    </div>
-                    ${d.modificationPending ? `<p class="text-xs font-bold text-amber-800 bg-amber-50 p-2 rounded-lg">En attente de validation superviseur/admin.</p>` : ''}
-                </div>
-
-                <!-- II. ÉCHANGE -->
-                <div class="border border-slate-200 rounded-xl p-4 space-y-3 ${hasRolePermission(['ECHANGE']) ? '' : 'opacity-60'}">
-                    <h4 class="font-extrabold text-sm text-navy-900">II. ÉCHANGE ${hasRolePermission(['ECHANGE']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
-                    <fieldset ${hasRolePermission(['ECHANGE']) ? '' : 'disabled'} class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <label class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
-                            <span class="font-bold">Type de document</span>
-                            <select onchange="updateField('${d.id}', 'echange.docType', this.value)" class="border rounded px-2 py-1 font-bold">
-                                <option value="TELEX" ${d.echange.docType === 'TELEX' ? 'selected' : ''}>Télex</option>
-                                <option value="ORIGINALE" ${d.echange.docType === 'ORIGINALE' ? 'selected' : ''}>Originale</option>
-                            </select>
-                        </label>
-                        <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
-                            <input type="checkbox" ${d.echange.telexConfirmed ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.telexConfirmed', this.checked)" class="w-4 h-4">
-                            <span>Télex confirmé</span>
-                        </label>
-                        <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
-                            <input type="checkbox" ${d.echange.invoiceReceived ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.invoiceReceived', this.checked)" class="w-4 h-4">
-                            <span>Facture échange reçue</span>
-                        </label>
-                        <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
-                            <input type="checkbox" ${d.echange.invoicePaid ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.invoicePaid', this.checked)" class="w-4 h-4">
-                            <span>Facture échange payée</span>
-                        </label>
-                        <label class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
-                            <span class="font-bold">Validation dépotage</span>
-                            <select onchange="updateField('${d.id}', 'echange.depotageValidated', this.value)" class="border rounded px-2 py-1 font-bold">
-                                <option value="Sur camion (SC)" ${d.echange.depotageValidated === 'Sur camion (SC)' ? 'selected' : ''}>Sur camion (SC)</option>
-                                <option value="Dépotage CFS" ${d.echange.depotageValidated === 'Dépotage CFS' ? 'selected' : ''}>Dépotage CFS</option>
-                                <option value="Sous palan" ${d.echange.depotageValidated === 'Sous palan' ? 'selected' : ''}>Sous palan</option>
-                            </select>
-                        </label>
-                        <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
-                            <input type="checkbox" ${d.echange.badReceived ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.badReceived', this.checked)" class="w-4 h-4">
-                            <span>Réception BAD confirmée</span>
-                        </label>
-                        <label class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
-                            <span class="font-bold">Validité du BAD</span>
-                            <input type="date" value="${d.echange.badValidity || ''}" onchange="updateField('${d.id}', 'echange.badValidity', this.value)" class="border rounded px-2 py-1 text-xs font-bold">
-                        </label>
-                        <label class="flex items-center gap-2 bg-emerald-50 p-2.5 rounded-lg font-extrabold text-emerald-900 cursor-pointer">
-                            <input type="checkbox" ${d.echange.validated ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.validated', this.checked)" class="w-4 h-4">
-                            <span>Validation Échange</span>
-                        </label>
-                    </fieldset>
-                </div>
-
-                <!-- III. LE MANUTENTIONNAIRE -->
-                <div class="border border-slate-200 rounded-xl p-4 space-y-3 ${hasRolePermission(['MANUTENTION']) ? '' : 'opacity-60'}">
-                    <h4 class="font-extrabold text-sm text-navy-900">III. LE MANUTENTIONNAIRE ${hasRolePermission(['MANUTENTION']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
-                    <fieldset ${hasRolePermission(['MANUTENTION']) ? '' : 'disabled'} class="space-y-3">
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                            ${[
-                                ['invoiceRequested', 'Demande facture'],
-                                ['invoiceReceived', 'Réception facture'],
-                                ['invoicePaid', 'Paiement facture'],
-                                ['bactDone', 'BACT'],
-                                ['dfuPaid', 'Paiement DFU'],
-                                ['gatePassSubmitted', 'Soumission Gate Pass'],
-                                ['gatePassReceived', 'Réception Gate Pass'],
-                                ['truckRequested', 'Demande camion']
-                            ].map(([k, lbl]) => `
-                                <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
-                                    <input type="checkbox" ${d.manutention[k] ? 'checked' : ''} onchange="updateField('${d.id}', 'manutention.${k}', this.checked)" class="w-4 h-4">
-                                    <span>${lbl}</span>
-                                </label>
-                            `).join('')}
-                        </div>
-                        <label class="inline-flex items-center gap-2 bg-emerald-50 px-3 py-2 rounded-lg text-xs font-extrabold text-emerald-900 cursor-pointer">
-                            <input type="checkbox" ${d.manutention.validated ? 'checked' : ''} onchange="updateField('${d.id}', 'manutention.validated', this.checked)" class="w-4 h-4">
-                            <span>Validation Manutention</span>
-                        </label>
-                    </fieldset>
-                </div>
-
-                <!-- IV. PASSATION ET ENLÈVEMENT -->
-                <div class="border border-slate-200 rounded-xl p-4 space-y-4 ${hasRolePermission(['PASSATION_ENLEVEMENT']) ? '' : 'opacity-60'}">
-                    <h4 class="font-extrabold text-sm text-navy-900">IV. PASSATION ET ENLÈVEMENT ${hasRolePermission(['PASSATION_ENLEVEMENT']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
-                    <fieldset ${hasRolePermission(['PASSATION_ENLEVEMENT']) ? '' : 'disabled'} class="space-y-4">
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                            ${[
-                                ['bonEnlever', 'Bon à enlever'],
-                                ['bonConduire', 'Bon à conduire'],
-                                ['brigadeDone', 'Brigade'],
-                                ['customsReportDone', 'Rapport douane'],
-                                ['t1Requested', 'Demande T1'],
-                                ['t1Validated', 'Validation T1'],
-                                ['bonSortie', 'Bon de sortie'],
-                                ['validated', 'Validation Passation']
-                            ].map(([k, lbl]) => `
-                                <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
-                                    <input type="checkbox" ${d.passation[k] ? 'checked' : ''} onchange="updateField('${d.id}', 'passation.${k}', this.checked)" class="w-4 h-4">
-                                    <span>${lbl}</span>
-                                </label>
-                            `).join('')}
-                        </div>
-
-                        <div class="space-y-3">
-                            <p class="text-xs font-extrabold uppercase text-blue-900">Enleveur : Camions, Chauffeurs, Photos TC/Camion, Sortie & Retour Vide</p>
-                            ${(d.enlevement.trucks || []).map((tr, idx) => `
-                                <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3.5 space-y-3 text-xs">
-                                    <div class="font-extrabold text-navy-900">Conteneur : ${tr.tc}</div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block font-bold mb-1">N° Camion</label>
-                                            <input type="text" value="${tr.truckNumber || ''}" onchange="updateTruck('${d.id}', ${idx}, 'truckNumber', this.value.toUpperCase())" placeholder="Ex: TG-0000-AA" class="w-full px-3 py-2 bg-white border rounded-lg font-bold uppercase">
-                                        </div>
-                                        <div>
-                                            <label class="block font-bold mb-1">Tél. Chauffeur</label>
-                                            <input type="text" value="${tr.driverPhone || ''}" onchange="updateTruck('${d.id}', ${idx}, 'driverPhone', this.value)" placeholder="+228 90..." class="w-full px-3 py-2 bg-white border rounded-lg font-semibold">
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-                                        <div class="flex items-center gap-2">
-                                            <button type="button" onclick="document.getElementById('tc-photo-${d.id}-${idx}').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-lg cursor-pointer">
-                                                <i class="fa-solid fa-camera mr-1"></i> Déposer Photo TC/Camion
-                                            </button>
-                                            <input type="file" id="tc-photo-${d.id}-${idx}" accept="image/*" class="hidden" onchange="handleTruckPhoto('${d.id}', ${idx}, this)">
-                                            <span class="text-slate-600 font-semibold">${tr.photoData ? 'Photo déposée ✓' : 'Aucune photo'}</span>
-                                        </div>
-                                        <label class="inline-flex items-center gap-2 font-bold text-emerald-900 cursor-pointer">
-                                            <input type="checkbox" ${tr.exitedPort ? 'checked' : ''} onchange="updateTruck('${d.id}', ${idx}, 'exitedPort', this.checked)" class="w-4 h-4">
-                                            <span>Camion sorti du port</span>
-                                        </label>
-                                    </div>
-                                    ${d.depotage === 'Sur camion (SC)' ? `
-                                        <div>
-                                            <label class="block font-bold text-amber-800 mb-1">Retour vide (réservé Sur camion)</label>
-                                            <input type="text" value="${tr.emptyReturn || ''}" onchange="updateTruck('${d.id}', ${idx}, 'emptyReturn', this.value)" placeholder="Réservé / Date retour vide..." class="w-full px-3 py-2 bg-amber-50 border border-amber-300 rounded-lg">
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </fieldset>
-                </div>
-
-                <!-- V. DDU ET T1 + FACTURATION 10 000 PAR DDU -->
-                <div class="border border-slate-200 rounded-xl p-4 space-y-4 ${hasRolePermission(['DDU_T1']) ? '' : 'opacity-60'}">
-                    <h4 class="font-extrabold text-sm text-navy-900">V. DDU ET T1 • FACTURATION DDU (${formatMoney(inv.rate, inv.currency)} / DDU) ${hasRolePermission(['DDU_T1']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
-                    <fieldset ${hasRolePermission(['DDU_T1']) ? '' : 'disabled'} class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
-                            <div>
-                                <label class="block font-bold mb-1">N° Déclaration DDU</label>
-                                <input type="text" value="${d.dduT1.dduNumber || ''}" onchange="updateField('${d.id}', 'dduT1.dduNumber', this.value.toUpperCase())" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold uppercase">
-                            </div>
-                            <div>
-                                <label class="block font-bold mb-1">Nombre de DDU</label>
-                                <input type="number" min="1" value="${inv.count}" onchange="updateField('${d.id}', 'dduT1.dduCount', Math.max(1, parseInt(this.value || '1', 10)))" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold text-amber-900">
-                            </div>
-                            <div>
-                                <label class="block font-bold mb-1">N° T1</label>
-                                <input type="text" value="${d.dduT1.t1Number || ''}" onchange="updateField('${d.id}', 'dduT1.t1Number', this.value.toUpperCase())" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold uppercase">
-                            </div>
-                            <div>
-                                <label class="block font-bold mb-1">Validité T1 (Destination)</label>
-                                <input type="date" value="${d.dduT1.t1Validity || ''}" onchange="updateField('${d.id}', 'dduT1.t1Validity', this.value)" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold">
-                            </div>
-                            <div class="flex items-end">
-                                <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold w-full cursor-pointer">
-                                    <input type="checkbox" ${d.dduT1.t1Cleared ? 'checked' : ''} onchange="updateField('${d.id}', 'dduT1.t1Cleared', this.checked)" class="w-4 h-4">
-                                    <span>T1 apuré</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                            <div>
-                                <div class="font-extrabold text-amber-950">Facturation DDU : ${inv.count} × ${formatMoney(inv.rate, inv.currency)} = <span class="text-sm text-blue-800">${formatMoney(inv.total, inv.currency)}</span></div>
-                                <div class="text-slate-600 mt-0.5">Destinataire facture (k) : <strong class="text-slate-800">${targetEmail}</strong> ${d.dduT1.invoiceSent ? `<span class="ml-2 text-emerald-700 font-bold">• Envoyée ✓</span>` : ''}</div>
-                            </div>
-                            <button type="button" onclick="sendInvoiceEmailForDossier()" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shrink-0 cursor-pointer">
-                                <i class="fa-solid fa-paper-plane"></i>
-                                <span>Envoyer Facture à ${targetEmail}</span>
-                            </button>
-                        </div>
-                    </fieldset>
-                </div>
-            `;
-
-            document.getElementById('detail-modal').classList.remove('hidden');
-        }
-
-        function closeDetailModal() {
-            document.getElementById('detail-modal').classList.add('hidden');
-            activeDetailDossierId = null;
-        }
-
-        function updateField(id, path, val) {
-            const d = dossiers.find(x => x.id === id);
-            if (!d) return;
-            const parts = path.split('.');
-            let obj = d;
-            for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
-            obj[parts[parts.length - 1]] = val;
-            if (path === 'dduT1.t1Number' && val && !d.dduT1.t1IssuedAt) {
-                d.dduT1.t1IssuedAt = new Date().toISOString();
-            }
-            saveDossiers();
-            openDetailModal(id);
-        }
-
-        function updateTruck(id, idx, field, val) {
-            const d = dossiers.find(x => x.id === id);
-            if (!d || !d.enlevement.trucks[idx]) return;
-            d.enlevement.trucks[idx][field] = val;
-            saveDossiers();
-        }
-
-        function handleTruckPhoto(id, idx, input) {
-            const file = input.files && input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => {
-                updateTruck(id, idx, 'photoData', reader.result);
-                openDetailModal(id);
-                showToast('Photo conteneur/camion enregistrée.', 'success');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function requestModif(id) {
-            const d = dossiers.find(x => x.id === id);
-            if (!d) return;
-            d.modificationPending = true;
-            saveDossiers();
-            openDetailModal(id);
-            showToast('Demande de modification envoyée au superviseur/admin.', 'info');
-        }
-
-        function approveModif(id) {
-            const d = dossiers.find(x => x.id === id);
-            if (!d) return;
-            d.modificationPending = false;
-            saveDossiers();
-            openDetailModal(id);
-            showToast('Modification validée.', 'success');
-        }
-
-        function openSettingsModal() {
-            if (!session) return;
-            tempProfilePhotoBase64 = session.avatar || '';
-            document.getElementById('set-username').value = session.username;
-            document.getElementById('set-role-display').value = formatRolesLabel(session);
-            document.getElementById('set-new-password').value = '';
-            document.getElementById('set-status-message').value = session.statusMessage || '';
-
-            const img = document.getElementById('profile-avatar-preview');
-            const ini = document.getElementById('profile-avatar-initials');
-            if (tempProfilePhotoBase64) {
-                img.src = tempProfilePhotoBase64;
-                img.classList.remove('hidden');
-                ini.classList.add('hidden');
-            } else {
-                img.classList.add('hidden');
-                ini.classList.remove('hidden');
-                ini.textContent = (session.username || 'GEO').slice(0, 2).toUpperCase();
-            }
-
-            document.getElementById('set-ddu-rate').value = settings.dduRate ?? 10000;
-            document.getElementById('set-ddu-currency').value = settings.dduCurrency || 'FCFA';
-            document.getElementById('set-invoice-email-k').value = settings.invoiceEmailK || 'k@geosuvitransit.tg';
-
-            document.getElementById('set-days-unprocessed').value = settings.daysUnprocessedAlert;
-            document.getElementById('set-days-t1').value = settings.daysT1Alert;
-            document.getElementById('set-hours-exp').value = settings.hoursExpirationAlert;
-            document.getElementById('set-wa-sender').value = settings.waSender;
-            document.getElementById('set-wa-dest1').value = settings.waDest1;
-            document.getElementById('set-wa-dest2').value = settings.waDest2;
-
-            const adminPanel = document.getElementById('admin-accounts-panel');
-            if (isAdminUser()) {
-                adminPanel.classList.remove('hidden');
-                renderAccountsList();
-                renderConnectedAgentsList();
-            } else {
-                adminPanel.classList.add('hidden');
-            }
-
-            document.getElementById('settings-modal').classList.remove('hidden');
-        }
-
-        function closeSettingsModal() {
-            document.getElementById('settings-modal').classList.add('hidden');
-        }
-
-        function handleProfilePhotoChange(input) {
-            const file = input.files && input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => {
-                tempProfilePhotoBase64 = reader.result;
-                const img = document.getElementById('profile-avatar-preview');
-                const ini = document.getElementById('profile-avatar-initials');
-                img.src = tempProfilePhotoBase64;
-                img.classList.remove('hidden');
-                ini.classList.add('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function setQuickStatusMessage(msg) {
-            document.getElementById('set-status-message').value = msg;
-        }
-
-        function renderAccountsList() {
-            const cont = document.getElementById('accounts-list-container');
-            const assignableRoles = ['ENREGISTREMENT', 'ECHANGE', 'MANUTENTION', 'PASSATION_ENLEVEMENT', 'DDU_T1', 'SUPERVISEUR', 'ADMIN'];
-            cont.innerHTML = accounts.map(acc => {
-                const accRoles = getUserRoles(acc);
-                return `
-                <div class="bg-white p-3 rounded-lg border border-indigo-100 text-xs space-y-2">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                            <strong class="text-slate-900">${acc.username}</strong>
-                            ${acc.statusMessage ? `<span class="ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold">${acc.statusMessage}</span>` : ''}
-                        </div>
-                        ${acc.username !== 'admin' ? `<button type="button" onclick="deleteAccount('${acc.id}')" class="text-red-600 hover:bg-red-50 px-2 py-1 rounded font-bold cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : ''}
-                    </div>
-                    <div class="flex flex-wrap gap-1.5">
-                        ${assignableRoles.map(rk => `
-                            <label class="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-50 border border-slate-200 font-semibold cursor-pointer">
-                                <input type="checkbox" ${accRoles.includes(rk) ? 'checked' : ''} onchange="toggleAccountRole('${acc.id}', '${rk}', this.checked)" class="w-3.5 h-3.5">
-                                <span>${ROLE_LABELS[rk]}</span>
-                            </label>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            }).join('');
-        }
-
-        function handleCreateAccount(e) {
-            e.preventDefault();
-            const u = document.getElementById('new-acc-username').value.trim();
-            const p = document.getElementById('new-acc-password').value.trim();
-            const r = document.getElementById('new-acc-role').value;
-            if (!u || !p) return;
-            if (accounts.some(a => a.username.toLowerCase() === u.toLowerCase())) {
-                showToast('Cet identifiant existe déjà.', 'error');
-                return;
-            }
-            accounts.push({ id: 'acc-' + Date.now(), username: u, password: p, role: r, roles: [r], avatar: '', statusMessage: 'Disponible' });
-            saveAccounts();
-            renderAccountsList();
-            document.getElementById('create-account-form').reset();
-            showToast(`Compte ${u} créé avec le profil ${ROLE_LABELS[r]}.`, 'success');
-        }
-
-        function toggleAccountRole(id, roleKey, checked) {
-            const acc = accounts.find(a => a.id === id);
-            if (!acc) return;
-            let current = new Set(getUserRoles(acc));
-            if (checked) current.add(roleKey);
-            else if (current.size > 1) current.delete(roleKey);
-            else {
-                showToast('Au moins un rôle doit rester attribué au compte.', 'error');
-                renderAccountsList();
-                return;
-            }
-            const nextRoles = Array.from(current);
-            acc.roles = nextRoles;
-            acc.role = nextRoles[0];
-            saveAccounts();
-            if (session && session.accountId === id) {
-                session.roles = nextRoles;
-                session.role = acc.role;
-                safeSet(STORAGE_KEY_SESSION, JSON.stringify(session));
-                initAppView();
-            }
-            showToast(`Rôles mis à jour pour ${acc.username}.`, 'success');
-        }
-
-        function deleteAccount(id) {
-            accounts = accounts.filter(a => a.id !== id);
-            saveAccounts();
-            renderAccountsList();
-            showToast('Compte supprimé.', 'info');
-        }
-
-        function saveSettings() {
-            const newPass = document.getElementById('set-new-password').value.trim();
-            const newStatus = document.getElementById('set-status-message').value.trim();
-
-            const acc = accounts.find(a => a.id === session.accountId);
-            if (acc) {
-                if (newPass) acc.password = newPass;
-                acc.avatar = tempProfilePhotoBase64;
-                acc.statusMessage = newStatus;
-                saveAccounts();
-            }
-            session.avatar = tempProfilePhotoBase64;
-            session.statusMessage = newStatus;
-            safeSet(STORAGE_KEY_SESSION, JSON.stringify(session));
-            recordAgentConnected(session);
-
-            settings = {
-                daysUnprocessedAlert: Math.max(1, parseInt(document.getElementById('set-days-unprocessed').value || '14', 10)),
-                daysT1Alert: Math.max(1, parseInt(document.getElementById('set-days-t1').value || '5', 10)),
-                hoursExpirationAlert: Math.max(1, parseInt(document.getElementById('set-hours-exp').value || '72', 10)),
-                dduRate: Math.max(0, Number(document.getElementById('set-ddu-rate').value ?? 10000)),
-                dduCurrency: (document.getElementById('set-ddu-currency').value || 'FCFA').trim().toUpperCase(),
-                invoiceEmailK: (document.getElementById('set-invoice-email-k').value || 'k@geosuvitransit.tg').trim(),
-                waSender: document.getElementById('set-wa-sender').value.trim() || DEFAULT_SETTINGS.waSender,
-                waDest1: document.getElementById('set-wa-dest1').value.trim() || DEFAULT_SETTINGS.waDest1,
-                waDest2: document.getElementById('set-wa-dest2').value.trim() || DEFAULT_SETTINGS.waDest2
-            };
-            safeSet(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
-
-            initAppView();
-            if (activeDetailDossierId) openDetailModal(activeDetailDossierId);
-            closeSettingsModal();
-            showToast('Profil et paramètres enregistrés.', 'success');
-        }
-
-        function resetDemoData() {
-            dossiers = getInitialDossiers();
-            saveDossiers();
-            closeSettingsModal();
-            showToast('Données de démonstration réinitialisées.', 'info');
-        }
-
-        function cleanPhone(num) {
-            return String(num || '').replace(/[^\d]/g, '');
-        }
-
-        function openWhatsAppAlertModal(customText = '') {
-            const urgentList = dossiers.filter(d => evaluateDossierStatus(d).isUrgentAlert);
-            const msg = customText || (urgentList.length
-                ? `🚨 ALERTE GEO SUIVI TRANSIT (<${settings.hoursExpirationAlert}h / Souffrance) :\n` + urgentList.map(d => `• ${d.rep} (BL ${d.bl} - ${d.client}) : ${evaluateDossierStatus(d).alertReason}`).join('\n')
-                : `ℹ️ Point GEO SUIVI TRANSIT : ${dossiers.length} dossier(s) suivi(s).`);
-
-            document.getElementById('wa-sender-display').textContent = settings.waSender;
-            document.getElementById('wa-message-preview').value = msg;
-            document.getElementById('wa-btn-label-1').textContent = settings.waDest1;
-            document.getElementById('wa-btn-label-2').textContent = settings.waDest2;
-            document.getElementById('wa-link-1').href = `https://wa.me/${cleanPhone(settings.waDest1)}?text=${encodeURIComponent(msg)}`;
-            document.getElementById('wa-link-2').href = `https://wa.me/${cleanPhone(settings.waDest2)}?text=${encodeURIComponent(msg)}`;
-            document.getElementById('whatsapp-modal').classList.remove('hidden');
-        }
-
-        function sendSingleDossierWhatsApp() {
-            const d = dossiers.find(x => x.id === activeDetailDossierId);
-            if (!d) return openWhatsAppAlertModal();
-            const st = evaluateDossierStatus(d);
-            openWhatsAppAlertModal(`🚨 ALERTE DOSSIER ${d.rep}\nBL : ${d.bl} | Client : ${d.client}\nNavire : ${d.navire} | Dest. : ${d.destination}\nStatut : ${st.label}${st.alertReason ? ' (' + st.alertReason + ')' : ''}`);
-        }
-
-        function closeWhatsAppModal() {
-            document.getElementById('whatsapp-modal').classList.add('hidden');
-        }
-
-        if (session && session.username) {
-            recordAgentConnected(session);
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
-            initAppView();
-        }
-    </script>
+      ],
+      sessionUserId: null
+    };
+
+    let state = loadState();
+    let selectedIds = new Set();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(DEFAULT_STATE);
+        const parsed = JSON.parse(raw);
+        return {
+          settings: { ...DEFAULT_STATE.settings, ...(parsed.settings || {}) },
+          users: Array.isArray(parsed.users) && parsed.users.length ? parsed.users : structuredClone(DEFAULT_STATE.users),
+          dossiers: Array.isArray(parsed.dossiers) ? parsed.dossiers : structuredClone(DEFAULT_STATE.dossiers),
+          sessionUserId: parsed.sessionUserId || null
+        };
+      } catch (e) {
+        return structuredClone(DEFAULT_STATE);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        el.style.display = "none";
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function getCurrentUser() {
+      return state.users.find((u) => u.id === state.sessionUserId) || null;
+    }
+
+    function isAdminOrSupervisor(user) {
+      if (!user) return false;
+      return user.roles.includes("ADMIN") || user.roles.includes("SUPERVISEUR");
+    }
+
+    /* Connexion / Déconnexion */
+    function handleLogin(event) {
+      event.preventDefault();
+      const errEl = document.getElementById("loginError");
+      errEl.style.display = "none";
+
+      const usernameInput = document.getElementById("loginUsername").value.trim().toLowerCase();
+      const passwordInput = document.getElementById("loginPassword").value;
+
+      if (!usernameInput || !passwordInput) {
+        errEl.textContent = "Veuillez renseigner l'identifiant et le mot de passe.";
+        errEl.style.display = "block";
+        return;
+      }
+
+      const user = state.users.find(
+        (u) => u.username.toLowerCase() === usernameInput && u.passwordHash === btoa(passwordInput)
+      );
+
+      if (!user) {
+        errEl.textContent = "Identifiant ou mot de passe incorrect.";
+        errEl.style.display = "block";
+        return;
+      }
+
+      user.online = true;
+      user.lastSeen = new Date().toLocaleString("fr-FR");
+      state.sessionUserId = user.id;
+      saveState();
+      renderApp();
+      showToast("Bienvenue, " + user.name);
+    }
+
+    function logout() {
+      const user = getCurrentUser();
+      if (user) {
+        user.online = false;
+        user.lastSeen = new Date().toLocaleString("fr-FR");
+      }
+      state.sessionUserId = null;
+      selectedIds.clear();
+      saveState();
+      document.getElementById("appScreen").style.display = "none";
+      document.getElementById("loginScreen").style.display = "flex";
+      document.getElementById("loginPassword").value = "";
+    }
+
+    function renderApp() {
+      const user = getCurrentUser();
+      if (!user) {
+        document.getElementById("appScreen").style.display = "none";
+        document.getElementById("loginScreen").style.display = "flex";
+        return;
+      }
+
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("appScreen").style.display = "block";
+
+      document.getElementById("currentUserLabel").textContent = `${user.name} (${user.username})`;
+      document.getElementById("currentRolesLabel").textContent = `[${user.roles.join(", ")}]`;
+      document.getElementById("btnAdminPanel").style.display = isAdminOrSupervisor(user) ? "inline-block" : "none";
+
+      renderKpis();
+      renderDossiers();
+    }
+
+    function renderKpis() {
+      const total = state.dossiers.length;
+      const dduCount = state.dossiers.filter((d) => d.isDdu).length;
+      const rougeCount = state.dossiers.filter((d) => d.circuit === "ROUGE").length;
+      const vertCount = state.dossiers.filter((d) => d.circuit === "VERT").length;
+      const bleuCount = state.dossiers.filter((d) => d.circuit === "BLEU").length;
+
+      document.getElementById("kpiContainer").innerHTML = `
+        <div class="kpi-card">
+          <div class="kpi-label">Total Dossiers</div>
+          <div class="kpi-value">${total}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Dossiers DDU</div>
+          <div class="kpi-value">${dduCount}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Circuit Rouge</div>
+          <div class="kpi-value" style="color:var(--danger);">${rougeCount}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Circuit Vert</div>
+          <div class="kpi-value" style="color:var(--success);">${vertCount}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Circuit Bleu</div>
+          <div class="kpi-value" style="color:var(--info);">${bleuCount}</div>
+        </div>
+      `;
+    }
+
+    function getFilteredDossiers() {
+      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+      const circuit = document.getElementById("circuitFilter").value;
+      const dduOnly = document.getElementById("dduOnlyFilter").checked;
+
+      return state.dossiers.filter((d) => {
+        if (circuit !== "TOUS" && d.circuit !== circuit) return false;
+        if (dduOnly && !d.isDdu) return false;
+        if (!q) return true;
+        const hay = `${d.repertoire} ${d.bl} ${d.client} ${d.navire} ${d.destination} ${d.statut} ${(d.containers || []).join(" ")}`.toLowerCase();
+        return hay.includes(q);
+      });
+    }
+
+    function renderDossiers() {
+      const rows = getFilteredDossiers();
+      const tbody = document.getElementById("dossiersTableBody");
+
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--muted);">Aucun dossier trouvé.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rows.map((d) => {
+        const circuitClass = (d.circuit || "VERT").toLowerCase();
+        const checked = selectedIds.has(d.id) ? "checked" : "";
+        return `
+          <tr>
+            <td><input type="checkbox" ${checked} onchange="toggleSelect('${d.id}', this.checked)" /></td>
+            <td><strong>${escapeHtml(d.repertoire)}</strong></td>
+            <td>${escapeHtml(d.bl)}</td>
+            <td>${escapeHtml(d.client)}</td>
+            <td>${escapeHtml(d.navire)} — <span style="color:var(--muted);">${escapeHtml(d.destination)}</span></td>
+            <td>${d.isDdu ? '<span class="pill bleu">DDU</span>' : '<span style="color:var(--muted);">Non</span>'}</td>
+            <td><span class="pill ${circuitClass}">${escapeHtml(d.circuit)}</span> ${escapeHtml(d.statut)}</td>
+            <td>
+              <div class="row-actions">
+                <button class="sm" onclick="openDossierModal('${d.id}')">Détails / Éditer</button>
+                <button class="sm" onclick="exportSingleBordereauPdf('${d.id}')">Bordereau PDF</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function toggleSelect(id, checked) {
+      if (checked) selectedIds.add(id);
+      else selectedIds.delete(id);
+    }
+
+    function toggleSelectAll(checked) {
+      const visible = getFilteredDossiers();
+      selectedIds.clear();
+      if (checked) {
+        visible.forEach((d) => selectedIds.add(d.id));
+      }
+      renderDossiers();
+    }
+
+    /* Modal Dossier */
+    function openDossierModal(id = null) {
+      const modal = document.getElementById("dossierModal");
+      if (!id) {
+        const nextNum = String(state.dossiers.length + 1).padStart(5, "0");
+        document.getElementById("dossierModalTitle").textContent = "Créer un nouveau dossier";
+        document.getElementById("editDossierId").value = "";
+        document.getElementById("fRepertoire").value = `GEO${nextNum}`;
+        document.getElementById("fBl").value = "";
+        document.getElementById("fClient").value = "";
+        document.getElementById("fNavire").value = "";
+        document.getElementById("fDestination").value = "";
+        document.getElementById("fCircuit").value = "VERT";
+        document.getElementById("fStatut").value = "En cours";
+        document.getElementById("fIsDdu").value = "true";
+        document.getElementById("fContainersPaste").value = "";
+        document.getElementById("fContainersNormalized").value = "";
+        document.getElementById("fPoints").value = "";
+      } else {
+        const d = state.dossiers.find((item) => item.id === id);
+        if (!d) return;
+        document.getElementById("dossierModalTitle").textContent = `Dossier ${d.repertoire}`;
+        document.getElementById("editDossierId").value = d.id;
+        document.getElementById("fRepertoire").value = d.repertoire || "";
+        document.getElementById("fBl").value = d.bl || "";
+        document.getElementById("fClient").value = d.client || "";
+        document.getElementById("fNavire").value = d.navire || "";
+        document.getElementById("fDestination").value = d.destination || "";
+        document.getElementById("fCircuit").value = d.circuit || "VERT";
+        document.getElementById("fStatut").value = d.statut || "";
+        document.getElementById("fIsDdu").value = d.isDdu ? "true" : "false";
+        const cList = (d.containers || []).join("\n");
+        document.getElementById("fContainersPaste").value = cList;
+        document.getElementById("fContainersNormalized").value = (d.containers || []).join(", ");
+        document.getElementById("fPoints").value = d.points || "";
+      }
+      modal.classList.add("open");
+    }
+
+    function syncContainersFromPaste() {
+      const raw = document.getElementById("fContainersPaste").value || "";
+      const list = raw
+        .split(/[\n,;|\s]+/)
+        .map((s) => s.trim().toUpperCase())
+        .filter(Boolean);
+      document.getElementById("fContainersNormalized").value = [...new Set(list)].join(", ");
+    }
+
+    function saveDossier() {
+      const id = document.getElementById("editDossierId").value;
+      const rep = document.getElementById("fRepertoire").value.trim().toUpperCase();
+      if (!rep) {
+        showToast("Le numéro de répertoire est obligatoire.");
+        return;
+      }
+
+      const containers = (document.getElementById("fContainersNormalized").value || "")
+        .split(",")
+        .map((c) => c.trim().toUpperCase())
+        .filter(Boolean);
+
+      const payload = {
+        id: id || "d_" + Date.now(),
+        repertoire: rep,
+        bl: document.getElementById("fBl").value.trim().toUpperCase(),
+        client: document.getElementById("fClient").value.trim(),
+        navire: document.getElementById("fNavire").value.trim().toUpperCase(),
+        destination: document.getElementById("fDestination").value.trim().toUpperCase(),
+        circuit: document.getElementById("fCircuit").value,
+        statut: document.getElementById("fStatut").value.trim(),
+        isDdu: document.getElementById("fIsDdu").value === "true",
+        containers,
+        points: document.getElementById("fPoints").value.trim()
+      };
+
+      if (id) {
+        const idx = state.dossiers.findIndex((d) => d.id === id);
+        if (idx >= 0) state.dossiers[idx] = payload;
+      } else {
+        state.dossiers.unshift(payload);
+      }
+
+      saveState();
+      closeModal("dossierModal");
+      renderApp();
+      showToast(`Dossier ${rep} enregistré.`);
+    }
+
+    /* Bordereau PDF (SANS FACTURATION) */
+    function buildBordereauHtml(dossiersList, titleText) {
+      const nowStr = new Date().toLocaleString("fr-FR");
+      const cards = dossiersList.map((d) => {
+        const pointsLines = (d.points || "Aucun point renseigné.")
+          .split("\n")
+          .filter(Boolean)
+          .map((line) => `<li>${escapeHtml(line.replace(/^[-•*]\s*/, ""))}</li>`)
+          .join("");
+        const containersText = (d.containers && d.containers.length) ? d.containers.join(", ") : "Non précisé";
+
+        return `
+          <div style="border:1px solid #334155; border-radius:8px; padding:14px; margin-bottom:16px; page-break-inside:avoid;">
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #cbd5e1; padding-bottom:6px; margin-bottom:10px;">
+              <strong>RÉPERTOIRE : ${escapeHtml(d.repertoire)}</strong>
+              <span><strong>STATUT :</strong> ${escapeHtml(d.statut || "N/A")} (${escapeHtml(d.circuit)})</span>
+            </div>
+            <p style="margin:4px 0;"><strong>N° BL :</strong> ${escapeHtml(d.bl || "-")} &nbsp;|&nbsp; <strong>CLIENT :</strong> ${escapeHtml(d.client || "-")}</p>
+            <p style="margin:4px 0;"><strong>NAVIRE :</strong> ${escapeHtml(d.navire || "-")} &nbsp;|&nbsp; <strong>DESTINATION :</strong> ${escapeHtml(d.destination || "-")}</p>
+            <p style="margin:4px 0;"><strong>CONTENEURS :</strong> ${escapeHtml(containersText)}</p>
+            <div style="margin-top:8px;">
+              <strong>POINTS / ÉTAPES D'AVANCEMENT :</strong>
+              <ul style="margin:6px 0 0 18px; padding:0;">${pointsLines}</ul>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #0f172a; padding-bottom:10px; margin-bottom:16px;">
+            <div>
+              <h1 style="margin:0; font-size:20px;">GEO SUIVI TRANSIT — ${escapeHtml(titleText)}</h1>
+              <div style="font-size:12px; color:#475569;">Document d'exploitation et suivi opérationnel</div>
+            </div>
+            <div style="font-size:12px; text-align:right;">Édité le ${escapeHtml(nowStr)}</div>
+          </div>
+          ${cards}
+        </div>
+      `;
+    }
+
+    function triggerPrintHtml(htmlContent) {
+      const area = document.getElementById("printArea");
+      area.innerHTML = htmlContent;
+      window.print();
+    }
+
+    function exportSingleBordereauPdf(id = null) {
+      const targetId = id || document.getElementById("editDossierId").value;
+      const d = state.dossiers.find((item) => item.id === targetId);
+      if (!d) {
+        showToast("Dossier introuvable pour le bordereau.");
+        return;
+      }
+      triggerPrintHtml(buildBordereauHtml([d], `BORDEREAU ${d.repertoire}`));
+    }
+
+    function printSingleBordereauPdf() {
+      exportSingleBordereauPdf(document.getElementById("editDossierId").value);
+    }
+
+    function exportBulkBordereauPdf() {
+      const selected = state.dossiers.filter((d) => selectedIds.has(d.id));
+      const list = selected.length ? selected : getFilteredDossiers();
+      if (!list.length) {
+        showToast("Aucun dossier à exporter en bordereau PDF.");
+        return;
+      }
+      triggerPrintHtml(buildBordereauHtml(list, `BORDEREAUX GROUPÉS (${list.length})`));
+    }
+
+    /* Facturation DDU (Répertoire A -> Répertoire X & STE GEO) */
+    function openDduBillingModal() {
+      document.getElementById("billUnitPrice").value = state.settings.dduUnitPrice ?? 10000;
+      document.getElementById("billRecipientEmail").value = state.settings.emailK || "k@geosuvitransit.tg";
+      prefillRangeFromDossiers();
+      computeDduInvoice();
+      document.getElementById("billingModal").classList.add("open");
+    }
+
+    function prefillRangeFromDossiers() {
+      const sortedReps = state.dossiers
+        .map((d) => (d.repertoire || "").trim().toUpperCase())
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+      if (sortedReps.length) {
+        document.getElementById("billRepStart").value = sortedReps[0];
+        document.getElementById("billRepEnd").value = sortedReps[sortedReps.length - 1];
+      }
+    }
+
+    function getDduRangeMatches() {
+      const startVal = (document.getElementById("billRepStart").value || "").trim().toUpperCase();
+      const endVal = (document.getElementById("billRepEnd").value || "").trim().toUpperCase();
+
+      return state.dossiers.filter((d) => {
+        if (!d.isDdu) return false;
+        const rep = (d.repertoire || "").trim().toUpperCase();
+        if (startVal && rep.localeCompare(startVal, undefined, { numeric: true }) < 0) return false;
+        if (endVal && rep.localeCompare(endVal, undefined, { numeric: true }) > 0) return false;
+        return true;
+      });
+    }
+
+    function computeDduInvoice() {
+      const unitPrice = Number(document.getElementById("billUnitPrice").value) || 0;
+      const currency = state.settings.currency || "FCFA";
+      const recipient = (document.getElementById("billRecipientEmail").value || state.settings.emailK || "").trim();
+      const matches = getDduRangeMatches();
+      const totalAmount = matches.length * unitPrice;
+
+      const startLabel = document.getElementById("billRepStart").value.trim().toUpperCase() || "DÉBUT";
+      const endLabel = document.getElementById("billRepEnd").value.trim().toUpperCase() || "FIN";
+
+      const linesHtml = matches.length
+        ? matches.map((d) => `
+            <tr>
+              <td>${escapeHtml(d.repertoire)}</td>
+              <td>${escapeHtml(d.bl || "-")}</td>
+              <td>${escapeHtml(d.client || "-")}</td>
+              <td style="text-align:right;">${unitPrice.toLocaleString("fr-FR")} ${escapeHtml(currency)}</td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="4" style="text-align:center; color:var(--muted);">Aucun dossier DDU dans cette plage de répertoires.</td></tr>`;
+
+      document.getElementById("invoicePreviewBox").innerHTML = `
+        <div class="invoice-head">
+          <div>
+            <h3 style="margin:0;">FACTURE DDU — STE GEO</h3>
+            <div style="font-size:12.5px; color:var(--muted);">Plage répertoires : <strong>${escapeHtml(startLabel)}</strong> → <strong>${escapeHtml(endLabel)}</strong></div>
+            <div style="font-size:12.5px; color:var(--muted);">Destinataire (k) : <strong>${escapeHtml(recipient || "Non défini")}</strong></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px; color:var(--muted);">Tarif unitaire DDU</div>
+            <strong>${unitPrice.toLocaleString("fr-FR")} ${escapeHtml(currency)}</strong>
+          </div>
+        </div>
+        <table style="min-width:100%; margin-bottom:12px;">
+          <thead>
+            <tr>
+              <th>Répertoire</th>
+              <th>N° BL</th>
+              <th>Client</th>
+              <th style="text-align:right;">Montant DDU</th>
+            </tr>
+          </thead>
+          <tbody>${linesHtml}</tbody>
+        </table>
+        <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:700; padding-top:8px; border-top:1px solid var(--border);">
+          <span>Nombre de DDU facturés : ${matches.length}</span>
+          <span>TOTAL : ${totalAmount.toLocaleString("fr-FR")} ${escapeHtml(currency)}</span>
+        </div>
+      `;
+    }
+
+    function printInvoicePdf() {
+      const content = document.getElementById("invoicePreviewBox").innerHTML;
+      triggerPrintHtml(`<div style="padding:16px;">${content}</div>`);
+    }
+
+    function sendInvoiceToGeo() {
+      const recipient = (document.getElementById("billRecipientEmail").value || state.settings.emailK || "").trim();
+      const unitPrice = Number(document.getElementById("billUnitPrice").value) || 0;
+      const currency = state.settings.currency || "FCFA";
+      const matches = getDduRangeMatches();
+      const totalAmount = matches.length * unitPrice;
+      const startLabel = document.getElementById("billRepStart").value.trim().toUpperCase() || "A";
+      const endLabel = document.getElementById("billRepEnd").value.trim().toUpperCase() || "X";
+
+      if (!recipient) {
+        showToast("Veuillez renseigner l'adresse e-mail de destination STE GEO (k).");
+        return;
+      }
+
+      const subject = encodeURIComponent(`Facturation DDU STE GEO (${startLabel} à ${endLabel}) - ${matches.length} DDU`);
+      const body = encodeURIComponent(
+        `Bonjour STE GEO,\n\nVeuillez trouver le récapitulatif de facturation DDU :\n` +
+        `- Plage répertoires : ${startLabel} à ${endLabel}\n` +
+        `- Nombre de DDU : ${matches.length}\n` +
+        `- Tarif unitaire : ${unitPrice.toLocaleString("fr-FR")} ${currency}\n` +
+        `- Montant total : ${totalAmount.toLocaleString("fr-FR")} ${currency}\n` +
+        `- Répertoires : ${matches.map((m) => m.repertoire).join(", ") || "Aucun"}\n\nCordialement,\nGEO SUIVI TRANSIT`
+      );
+
+      showToast(`Facture préparée et transmise à ${recipient}.`);
+      window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${subject}&body=${body}`;
+    }
+
+    /* Administration (Agents connectés & Multi-rôles) */
+    function openAdminModal() {
+      const user = getCurrentUser();
+      if (!isAdminOrSupervisor(user)) {
+        showToast("Accès réservé aux administrateurs et superviseurs.");
+        return;
+      }
+
+      document.getElementById("adminSessionsBody").innerHTML = state.users.map((u) => `
+        <tr>
+          <td><strong>${escapeHtml(u.name)}</strong></td>
+          <td>${escapeHtml(u.username)}</td>
+          <td>${escapeHtml(u.roles.join(", "))}</td>
+          <td>${u.online ? '<span class="pill vert">En ligne</span>' : '<span class="pill" style="background:#e2e8f0; color:#334155;">Hors ligne</span>'}</td>
+          <td>${escapeHtml(u.lastSeen || "-")}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("adminUsersList").innerHTML = state.users.map((u) => {
+        const checkboxes = AVAILABLE_ROLES.map((r) => {
+          const checked = u.roles.includes(r) ? "checked" : "";
+          return `
+            <label class="role-chip">
+              <input type="checkbox" ${checked} onchange="toggleUserRole('${u.id}', '${r}', this.checked)" />
+              ${r}
+            </label>
+          `;
+        }).join("");
+        return `
+          <div style="padding:10px 0; border-bottom:1px solid var(--border);">
+            <div style="font-weight:600; margin-bottom:6px;">${escapeHtml(u.name)} (${escapeHtml(u.username)})</div>
+            <div class="role-grid">${checkboxes}</div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("newAgentRoles").innerHTML = AVAILABLE_ROLES.map((r) => `
+        <label class="role-chip">
+          <input type="checkbox" class="new-agent-role-cb" value="${r}" ${r === "AGENT_DDU_T1" ? "checked" : ""} />
+          ${r}
+        </label>
+      `).join("");
+
+      document.getElementById("adminModal").classList.add("open");
+    }
+
+    function toggleUserRole(userId, role, enabled) {
+      const target = state.users.find((u) => u.id === userId);
+      if (!target) return;
+      const set = new Set(target.roles);
+      if (enabled) set.add(role);
+      else set.delete(role);
+      target.roles = Array.from(set);
+      saveState();
+      renderApp();
+      showToast(`Rôles mis à jour pour ${target.username}.`);
+    }
+
+    function createNewAgent() {
+      const name = document.getElementById("newAgentName").value.trim();
+      const username = document.getElementById("newAgentUser").value.trim().toLowerCase();
+      const password = document.getElementById("newAgentPass").value;
+      const roles = Array.from(document.querySelectorAll(".new-agent-role-cb:checked")).map((cb) => cb.value);
+
+      if (!name || !username || !password) {
+        showToast("Veuillez remplir nom, identifiant et mot de passe.");
+        return;
+      }
+
+      if (state.users.some((u) => u.username.toLowerCase() === username)) {
+        showToast("Cet identifiant existe déjà.");
+        return;
+      }
+
+      state.users.push({
+        id: "u_" + Date.now(),
+        name,
+        username,
+        passwordHash: btoa(password),
+        roles: roles.length ? roles : ["AGENT_DDU_T1"],
+        online: false,
+        lastSeen: "Jamais connecté"
+      });
+
+      saveState();
+      document.getElementById("newAgentName").value = "";
+      document.getElementById("newAgentUser").value = "";
+      document.getElementById("newAgentPass").value = "";
+      openAdminModal();
+      showToast(`Agent ${username} ajouté.`);
+    }
+
+    /* Paramètres */
+    function openSettingsModal() {
+      document.getElementById("settingEmailK").value = state.settings.emailK || "k@geosuvitransit.tg";
+      document.getElementById("settingDefaultDduPrice").value = state.settings.dduUnitPrice ?? 10000;
+      document.getElementById("settingCurrency").value = state.settings.currency || "FCFA";
+      document.getElementById("settingsModal").classList.add("open");
+    }
+
+    function saveSettings() {
+      state.settings.emailK = (document.getElementById("settingEmailK").value || "").trim() || "k@geosuvitransit.tg";
+      state.settings.dduUnitPrice = Number(document.getElementById("settingDefaultDduPrice").value) || 0;
+      state.settings.currency = (document.getElementById("settingCurrency").value || "").trim() || "FCFA";
+      saveState();
+      closeModal("settingsModal");
+      showToast("Paramètres enregistrés.");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("open");
+    }
+
+    /* Démarrage propre */
+    renderApp();
+  </script>
 </body>
 </html>
