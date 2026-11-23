@@ -389,6 +389,31 @@
       margin-bottom: 3px;
     }
 
+    .evolution-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .evolution-item {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+
+    .evolution-meta {
+      font-size: 11.5px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+
     /* Modals */
     .modal-backdrop {
       position: fixed;
@@ -409,7 +434,7 @@
       background: var(--surface);
       border-radius: 12px;
       width: 100%;
-      max-width: 820px;
+      max-width: 840px;
       max-height: 90vh;
       display: flex;
       flex-direction: column;
@@ -449,6 +474,12 @@
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
       gap: 12px;
     }
 
@@ -647,8 +678,8 @@
               <th>Répertoire</th>
               <th>N° BL</th>
               <th>Client</th>
-              <th>Navire / Destination</th>
-              <th>Flux / DDU</th>
+              <th>Navire / Provenance → Destination</th>
+              <th>Poids / Qté / Conteneurs</th>
               <th>Statut / Étape</th>
               <th>Actions</th>
             </tr>
@@ -689,8 +720,37 @@
               <input type="text" id="fNavire" placeholder="Ex: MSC LOME" />
             </div>
             <div class="field">
-              <label>Destination</label>
+              <label>Pays de provenance</label>
+              <input type="text" id="fPaysProvenance" placeholder="Ex: Chine / Togo" />
+            </div>
+            <div class="field">
+              <label>Pays de destination</label>
+              <input type="text" id="fPaysDestination" placeholder="Ex: Burkina Faso / Niger / Mali" />
+            </div>
+            <div class="field">
+              <label>Destination finale / Ville</label>
               <input type="text" id="fDestination" placeholder="Ex: OUAGA BF / LOMÉ" />
+            </div>
+            <div class="field">
+              <label>Type de conteneurs</label>
+              <select id="fContainerType">
+                <option value="20'DC">20'DC (Dry Standard)</option>
+                <option value="40'DC">40'DC (Dry Standard)</option>
+                <option value="40'HC">40'HC (High Cube)</option>
+                <option value="20'RF">20'RF (Reefer)</option>
+                <option value="40'RF">40'RF (Reefer)</option>
+                <option value="20'OT">20'OT (Open Top)</option>
+                <option value="40'OT">40'OT (Open Top)</option>
+                <option value="GROUPAGE">Groupage / LCL</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Poids (ex: 24 500 kg / 24,5 T)</label>
+              <input type="text" id="fPoids" placeholder="Ex: 24 500 kg" />
+            </div>
+            <div class="field">
+              <label>Quantité (colis / unités / conteneurs)</label>
+              <input type="text" id="fQuantite" placeholder="Ex: 120 colis" />
             </div>
             <div class="field">
               <label>Flux opérationnel</label>
@@ -732,7 +792,7 @@
 
         <div class="section-box">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
-            <h3 style="margin:0;">Conteneurs (4 lettres + 7 chiffres — collage auto-réparti)</h3>
+            <h3 style="margin:0;">Numéros de conteneurs (4 lettres + 7 chiffres — collage auto-réparti)</h3>
             <button type="button" class="sm" onclick="addContainerField()">+ Ajouter un champ conteneur</button>
           </div>
           <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">
@@ -741,9 +801,25 @@
           <div id="containersFieldsGrid" class="containers-grid"></div>
         </div>
 
+        <div class="section-box">
+          <h3>Évolution &amp; Renseignement du suivi du dossier</h3>
+          <div class="grid-2" style="margin-bottom:10px;">
+            <div class="field" style="margin-bottom:0;">
+              <label for="fEvoStage">Nouvelle étape / Statut</label>
+              <input type="text" id="fEvoStage" placeholder="Ex: BAD récupéré / Passage douane / Dépotage" />
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="fEvoNote">Détail de l'évolution</label>
+              <input type="text" id="fEvoNote" placeholder="Ex: Dossier validé à SEGUCE, camion affecté" />
+            </div>
+          </div>
+          <button type="button" class="sm primary" onclick="addEvolutionEntry()">+ Enregistrer cette évolution</button>
+          <div id="evolutionHistoryList" class="evolution-list"></div>
+        </div>
+
         <div class="section-box" style="margin-bottom:0;">
-          <h3>Points / Étapes d'avancement (PO / Milestones)</h3>
-          <div class="field">
+          <h3>Points / Étapes d'avancement (PO / Milestones — Bordereau)</h3>
+          <div class="field" style="margin-bottom:0;">
             <label>Points de suivi et observations (sans données de facturation sur le bordereau)</label>
             <textarea id="fPoints" rows="3" placeholder="Ex:&#10;- Arrivée navire et BAD récupéré&#10;- Déclaration validée&#10;- Enlèvement / Transport vers destination"></textarea>
           </div>
@@ -890,7 +966,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V4";
+    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V5";
     const AVAILABLE_ROLES = ["ADMIN", "SUPERVISEUR", "AGENT_DDU_T1", "AGENT_TRANSIT", "AGENT_EXPLOITATION"];
 
     const DEFAULT_STATE = {
@@ -935,13 +1011,21 @@
           bl: "LOM40231",
           client: "STE LOG",
           navire: "MSC LOME",
+          paysProvenance: "Chine",
+          paysDestination: "Burkina Faso",
           destination: "OUAGA BF",
+          containerType: "40'HC",
+          poids: "26 400 kg",
+          quantite: "2 conteneurs",
           flux: "HINTERLAND",
           circuit: "ROUGE",
           statut: "Alerte < 72h - Douane",
           isDdu: true,
           alert72h: true,
           containers: ["MSCU4512091", "MSCU8841203"],
+          evolutions: [
+            { date: "23/11/2026 09:15", stage: "Arrivée navire", note: "Navire accosté au terminal à conteneurs", author: "admin" }
+          ],
           points: "- Arrivée navire à Lomé\n- BAD émis\n- Contrôle documentaire en cours"
         },
         {
@@ -950,13 +1034,21 @@
           bl: "LOM55891",
           client: "FASO IMPORT SARL",
           navire: "CMA CGM AFRICA",
+          paysProvenance: "Émirats arabes unis",
+          paysDestination: "Niger",
           destination: "NIAMEY NE",
+          containerType: "20'DC",
+          poids: "18 200 kg",
+          quantite: "85 colis",
           flux: "DEPOTAGE",
           circuit: "BLEU",
           statut: "Dépotage CFS",
           isDdu: true,
           alert72h: false,
           containers: ["CMAU3019942"],
+          evolutions: [
+            { date: "23/11/2026 10:00", stage: "Transfert CFS", note: "Conteneur transféré pour dépotage", author: "esta" }
+          ],
           points: "- Transfert CFS effectué\n- Dépotage programmé\n- Préparation expédition route"
         },
         {
@@ -965,13 +1057,19 @@
           bl: "LOM60122",
           client: "TRANSIT SAHL",
           navire: "MAERSK KENSINGTON",
+          paysProvenance: "Turquie",
+          paysDestination: "Mali",
           destination: "BAMAKO ML",
+          containerType: "40'DC",
+          poids: "21 000 kg",
+          quantite: "140 cartons",
           flux: "MAGASINS",
           circuit: "JAUNE",
           statut: "En attente validation",
           isDdu: true,
           alert72h: false,
           containers: ["MRKU7721004"],
+          evolutions: [],
           points: "- Dossier créé\n- En attente confirmation pièces client"
         },
         {
@@ -980,13 +1078,19 @@
           bl: "MEDU4987822",
           client: "STE APECME MOTO BF",
           navire: "MSC BETTINA",
+          paysProvenance: "Inde",
+          paysDestination: "Burkina Faso",
           destination: "OUAGA BF",
+          containerType: "40'HC",
+          poids: "23 800 kg",
+          quantite: "60 motos",
           flux: "HINTERLAND",
           circuit: "VERT",
           statut: "Circuit normal",
           isDdu: true,
           alert72h: false,
           containers: ["MSCU1190442", "MSCU5501928"],
+          evolutions: [],
           points: "- Circuit vert validé\n- Mise sur camion planifiée"
         }
       ],
@@ -1015,6 +1119,7 @@
 
     let state = loadState();
     let selectedIds = new Set();
+    let workingEvolutions = [];
 
     window.addEventListener("error", function (event) {
       const loginErr = document.getElementById("loginError");
@@ -1226,7 +1331,7 @@
         if (flux !== "TOUS" && (d.flux || "HINTERLAND") !== flux) return false;
         if (dduOnly && !d.isDdu) return false;
         if (!q) return true;
-        const hay = `${d.repertoire} ${d.bl} ${d.client} ${d.navire} ${d.destination} ${d.flux || ""} ${d.statut} ${(d.containers || []).join(" ")}`.toLowerCase();
+        const hay = `${d.repertoire} ${d.bl} ${d.client} ${d.navire} ${d.paysProvenance || ""} ${d.paysDestination || ""} ${d.destination} ${d.containerType || ""} ${d.poids || ""} ${d.quantite || ""} ${d.flux || ""} ${d.statut} ${(d.containers || []).join(" ")}`.toLowerCase();
         return hay.includes(q);
       });
     }
@@ -1244,6 +1349,7 @@
         const circuitClass = (d.circuit || "VERT").toLowerCase();
         const checked = selectedIds.has(d.id) ? "checked" : "";
         const cCount = (d.containers || []).length;
+        const routeText = [d.paysProvenance, d.paysDestination || d.destination].filter(Boolean).join(" → ");
         return `
           <tr>
             <td><input type="checkbox" ${checked} onchange="toggleSelect('${d.id}', this.checked)" /></td>
@@ -1253,16 +1359,18 @@
             </td>
             <td>${escapeHtml(d.bl)}</td>
             <td>${escapeHtml(d.client)}</td>
-            <td>${escapeHtml(d.navire)} — <span style="color:var(--muted);">${escapeHtml(d.destination)}</span></td>
             <td>
-              <span style="font-size:12px; font-weight:600;">${escapeHtml(d.flux || "HINTERLAND")}</span>
-              ${d.isDdu ? '<span class="pill bleu" style="margin-left:4px;">DDU</span>' : ""}
-              <div style="font-size:11.5px; color:var(--muted);">${cCount} conteneur(s)</div>
+              ${escapeHtml(d.navire)}
+              <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(routeText || "-")}</div>
+            </td>
+            <td>
+              <div style="font-size:12.5px;"><strong>${escapeHtml(d.poids || "-")}</strong> • ${escapeHtml(d.quantite || "-")}</div>
+              <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(d.containerType || "-")} (${cCount} cont.)</div>
             </td>
             <td><span class="pill ${circuitClass}">${escapeHtml(d.circuit)}</span> ${escapeHtml(d.statut)}</td>
             <td>
               <div class="row-actions">
-                <button class="sm" onclick="openDossierModal('${d.id}')">Détails / Éditer</button>
+                <button class="sm" onclick="openDossierModal('${d.id}')">Détails / Évolution</button>
                 <button class="sm" onclick="exportSingleBordereauPdf('${d.id}')">Bordereau PDF</button>
               </div>
             </td>
@@ -1345,9 +1453,53 @@
       }
     }
 
+    /* Évolution du dossier */
+    function renderEvolutionList() {
+      const box = document.getElementById("evolutionHistoryList");
+      if (!workingEvolutions.length) {
+        box.innerHTML = `<div style="font-size:12.5px; color:var(--muted);">Aucune évolution enregistrée pour le moment.</div>`;
+        return;
+      }
+      box.innerHTML = workingEvolutions.map((ev) => `
+        <div class="evolution-item">
+          <div class="evolution-meta">
+            <strong>${escapeHtml(ev.stage || "Mise à jour")}</strong>
+            <span>${escapeHtml(ev.date || "")} ${ev.author ? "• " + escapeHtml(ev.author) : ""}</span>
+          </div>
+          <div>${escapeHtml(ev.note || "")}</div>
+        </div>
+      `).join("");
+    }
+
+    function addEvolutionEntry() {
+      const stage = (document.getElementById("fEvoStage").value || "").trim();
+      const note = (document.getElementById("fEvoNote").value || "").trim();
+      if (!stage && !note) {
+        showToast("Saisissez une étape ou un détail d'évolution.");
+        return;
+      }
+      const user = getCurrentUser();
+      workingEvolutions.unshift({
+        date: new Date().toLocaleString("fr-FR"),
+        stage: stage || (document.getElementById("fStatut").value || "").trim() || "Suivi",
+        note: note || "Étape renseignée",
+        author: user ? user.username : "agent"
+      });
+      if (stage) {
+        document.getElementById("fStatut").value = stage;
+      }
+      document.getElementById("fEvoStage").value = "";
+      document.getElementById("fEvoNote").value = "";
+      renderEvolutionList();
+      showToast("Évolution ajoutée au dossier.");
+    }
+
     /* Modal Dossier */
     function openDossierModal(id = null) {
       const modal = document.getElementById("dossierModal");
+      document.getElementById("fEvoStage").value = "";
+      document.getElementById("fEvoNote").value = "";
+
       if (!id) {
         const nextNum = String(state.dossiers.length + 1).padStart(5, "0");
         document.getElementById("dossierModalTitle").textContent = "Créer un nouveau dossier";
@@ -1356,32 +1508,45 @@
         document.getElementById("fBl").value = "";
         document.getElementById("fClient").value = "";
         document.getElementById("fNavire").value = "";
+        document.getElementById("fPaysProvenance").value = "";
+        document.getElementById("fPaysDestination").value = "";
         document.getElementById("fDestination").value = "";
+        document.getElementById("fContainerType").value = "40'HC";
+        document.getElementById("fPoids").value = "";
+        document.getElementById("fQuantite").value = "";
         document.getElementById("fFlux").value = "HINTERLAND";
         document.getElementById("fCircuit").value = "VERT";
         document.getElementById("fStatut").value = "En cours";
         document.getElementById("fIsDdu").value = "true";
         document.getElementById("fAlert72h").value = "false";
         renderContainerFields([""]);
+        workingEvolutions = [];
         document.getElementById("fPoints").value = "";
       } else {
         const d = state.dossiers.find((item) => item.id === id);
         if (!d) return;
-        document.getElementById("dossierModalTitle").textContent = `Dossier ${d.repertoire}`;
+        document.getElementById("dossierModalTitle").textContent = `Dossier ${d.repertoire} — Détails & Évolution`;
         document.getElementById("editDossierId").value = d.id;
         document.getElementById("fRepertoire").value = d.repertoire || "";
         document.getElementById("fBl").value = d.bl || "";
         document.getElementById("fClient").value = d.client || "";
         document.getElementById("fNavire").value = d.navire || "";
+        document.getElementById("fPaysProvenance").value = d.paysProvenance || "";
+        document.getElementById("fPaysDestination").value = d.paysDestination || "";
         document.getElementById("fDestination").value = d.destination || "";
+        document.getElementById("fContainerType").value = d.containerType || "40'HC";
+        document.getElementById("fPoids").value = d.poids || "";
+        document.getElementById("fQuantite").value = d.quantite || "";
         document.getElementById("fFlux").value = d.flux || "HINTERLAND";
         document.getElementById("fCircuit").value = d.circuit || "VERT";
         document.getElementById("fStatut").value = d.statut || "";
         document.getElementById("fIsDdu").value = d.isDdu ? "true" : "false";
         document.getElementById("fAlert72h").value = d.alert72h ? "true" : "false";
         renderContainerFields(d.containers && d.containers.length ? d.containers : [""]);
+        workingEvolutions = Array.isArray(d.evolutions) ? JSON.parse(JSON.stringify(d.evolutions)) : [];
         document.getElementById("fPoints").value = d.points || "";
       }
+      renderEvolutionList();
       modal.classList.add("open");
     }
 
@@ -1396,19 +1561,37 @@
       const rawContainers = getContainerFieldValues().filter(Boolean);
       const containers = Array.from(new Set(rawContainers));
 
+      const pendingStage = (document.getElementById("fEvoStage").value || "").trim();
+      const pendingNote = (document.getElementById("fEvoNote").value || "").trim();
+      if (pendingStage || pendingNote) {
+        const user = getCurrentUser();
+        workingEvolutions.unshift({
+          date: new Date().toLocaleString("fr-FR"),
+          stage: pendingStage || (document.getElementById("fStatut").value || "").trim() || "Suivi",
+          note: pendingNote || "Étape renseignée",
+          author: user ? user.username : "agent"
+        });
+      }
+
       const payload = {
         id: id || "d_" + Date.now(),
         repertoire: rep,
         bl: document.getElementById("fBl").value.trim().toUpperCase(),
         client: document.getElementById("fClient").value.trim(),
         navire: document.getElementById("fNavire").value.trim().toUpperCase(),
+        paysProvenance: document.getElementById("fPaysProvenance").value.trim(),
+        paysDestination: document.getElementById("fPaysDestination").value.trim(),
         destination: document.getElementById("fDestination").value.trim().toUpperCase(),
+        containerType: document.getElementById("fContainerType").value,
+        poids: document.getElementById("fPoids").value.trim(),
+        quantite: document.getElementById("fQuantite").value.trim(),
         flux: document.getElementById("fFlux").value,
         circuit: document.getElementById("fCircuit").value,
         statut: document.getElementById("fStatut").value.trim(),
         isDdu: document.getElementById("fIsDdu").value === "true",
         alert72h: document.getElementById("fAlert72h").value === "true",
         containers,
+        evolutions: workingEvolutions,
         points: document.getElementById("fPoints").value.trim()
       };
 
@@ -1435,6 +1618,11 @@
           .map((line) => `<li>${escapeHtml(line.replace(/^[-•*]\s*/, ""))}</li>`)
           .join("");
         const containersText = (d.containers && d.containers.length) ? d.containers.join(", ") : "Non précisé";
+        const evoHtml = (d.evolutions && d.evolutions.length)
+          ? `<div style="margin-top:8px;"><strong>ÉVOLUTION DU DOSSIER :</strong><ul style="margin:4px 0 0 18px; padding:0;">${
+              d.evolutions.map((e) => `<li><strong>${escapeHtml(e.date)}</strong> — ${escapeHtml(e.stage)} : ${escapeHtml(e.note)}</li>`).join("")
+            }</ul></div>`
+          : "";
 
         return `
           <div style="border:1px solid #334155; border-radius:8px; padding:14px; margin-bottom:16px; page-break-inside:avoid;">
@@ -1443,12 +1631,14 @@
               <span><strong>STATUT :</strong> ${escapeHtml(d.statut || "N/A")} (${escapeHtml(d.circuit)})</span>
             </div>
             <p style="margin:4px 0;"><strong>N° BL :</strong> ${escapeHtml(d.bl || "-")} &nbsp;|&nbsp; <strong>CLIENT :</strong> ${escapeHtml(d.client || "-")}</p>
-            <p style="margin:4px 0;"><strong>NAVIRE :</strong> ${escapeHtml(d.navire || "-")} &nbsp;|&nbsp; <strong>DESTINATION :</strong> ${escapeHtml(d.destination || "-")} &nbsp;|&nbsp; <strong>FLUX :</strong> ${escapeHtml(d.flux || "HINTERLAND")}</p>
+            <p style="margin:4px 0;"><strong>NAVIRE :</strong> ${escapeHtml(d.navire || "-")} &nbsp;|&nbsp; <strong>PROVENANCE :</strong> ${escapeHtml(d.paysProvenance || "-")} &nbsp;|&nbsp; <strong>DESTINATION :</strong> ${escapeHtml(d.paysDestination || d.destination || "-")}</p>
+            <p style="margin:4px 0;"><strong>POIDS :</strong> ${escapeHtml(d.poids || "-")} &nbsp;|&nbsp; <strong>QUANTITÉ :</strong> ${escapeHtml(d.quantite || "-")} &nbsp;|&nbsp; <strong>TYPE CONTENEUR :</strong> ${escapeHtml(d.containerType || "-")}</p>
             <p style="margin:4px 0;"><strong>CONTENEURS :</strong> ${escapeHtml(containersText)}</p>
             <div style="margin-top:8px;">
               <strong>POINTS / ÉTAPES D'AVANCEMENT :</strong>
               <ul style="margin:6px 0 0 18px; padding:0;">${pointsLines}</ul>
             </div>
+            ${evoHtml}
           </div>
         `;
       }).join("");
