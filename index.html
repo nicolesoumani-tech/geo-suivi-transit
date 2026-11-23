@@ -73,6 +73,12 @@
       color: #fff;
     }
 
+    button.warning {
+      background: var(--warning);
+      border-color: var(--warning);
+      color: #fff;
+    }
+
     button.danger {
       background: var(--danger);
       border-color: var(--danger);
@@ -138,15 +144,28 @@
     }
 
     .field {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .field label {
       display: block;
       font-size: 12.5px;
       font-weight: 600;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       color: #334155;
+    }
+
+    .check-inline {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 6px;
+      width: auto !important;
+      cursor: pointer;
+    }
+
+    .check-inline input {
+      width: auto;
+      margin: 0;
     }
 
     .error-box {
@@ -241,7 +260,7 @@
     }
 
     main.container {
-      max-width: 1380px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 20px;
     }
@@ -251,8 +270,23 @@
       border: 1px solid #fecdd3;
       color: #9f1239;
       border-radius: var(--radius);
-      padding: 10px 14px;
-      margin-bottom: 16px;
+      padding: 11px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .truck-banner {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      border-radius: var(--radius);
+      padding: 11px 14px;
+      margin-bottom: 14px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
@@ -263,7 +297,7 @@
 
     .kpis {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
       gap: 12px;
       margin-bottom: 18px;
     }
@@ -318,7 +352,7 @@
 
     .toolbar-group input, .toolbar-group select {
       width: auto;
-      min-width: 175px;
+      min-width: 170px;
     }
 
     .table-wrap {
@@ -332,7 +366,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 980px;
+      min-width: 1020px;
     }
 
     th, td {
@@ -367,6 +401,7 @@
     .pill.vert { background: var(--success-bg); color: var(--success); }
     .pill.bleu { background: var(--info-bg); color: var(--info); }
     .pill.jaune { background: var(--warning-bg); color: var(--warning); }
+    .pill.cloture { background: #e2e8f0; color: #334155; }
 
     .row-actions {
       display: flex;
@@ -387,6 +422,32 @@
       font-weight: 600;
       color: var(--muted);
       margin-bottom: 3px;
+    }
+
+    .file-chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .file-chip {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .truck-alloc-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 8px;
     }
 
     .evolution-list {
@@ -434,8 +495,8 @@
       background: var(--surface);
       border-radius: 12px;
       width: 100%;
-      max-width: 840px;
-      max-height: 90vh;
+      max-width: 900px;
+      max-height: 92vh;
       display: flex;
       flex-direction: column;
       box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
@@ -524,7 +585,7 @@
       background: #fff;
       border: 1px solid #cbd5e1;
       border-radius: 10px;
-      padding: 20px;
+      padding: 22px;
       margin-top: 12px;
     }
 
@@ -539,7 +600,7 @@
     }
 
     .invoice-doc-title {
-      font-size: 20px;
+      font-size: 21px;
       font-weight: 800;
       letter-spacing: 0.6px;
       margin: 0 0 4px 0;
@@ -640,6 +701,7 @@
 
     <main class="container">
       <div id="alertBanner" class="alert-banner" style="display:none;"></div>
+      <div id="truckBanner" class="truck-banner" style="display:none;"></div>
 
       <div class="kpis" id="kpiContainer"></div>
 
@@ -659,8 +721,8 @@
             <option value="DEPOTAGE">DÉPOTAGE (CFS)</option>
             <option value="MAGASINS">MAGASINS (MAD)</option>
           </select>
-          <label style="display:inline-flex; align-items:center; gap:5px; font-size:13px; cursor:pointer;">
-            <input type="checkbox" id="dduOnlyFilter" style="width:auto;" onchange="renderDossiers()" />
+          <label class="check-inline" style="font-size:13px;">
+            <input type="checkbox" id="dduOnlyFilter" onchange="renderDossiers()" />
             DDU uniquement
           </label>
         </div>
@@ -680,7 +742,7 @@
               <th>Client</th>
               <th>Navire / Provenance → Destination</th>
               <th>Poids / Qté / Conteneurs</th>
-              <th>Statut / Étape</th>
+              <th>Statut / Alertes</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -690,19 +752,25 @@
     </main>
   </div>
 
-  <!-- MODAL DOSSIER -->
+  <!-- MODAL DOSSIER COMPLET -->
   <div id="dossierModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
         <h2 id="dossierModalTitle">Dossier</h2>
-        <button onclick="closeModal('dossierModal')" class="sm">✕</button>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button type="button" id="btnCloseDossierSupervisor" class="success sm" style="display:none;" onclick="closeDossierBySupervisor()">✓ Clôturer le dossier</button>
+          <button onclick="closeModal('dossierModal')" class="sm">✕</button>
+        </div>
       </div>
       <div class="modal-body">
         <input type="hidden" id="editDossierId" />
 
+        <div id="dossierStatusBanner" style="display:none; margin-bottom:12px;" class="truck-banner"></div>
+
+        <!-- 1. Informations générales -->
         <div class="section-box">
-          <h3>Informations générales &amp; Exploitation</h3>
-          <div class="grid-2">
+          <h3>1. Informations générales &amp; Exploitation</h3>
+          <div class="grid-3">
             <div class="field">
               <label>N° Répertoire</label>
               <input type="text" id="fRepertoire" placeholder="Ex: GEO00001" />
@@ -721,11 +789,11 @@
             </div>
             <div class="field">
               <label>Pays de provenance</label>
-              <input type="text" id="fPaysProvenance" placeholder="Ex: Chine / Togo" />
+              <input type="text" id="fPaysProvenance" placeholder="Ex: Chine" />
             </div>
             <div class="field">
               <label>Pays de destination</label>
-              <input type="text" id="fPaysDestination" placeholder="Ex: Burkina Faso / Niger / Mali" />
+              <input type="text" id="fPaysDestination" placeholder="Ex: Burkina Faso" />
             </div>
             <div class="field">
               <label>Destination finale / Ville</label>
@@ -745,12 +813,19 @@
               </select>
             </div>
             <div class="field">
-              <label>Poids (ex: 24 500 kg / 24,5 T)</label>
+              <label>Poids</label>
               <input type="text" id="fPoids" placeholder="Ex: 24 500 kg" />
             </div>
             <div class="field">
-              <label>Quantité (colis / unités / conteneurs)</label>
+              <label>Quantité</label>
               <input type="text" id="fQuantite" placeholder="Ex: 120 colis" />
+            </div>
+            <div class="field">
+              <label>Mode / Transport</label>
+              <select id="fTransportMode" onchange="toggleTruckSections()">
+                <option value="SUR_CAMION">Sur camion</option>
+                <option value="DEPOTAGE">Dépotage</option>
+              </select>
             </div>
             <div class="field">
               <label>Flux opérationnel</label>
@@ -780,29 +855,172 @@
                 <option value="false">Non</option>
               </select>
             </div>
-            <div class="field">
-              <label>Alerte &lt; 72h (BAD / T1 / Arrivée)</label>
-              <select id="fAlert72h">
-                <option value="false">Non</option>
-                <option value="true">Oui (Alerte &lt; 72h)</option>
-              </select>
-            </div>
           </div>
         </div>
 
+        <!-- 2. Conteneurs (4 lettres + 7 chiffres) -->
         <div class="section-box">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
-            <h3 style="margin:0;">Numéros de conteneurs (4 lettres + 7 chiffres — collage auto-réparti)</h3>
+            <h3 style="margin:0;">2. Conteneurs (4 lettres + 7 chiffres — collage auto-réparti)</h3>
             <button type="button" class="sm" onclick="addContainerField()">+ Ajouter un champ conteneur</button>
           </div>
           <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">
-            Collez une liste de conteneurs (format <strong>4 lettres + 7 chiffres</strong>, ex. <code>MSCU1234567 CMAU9876543</code>) dans le <strong>premier champ</strong> : chaque numéro est automatiquement renvoyé dans son propre champ.
+            Collez plusieurs numéros (4 lettres + 7 chiffres, ex. <code>MSCU1234567 CMAU9876543</code>) dans le <strong>premier champ</strong> : chaque conteneur est automatiquement renvoyé dans son champ.
           </div>
           <div id="containersFieldsGrid" class="containers-grid"></div>
         </div>
 
+        <!-- 3. Agent de l'échange -->
         <div class="section-box">
-          <h3>Évolution &amp; Renseignement du suivi du dossier</h3>
+          <h3>3. Agent de l'Échange (BAD, Télex / Original &amp; Problème circuit)</h3>
+          <div class="grid-3">
+            <div class="field">
+              <label for="fBadEndDate">Date fin du BAD (Alerte &lt; 72h)</label>
+              <input type="datetime-local" id="fBadEndDate" />
+            </div>
+            <div class="field">
+              <label for="fDocType">Nature du document</label>
+              <select id="fDocType">
+                <option value="TELEX">Télex</option>
+                <option value="ORIGINAL">Original</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fExchangeFiles">Télécharger / Joindre fichiers Échange</label>
+              <input type="file" id="fExchangeFiles" multiple onchange="handleSectionFiles('exchange', this.files)" />
+              <div id="exchangeFilesList" class="file-chip-list"></div>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label for="fExchangeComment">Commentaire / Problème rencontré dans le circuit échange</label>
+            <textarea id="fExchangeComment" rows="2" placeholder="Notifier si un problème est rencontré dans le circuit échange..."></textarea>
+          </div>
+        </div>
+
+        <!-- 4. Agent DDU & T1 -->
+        <div class="section-box">
+          <h3>4. Agent DDU &amp; Transit T1</h3>
+          <div class="grid-2">
+            <label class="check-inline" style="margin-bottom:8px;">
+              <input type="checkbox" id="fDduLevee" />
+              <strong>Confirmer le lever du DDU</strong>
+            </label>
+            <div class="field">
+              <label for="fDeclarationNum">Numéro de la déclaration</label>
+              <input type="text" id="fDeclarationNum" placeholder="Ex: DEC-2026-88412" />
+            </div>
+          </div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="fT1Num">Numéro T1 (demande T1)</label>
+              <input type="text" id="fT1Num" placeholder="Ex: T1-LOM-00491" />
+            </div>
+            <div class="field">
+              <label for="fT1ValidityDate">Date de validité du T1 (Alerte &lt; 72h)</label>
+              <input type="datetime-local" id="fT1ValidityDate" />
+            </div>
+            <div class="field">
+              <label for="fDduFiles">Télécharger / Joindre fichiers DDU / T1</label>
+              <input type="file" id="fDduFiles" multiple onchange="handleSectionFiles('ddu', this.files)" />
+              <div id="dduFilesList" class="file-chip-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Agent de passation et enlèvement -->
+        <div class="section-box">
+          <h3>5. Agent de Passation et Enlèvement</h3>
+          <div class="grid-3">
+            <div class="field">
+              <label for="fPassationBon">Bon pris</label>
+              <select id="fPassationBon">
+                <option value="AUCUN">Non précisé</option>
+                <option value="BON_A_ENLEVER">Bon à enlever (BAE)</option>
+                <option value="BON_A_CONDUIRE">Bon à conduire (BAC)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fPassationConsigne">Commentaire s'il y a consigne sur le dossier</label>
+              <input type="text" id="fPassationConsigne" placeholder="Préciser la consigne éventuelle..." />
+            </div>
+            <div class="field">
+              <label for="fPassationFiles">Télécharger / Joindre fichiers Passation</label>
+              <input type="file" id="fPassationFiles" multiple onchange="handleSectionFiles('passation', this.files)" />
+              <div id="passationFilesList" class="file-chip-list"></div>
+            </div>
+          </div>
+
+          <!-- Sur camion : affectation conteneurs au camion -->
+          <div id="surCamionSection" class="truck-alloc-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+              <strong>Affectation des conteneurs au camion (Sur camion)</strong>
+              <button type="button" class="sm" onclick="addTruckAssignmentRow('SUR_CAMION')">+ Ajouter un camion</button>
+            </div>
+            <div id="surCamionRows"></div>
+          </div>
+
+          <!-- Dépotage : partage poids et quantités pour chaque camion -->
+          <div id="depotageSection" class="truck-alloc-card" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+              <strong>Répartition des poids et quantités par camion (Dépotage)</strong>
+              <button type="button" class="sm" onclick="addTruckAssignmentRow('DEPOTAGE')">+ Ajouter un camion de dépotage</button>
+            </div>
+            <div id="depotageRows"></div>
+          </div>
+        </div>
+
+        <!-- 6. Agent de manutention -->
+        <div class="section-box">
+          <h3>6. Agent de Manutention &amp; Demande de Camion de Chargement</h3>
+          <div class="role-grid" style="margin-bottom:12px;">
+            <label class="role-chip"><input type="checkbox" id="fManFactureRecue" /> Facture reçue</label>
+            <label class="role-chip"><input type="checkbox" id="fManFacturePayee" /> Facture payée</label>
+            <label class="role-chip"><input type="checkbox" id="fManDfuPaye" /> DFU payé</label>
+            <label class="role-chip"><input type="checkbox" id="fManBactFait" /> BACT effectué</label>
+            <label class="role-chip"><input type="checkbox" id="fManGatePassDemande" /> Gate Pass demandé</label>
+            <label class="role-chip"><input type="checkbox" id="fManGatePassRecu" /> Gate Pass reçu</label>
+          </div>
+          <div class="grid-2">
+            <div class="field" style="margin-bottom:0;">
+              <label>Demande de camion de chargement (signale chez le Superviseur)</label>
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <label class="check-inline">
+                  <input type="checkbox" id="fManTruckRequested" onchange="renderTruckDemandPreview()" />
+                  <strong>Demander le camion de chargement</strong>
+                </label>
+                <span id="truckRequestBadge" class="pill jaune" style="display:none;">Dossier en attente de camion</span>
+              </div>
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="fManutentionFiles">Télécharger / Joindre fichiers Manutention</label>
+              <input type="file" id="fManutentionFiles" multiple onchange="handleSectionFiles('manutention', this.files)" />
+              <div id="manutentionFilesList" class="file-chip-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. Retour vide (Dossiers sur camion) -->
+        <div id="emptyReturnSection" class="section-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+            <h3 style="margin:0;">7. Retour Vide (Dossiers sur camion)</h3>
+            <button type="button" class="warning sm" onclick="triggerEmptyReturnAction()">🔄 Retour vide</button>
+          </div>
+          <div class="grid-2">
+            <div class="field" style="margin-bottom:0;">
+              <label for="fEmptyReturnDate">Date du retour vide</label>
+              <input type="date" id="fEmptyReturnDate" />
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="fEmptyReturnFile">Télécharger bordereau de retour vide</label>
+              <input type="file" id="fEmptyReturnFile" onchange="handleEmptyReturnFile(this.files)" />
+              <div id="emptyReturnFileInfo" class="file-chip-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. Évolution & Points du dossier -->
+        <div class="section-box">
+          <h3>8. Évolution &amp; Renseignement du suivi du dossier</h3>
           <div class="grid-2" style="margin-bottom:10px;">
             <div class="field" style="margin-bottom:0;">
               <label for="fEvoStage">Nouvelle étape / Statut</label>
@@ -818,13 +1036,13 @@
         </div>
 
         <div class="section-box" style="margin-bottom:0;">
-          <h3>Points / Étapes d'avancement (PO / Milestones — Bordereau)</h3>
+          <h3>9. Points / Étapes d'avancement (Bordereau PDF sans facturation)</h3>
           <div class="field" style="margin-bottom:0;">
-            <label>Points de suivi et observations (sans données de facturation sur le bordereau)</label>
             <textarea id="fPoints" rows="3" placeholder="Ex:&#10;- Arrivée navire et BAD récupéré&#10;- Déclaration validée&#10;- Enlèvement / Transport vers destination"></textarea>
           </div>
         </div>
       </div>
+
       <div class="modal-footer">
         <button onclick="printSingleBordereauPdf()">📄 Télécharger / Imprimer Bordereau PDF</button>
         <button onclick="closeModal('dossierModal')">Annuler</button>
@@ -870,8 +1088,8 @@
         <div id="invoicePreviewBox" class="invoice-preview"></div>
       </div>
       <div class="modal-footer">
-        <button onclick="printInvoicePdf()">🖨️ Imprimer / Enregistrer Facture PDF</button>
-        <button onclick="sendInvoiceToGeo()" class="success">✉️ Transmettre Facture à STE GEO</button>
+        <button onclick="printInvoicePdf()">🖨️ Générer / Imprimer Facture PDF</button>
+        <button onclick="sendInvoiceToGeo()" class="success">✉️ Transmettre Facture PDF à STE GEO</button>
         <button onclick="closeModal('billingModal')">Fermer</button>
       </div>
     </div>
@@ -966,14 +1184,15 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V5";
+    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V6";
     const AVAILABLE_ROLES = ["ADMIN", "SUPERVISEUR", "AGENT_DDU_T1", "AGENT_TRANSIT", "AGENT_EXPLOITATION"];
 
     const DEFAULT_STATE = {
       settings: {
         emailK: "k@geosuvitransit.tg",
         dduUnitPrice: 10000,
-        currency: "FCFA"
+        currency: "FCFA",
+        invoiceCounter: 1
       },
       users: [
         {
@@ -1017,12 +1236,46 @@
           containerType: "40'HC",
           poids: "26 400 kg",
           quantite: "2 conteneurs",
+          transportMode: "SUR_CAMION",
           flux: "HINTERLAND",
           circuit: "ROUGE",
           statut: "Alerte < 72h - Douane",
           isDdu: true,
-          alert72h: true,
+          closed: false,
           containers: ["MSCU4512091", "MSCU8841203"],
+          exchange: {
+            badEndDate: new Date(Date.now() + 24 * 3600 * 1000).toISOString().slice(0, 16),
+            docType: "TELEX",
+            comment: "",
+            files: []
+          },
+          ddu: {
+            levee: false,
+            declarationNum: "DEC-2026-1001",
+            t1Num: "T1-2026-001",
+            t1ValidityDate: new Date(Date.now() + 36 * 3600 * 1000).toISOString().slice(0, 16),
+            files: []
+          },
+          passation: {
+            bon: "BON_A_ENLEVER",
+            consigne: "",
+            truckAssignments: [{ truck: "TG-4512-MD", containers: "MSCU4512091, MSCU8841203", poids: "", quantite: "" }],
+            files: []
+          },
+          manutention: {
+            factureRecue: true,
+            facturePayee: true,
+            dfuPaye: true,
+            bactFait: false,
+            gatePassDemande: false,
+            gatePassRecu: false,
+            truckRequested: true,
+            files: []
+          },
+          emptyReturn: {
+            date: "",
+            fileName: ""
+          },
           evolutions: [
             { date: "23/11/2026 09:15", stage: "Arrivée navire", note: "Navire accosté au terminal à conteneurs", author: "admin" }
           ],
@@ -1040,16 +1293,34 @@
           containerType: "20'DC",
           poids: "18 200 kg",
           quantite: "85 colis",
+          transportMode: "DEPOTAGE",
           flux: "DEPOTAGE",
           circuit: "BLEU",
           statut: "Dépotage CFS",
           isDdu: true,
-          alert72h: false,
+          closed: false,
           containers: ["CMAU3019942"],
-          evolutions: [
-            { date: "23/11/2026 10:00", stage: "Transfert CFS", note: "Conteneur transféré pour dépotage", author: "esta" }
-          ],
-          points: "- Transfert CFS effectué\n- Dépotage programmé\n- Préparation expédition route"
+          exchange: { badEndDate: "", docType: "ORIGINAL", comment: "", files: [] },
+          ddu: { levee: true, declarationNum: "DEC-2026-1002", t1Num: "", t1ValidityDate: "", files: [] },
+          passation: {
+            bon: "BON_A_CONDUIRE",
+            consigne: "",
+            truckAssignments: [{ truck: "BF-8821-AA", containers: "CMAU3019942", poids: "18 200 kg", quantite: "85 colis" }],
+            files: []
+          },
+          manutention: {
+            factureRecue: true,
+            facturePayee: true,
+            dfuPaye: true,
+            bactFait: true,
+            gatePassDemande: true,
+            gatePassRecu: true,
+            truckRequested: false,
+            files: []
+          },
+          emptyReturn: { date: "", fileName: "" },
+          evolutions: [],
+          points: "- Transfert CFS effectué\n- Dépotage programmé"
         },
         {
           id: "d3",
@@ -1063,14 +1334,29 @@
           containerType: "40'DC",
           poids: "21 000 kg",
           quantite: "140 cartons",
+          transportMode: "SUR_CAMION",
           flux: "MAGASINS",
           circuit: "JAUNE",
           statut: "En attente validation",
           isDdu: true,
-          alert72h: false,
+          closed: false,
           containers: ["MRKU7721004"],
+          exchange: { badEndDate: "", docType: "TELEX", comment: "", files: [] },
+          ddu: { levee: false, declarationNum: "", t1Num: "", t1ValidityDate: "", files: [] },
+          passation: { bon: "AUCUN", consigne: "", truckAssignments: [], files: [] },
+          manutention: {
+            factureRecue: false,
+            facturePayee: false,
+            dfuPaye: false,
+            bactFait: false,
+            gatePassDemande: false,
+            gatePassRecu: false,
+            truckRequested: false,
+            files: []
+          },
+          emptyReturn: { date: "", fileName: "" },
           evolutions: [],
-          points: "- Dossier créé\n- En attente confirmation pièces client"
+          points: "- Dossier créé"
         },
         {
           id: "d4",
@@ -1084,14 +1370,29 @@
           containerType: "40'HC",
           poids: "23 800 kg",
           quantite: "60 motos",
+          transportMode: "SUR_CAMION",
           flux: "HINTERLAND",
           circuit: "VERT",
           statut: "Circuit normal",
           isDdu: true,
-          alert72h: false,
+          closed: false,
           containers: ["MSCU1190442", "MSCU5501928"],
+          exchange: { badEndDate: "", docType: "ORIGINAL", comment: "", files: [] },
+          ddu: { levee: true, declarationNum: "DEC-2026-1004", t1Num: "", t1ValidityDate: "", files: [] },
+          passation: { bon: "BON_A_ENLEVER", consigne: "", truckAssignments: [], files: [] },
+          manutention: {
+            factureRecue: true,
+            facturePayee: true,
+            dfuPaye: true,
+            bactFait: true,
+            gatePassDemande: true,
+            gatePassRecu: true,
+            truckRequested: false,
+            files: []
+          },
+          emptyReturn: { date: "", fileName: "" },
           evolutions: [],
-          points: "- Circuit vert validé\n- Mise sur camion planifiée"
+          points: "- Circuit vert validé"
         }
       ],
       sessionUserId: null
@@ -1120,6 +1421,10 @@
     let state = loadState();
     let selectedIds = new Set();
     let workingEvolutions = [];
+    let workingFiles = { exchange: [], ddu: [], passation: [], manutention: [] };
+    let workingEmptyReturnFile = "";
+    let workingTruckAssignments = [];
+    let currentInvoiceNumberPreview = "";
 
     window.addEventListener("error", function (event) {
       const loginErr = document.getElementById("loginError");
@@ -1155,7 +1460,7 @@
       clearTimeout(window.__toastTimer);
       window.__toastTimer = setTimeout(() => {
         el.style.display = "none";
-      }, 3200);
+      }, 3400);
     }
 
     function escapeHtml(str) {
@@ -1175,6 +1480,11 @@
       return user.roles.includes("ADMIN") || user.roles.includes("SUPERVISEUR");
     }
 
+    function isSupervisor(user) {
+      if (!user) return false;
+      return user.roles.includes("SUPERVISEUR") || user.roles.includes("ADMIN");
+    }
+
     function canAccessDduBilling(user) {
       if (!user) return false;
       return (
@@ -1182,6 +1492,35 @@
         user.roles.includes("ADMIN") ||
         user.roles.includes("SUPERVISEUR")
       );
+    }
+
+    /* Alertes < 72h pour BAD et T1 tant que le dossier n'est pas clôturé par le superviseur */
+    function getDossierAlerts72h(d) {
+      if (!d || d.closed) return [];
+      const alerts = [];
+      const now = Date.now();
+      const limit72h = 72 * 3600 * 1000;
+
+      const badDateStr = d.exchange?.badEndDate;
+      if (badDateStr) {
+        const ts = new Date(badDateStr).getTime();
+        if (!Number.isNaN(ts) && ts - now <= limit72h) {
+          alerts.push(`BAD < 72h (${d.repertoire})`);
+        }
+      }
+
+      const t1DateStr = d.ddu?.t1ValidityDate;
+      if (t1DateStr) {
+        const ts = new Date(t1DateStr).getTime();
+        if (!Number.isNaN(ts) && ts - now <= limit72h) {
+          alerts.push(`T1 < 72h (${d.repertoire})`);
+        }
+      }
+      return alerts;
+    }
+
+    function isDossierWaitingForTruck(d) {
+      return !!(d && !d.closed && d.manutention && d.manutention.truckRequested);
     }
 
     function parseRepNumber(val) {
@@ -1265,57 +1604,66 @@
       document.getElementById("btnAdminPanel").style.display = isAdminOrSupervisor(user) ? "inline-block" : "none";
 
       renderAlertBanner();
+      renderTruckBanner(user);
       renderKpis();
       renderDossiers();
     }
 
     function renderAlertBanner() {
       const banner = document.getElementById("alertBanner");
-      const alerts = state.dossiers.filter((d) => d.alert72h);
-      if (!alerts.length) {
+      const allAlerts = state.dossiers.flatMap((d) => getDossierAlerts72h(d));
+      if (!allAlerts.length) {
         banner.style.display = "none";
         return;
       }
       banner.style.display = "flex";
       banner.innerHTML = `
-        <div><strong>⚠️ ALERTE &lt; 72H :</strong> ${alerts.map((a) => `${escapeHtml(a.repertoire)} (${escapeHtml(a.bl || "-")})`).join(" • ")}</div>
-        <span class="pill rouge">${alerts.length} dossier(s)</span>
+        <div><strong>⚠️ ALERTE EXPIRATION &lt; 72H (BAD / T1) :</strong> ${escapeHtml(allAlerts.join(" • "))}</div>
+        <span class="pill rouge">${allAlerts.length} alerte(s) active(s)</span>
+      `;
+    }
+
+    function renderTruckBanner(user) {
+      const banner = document.getElementById("truckBanner");
+      const waiting = state.dossiers.filter((d) => isDossierWaitingForTruck(d));
+      if (!waiting.length || !isSupervisor(user)) {
+        banner.style.display = "none";
+        return;
+      }
+      banner.style.display = "flex";
+      banner.innerHTML = `
+        <div><strong>🚛 SUPERVISEUR — DOSSIER(S) EN ATTENTE DE CAMION :</strong> ${waiting.map((d) => `${escapeHtml(d.repertoire)} (${escapeHtml(d.client || "-")})`).join(" • ")}</div>
+        <span class="pill jaune">${waiting.length} en attente</span>
       `;
     }
 
     function renderKpis() {
       const total = state.dossiers.length;
-      const dduCount = state.dossiers.filter((d) => d.isDdu).length;
-      const rougeCount = state.dossiers.filter((d) => d.circuit === "ROUGE").length;
-      const vertCount = state.dossiers.filter((d) => d.circuit === "VERT").length;
-      const bleuCount = state.dossiers.filter((d) => d.circuit === "BLEU").length;
-      const alertCount = state.dossiers.filter((d) => d.alert72h).length;
+      const openCount = state.dossiers.filter((d) => !d.closed).length;
+      const alertCount = state.dossiers.flatMap((d) => getDossierAlerts72h(d)).length;
+      const truckWaitCount = state.dossiers.filter((d) => isDossierWaitingForTruck(d)).length;
+      const closedCount = state.dossiers.filter((d) => d.closed).length;
 
       document.getElementById("kpiContainer").innerHTML = `
         <div class="kpi-card">
           <div class="kpi-label">Total Dossiers</div>
           <div class="kpi-value">${total}</div>
-          <div class="kpi-sub">DDU : ${dduCount}</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Circuit Rouge</div>
-          <div class="kpi-value" style="color:var(--danger);">${rougeCount}</div>
-          <div class="kpi-sub">Contrôle / Douane</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Circuit Vert</div>
-          <div class="kpi-value" style="color:var(--success);">${vertCount}</div>
-          <div class="kpi-sub">Circuit normal</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Circuit Bleu</div>
-          <div class="kpi-value" style="color:var(--info);">${bleuCount}</div>
-          <div class="kpi-sub">Dépotage / CFS</div>
+          <div class="kpi-sub">Actifs : ${openCount} • Clôturés : ${closedCount}</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Alertes &lt; 72h</div>
-          <div class="kpi-value" style="color:var(--warning);">${alertCount}</div>
-          <div class="kpi-sub">Priorité suivi</div>
+          <div class="kpi-value" style="color:var(--danger);">${alertCount}</div>
+          <div class="kpi-sub">BAD &amp; T1 actifs</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Attente Camion</div>
+          <div class="kpi-value" style="color:var(--warning);">${truckWaitCount}</div>
+          <div class="kpi-sub">Signalé Superviseur</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Dossiers DDU</div>
+          <div class="kpi-value" style="color:var(--info);">${state.dossiers.filter((d) => d.isDdu).length}</div>
+          <div class="kpi-sub">Facturation 10 000</div>
         </div>
       `;
     }
@@ -1350,12 +1698,17 @@
         const checked = selectedIds.has(d.id) ? "checked" : "";
         const cCount = (d.containers || []).length;
         const routeText = [d.paysProvenance, d.paysDestination || d.destination].filter(Boolean).join(" → ");
+        const alerts72 = getDossierAlerts72h(d);
+        const waitTruck = isDossierWaitingForTruck(d);
+
         return `
           <tr>
             <td><input type="checkbox" ${checked} onchange="toggleSelect('${d.id}', this.checked)" /></td>
             <td>
               <strong>${escapeHtml(d.repertoire)}</strong>
-              ${d.alert72h ? '<span class="pill rouge" style="margin-left:4px;">&lt;72h</span>' : ""}
+              ${d.closed ? '<span class="pill cloture" style="margin-left:4px;">Clôturé</span>' : ""}
+              ${alerts72.length ? '<span class="pill rouge" style="margin-left:4px;">&lt;72h</span>' : ""}
+              ${waitTruck ? '<span class="pill jaune" style="margin-left:4px;">Camion</span>' : ""}
             </td>
             <td>${escapeHtml(d.bl)}</td>
             <td>${escapeHtml(d.client)}</td>
@@ -1367,10 +1720,13 @@
               <div style="font-size:12.5px;"><strong>${escapeHtml(d.poids || "-")}</strong> • ${escapeHtml(d.quantite || "-")}</div>
               <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(d.containerType || "-")} (${cCount} cont.)</div>
             </td>
-            <td><span class="pill ${circuitClass}">${escapeHtml(d.circuit)}</span> ${escapeHtml(d.statut)}</td>
+            <td>
+              <span class="pill ${circuitClass}">${escapeHtml(d.circuit)}</span> ${escapeHtml(d.statut)}
+              ${d.emptyReturn?.date ? `<div style="font-size:11.5px; color:var(--success);">Retour vide : ${escapeHtml(d.emptyReturn.date)}</div>` : ""}
+            </td>
             <td>
               <div class="row-actions">
-                <button class="sm" onclick="openDossierModal('${d.id}')">Détails / Évolution</button>
+                <button class="sm" onclick="openDossierModal('${d.id}')">Ouvrir / Évolution</button>
                 <button class="sm" onclick="exportSingleBordereauPdf('${d.id}')">Bordereau PDF</button>
               </div>
             </td>
@@ -1453,6 +1809,153 @@
       }
     }
 
+    /* Fichiers joints par agent */
+    function handleSectionFiles(sectionKey, fileList) {
+      if (!fileList || !fileList.length) return;
+      const names = Array.from(fileList).map((f) => f.name);
+      workingFiles[sectionKey] = Array.from(new Set([...(workingFiles[sectionKey] || []), ...names]));
+      renderSectionFiles(sectionKey);
+      showToast(`${names.length} fichier(s) ajouté(s) (${sectionKey}).`);
+    }
+
+    function removeSectionFile(sectionKey, index) {
+      workingFiles[sectionKey].splice(index, 1);
+      renderSectionFiles(sectionKey);
+    }
+
+    function renderSectionFiles(sectionKey) {
+      const mapEl = {
+        exchange: "exchangeFilesList",
+        ddu: "dduFilesList",
+        passation: "passationFilesList",
+        manutention: "manutentionFilesList"
+      };
+      const el = document.getElementById(mapEl[sectionKey]);
+      if (!el) return;
+      const list = workingFiles[sectionKey] || [];
+      if (!list.length) {
+        el.innerHTML = "";
+        return;
+      }
+      el.innerHTML = list.map((fname, idx) => `
+        <span class="file-chip">
+          📎 ${escapeHtml(fname)}
+          <button type="button" class="sm" style="padding:1px 5px;" onclick="removeSectionFile('${sectionKey}', ${idx})">✕</button>
+        </span>
+      `).join("");
+    }
+
+    /* Affectation camions (Sur camion / Dépotage) */
+    function toggleTruckSections() {
+      const mode = document.getElementById("fTransportMode").value;
+      document.getElementById("surCamionSection").style.display = mode === "SUR_CAMION" ? "block" : "none";
+      document.getElementById("depotageSection").style.display = mode === "DEPOTAGE" ? "block" : "none";
+      document.getElementById("emptyReturnSection").style.display = mode === "SUR_CAMION" ? "block" : "none";
+    }
+
+    function addTruckAssignmentRow(mode) {
+      workingTruckAssignments.push({
+        mode: mode || document.getElementById("fTransportMode").value,
+        truck: "",
+        containers: "",
+        poids: "",
+        quantite: ""
+      });
+      renderTruckAssignmentRows();
+    }
+
+    function removeTruckAssignmentRow(idx) {
+      workingTruckAssignments.splice(idx, 1);
+      renderTruckAssignmentRows();
+    }
+
+    function renderTruckAssignmentRows() {
+      const mode = document.getElementById("fTransportMode").value;
+      const targetId = mode === "DEPOTAGE" ? "depotageRows" : "surCamionRows";
+      const container = document.getElementById(targetId);
+      if (!container) return;
+
+      if (!workingTruckAssignments.length) {
+        container.innerHTML = `<div style="font-size:12px; color:var(--muted); margin-top:6px;">Aucun camion affecté pour le moment.</div>`;
+        return;
+      }
+
+      container.innerHTML = workingTruckAssignments.map((row, idx) => {
+        if (mode === "DEPOTAGE") {
+          return `
+            <div class="grid-3" style="margin-top:8px; align-items:end;">
+              <div class="field" style="margin-bottom:0;">
+                <label>Camion</label>
+                <input type="text" value="${escapeHtml(row.truck)}" placeholder="Ex: TG-1102-AB" oninput="workingTruckAssignments[${idx}].truck = this.value" />
+              </div>
+              <div class="field" style="margin-bottom:0;">
+                <label>Poids attribué</label>
+                <input type="text" value="${escapeHtml(row.poids)}" placeholder="Ex: 10 000 kg" oninput="workingTruckAssignments[${idx}].poids = this.value" />
+              </div>
+              <div class="field" style="margin-bottom:0;">
+                <label>Quantité attribuée</label>
+                <div style="display:flex; gap:6px;">
+                  <input type="text" value="${escapeHtml(row.quantite)}" placeholder="Ex: 40 colis" oninput="workingTruckAssignments[${idx}].quantite = this.value" />
+                  <button type="button" class="sm danger" onclick="removeTruckAssignmentRow(${idx})">✕</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+        return `
+          <div class="grid-2" style="margin-top:8px; align-items:end;">
+            <div class="field" style="margin-bottom:0;">
+              <label>Camion</label>
+              <input type="text" value="${escapeHtml(row.truck)}" placeholder="Ex: TG-4512-MD" oninput="workingTruckAssignments[${idx}].truck = this.value" />
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label>Conteneur(s) affecté(s)</label>
+              <div style="display:flex; gap:6px;">
+                <input type="text" value="${escapeHtml(row.containers)}" placeholder="Ex: MSCU1234567" oninput="workingTruckAssignments[${idx}].containers = this.value.toUpperCase()" />
+                <button type="button" class="sm danger" onclick="removeTruckAssignmentRow(${idx})">✕</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderTruckDemandPreview() {
+      const checked = document.getElementById("fManTruckRequested").checked;
+      document.getElementById("truckRequestBadge").style.display = checked ? "inline-block" : "none";
+    }
+
+    /* Retour vide */
+    function handleEmptyReturnFile(fileList) {
+      if (!fileList || !fileList.length) return;
+      workingEmptyReturnFile = fileList[0].name;
+      renderEmptyReturnFile();
+      showToast("Bordereau de retour vide joint : " + workingEmptyReturnFile);
+    }
+
+    function renderEmptyReturnFile() {
+      const el = document.getElementById("emptyReturnFileInfo");
+      if (!el) return;
+      el.innerHTML = workingEmptyReturnFile
+        ? `<span class="file-chip">📄 Bordereau retour vide : <strong>${escapeHtml(workingEmptyReturnFile)}</strong></span>`
+        : "";
+    }
+
+    function triggerEmptyReturnAction() {
+      const dateInput = document.getElementById("fEmptyReturnDate");
+      if (!dateInput.value) {
+        dateInput.value = new Date().toISOString().slice(0, 10);
+      }
+      workingEvolutions.unshift({
+        date: new Date().toLocaleString("fr-FR"),
+        stage: "Retour vide",
+        note: `Retour vide enregistré à la date du ${dateInput.value}${workingEmptyReturnFile ? " (bordereau : " + workingEmptyReturnFile + ")" : ""}`,
+        author: getCurrentUser()?.username || "agent"
+      });
+      renderEvolutionList();
+      showToast("Retour vide renseigné.");
+    }
+
     /* Évolution du dossier */
     function renderEvolutionList() {
       const box = document.getElementById("evolutionHistoryList");
@@ -1494,9 +1997,10 @@
       showToast("Évolution ajoutée au dossier.");
     }
 
-    /* Modal Dossier */
+    /* Ouverture / Clôture / Sauvegarde Dossier */
     function openDossierModal(id = null) {
       const modal = document.getElementById("dossierModal");
+      const user = getCurrentUser();
       document.getElementById("fEvoStage").value = "";
       document.getElementById("fEvoNote").value = "";
 
@@ -1504,6 +2008,8 @@
         const nextNum = String(state.dossiers.length + 1).padStart(5, "0");
         document.getElementById("dossierModalTitle").textContent = "Créer un nouveau dossier";
         document.getElementById("editDossierId").value = "";
+        document.getElementById("btnCloseDossierSupervisor").style.display = "none";
+        document.getElementById("dossierStatusBanner").style.display = "none";
         document.getElementById("fRepertoire").value = `GEO${nextNum}`;
         document.getElementById("fBl").value = "";
         document.getElementById("fClient").value = "";
@@ -1514,19 +2020,61 @@
         document.getElementById("fContainerType").value = "40'HC";
         document.getElementById("fPoids").value = "";
         document.getElementById("fQuantite").value = "";
+        document.getElementById("fTransportMode").value = "SUR_CAMION";
         document.getElementById("fFlux").value = "HINTERLAND";
         document.getElementById("fCircuit").value = "VERT";
         document.getElementById("fStatut").value = "En cours";
         document.getElementById("fIsDdu").value = "true";
-        document.getElementById("fAlert72h").value = "false";
-        renderContainerFields([""]);
+
+        document.getElementById("fBadEndDate").value = "";
+        document.getElementById("fDocType").value = "TELEX";
+        document.getElementById("fExchangeComment").value = "";
+
+        document.getElementById("fDduLevee").checked = false;
+        document.getElementById("fDeclarationNum").value = "";
+        document.getElementById("fT1Num").value = "";
+        document.getElementById("fT1ValidityDate").value = "";
+
+        document.getElementById("fPassationBon").value = "AUCUN";
+        document.getElementById("fPassationConsigne").value = "";
+
+        document.getElementById("fManFactureRecue").checked = false;
+        document.getElementById("fManFacturePayee").checked = false;
+        document.getElementById("fManDfuPaye").checked = false;
+        document.getElementById("fManBactFait").checked = false;
+        document.getElementById("fManGatePassDemande").checked = false;
+        document.getElementById("fManGatePassRecu").checked = false;
+        document.getElementById("fManTruckRequested").checked = false;
+
+        document.getElementById("fEmptyReturnDate").value = "";
+        workingEmptyReturnFile = "";
+        workingFiles = { exchange: [], ddu: [], passation: [], manutention: [] };
+        workingTruckAssignments = [];
         workingEvolutions = [];
+        renderContainerFields([""]);
         document.getElementById("fPoints").value = "";
       } else {
         const d = state.dossiers.find((item) => item.id === id);
         if (!d) return;
-        document.getElementById("dossierModalTitle").textContent = `Dossier ${d.repertoire} — Détails & Évolution`;
+        document.getElementById("dossierModalTitle").textContent = `Dossier ${d.repertoire} — Suivi & Évolution`;
         document.getElementById("editDossierId").value = d.id;
+        document.getElementById("btnCloseDossierSupervisor").style.display = isSupervisor(user) && !d.closed ? "inline-block" : "none";
+
+        const alerts = getDossierAlerts72h(d);
+        const banner = document.getElementById("dossierStatusBanner");
+        if (d.closed || alerts.length || isDossierWaitingForTruck(d)) {
+          banner.style.display = "flex";
+          banner.innerHTML = `
+            <div>
+              ${d.closed ? "<strong>🔒 Dossier clôturé par le Superviseur.</strong> " : ""}
+              ${alerts.length ? `<span class="pill rouge">${escapeHtml(alerts.join(" • "))}</span> ` : ""}
+              ${isDossierWaitingForTruck(d) ? `<span class="pill jaune">Dossier en attente de camion</span>` : ""}
+            </div>
+          `;
+        } else {
+          banner.style.display = "none";
+        }
+
         document.getElementById("fRepertoire").value = d.repertoire || "";
         document.getElementById("fBl").value = d.bl || "";
         document.getElementById("fClient").value = d.client || "";
@@ -1537,27 +2085,59 @@
         document.getElementById("fContainerType").value = d.containerType || "40'HC";
         document.getElementById("fPoids").value = d.poids || "";
         document.getElementById("fQuantite").value = d.quantite || "";
+        document.getElementById("fTransportMode").value = d.transportMode || "SUR_CAMION";
         document.getElementById("fFlux").value = d.flux || "HINTERLAND";
         document.getElementById("fCircuit").value = d.circuit || "VERT";
         document.getElementById("fStatut").value = d.statut || "";
         document.getElementById("fIsDdu").value = d.isDdu ? "true" : "false";
-        document.getElementById("fAlert72h").value = d.alert72h ? "true" : "false";
+
+        document.getElementById("fBadEndDate").value = d.exchange?.badEndDate || "";
+        document.getElementById("fDocType").value = d.exchange?.docType || "TELEX";
+        document.getElementById("fExchangeComment").value = d.exchange?.comment || "";
+
+        document.getElementById("fDduLevee").checked = !!d.ddu?.levee;
+        document.getElementById("fDeclarationNum").value = d.ddu?.declarationNum || "";
+        document.getElementById("fT1Num").value = d.ddu?.t1Num || "";
+        document.getElementById("fT1ValidityDate").value = d.ddu?.t1ValidityDate || "";
+
+        document.getElementById("fPassationBon").value = d.passation?.bon || "AUCUN";
+        document.getElementById("fPassationConsigne").value = d.passation?.consigne || "";
+
+        document.getElementById("fManFactureRecue").checked = !!d.manutention?.factureRecue;
+        document.getElementById("fManFacturePayee").checked = !!d.manutention?.facturePayee;
+        document.getElementById("fManDfuPaye").checked = !!d.manutention?.dfuPaye;
+        document.getElementById("fManBactFait").checked = !!d.manutention?.bactFait;
+        document.getElementById("fManGatePassDemande").checked = !!d.manutention?.gatePassDemande;
+        document.getElementById("fManGatePassRecu").checked = !!d.manutention?.gatePassRecu;
+        document.getElementById("fManTruckRequested").checked = !!d.manutention?.truckRequested;
+
+        document.getElementById("fEmptyReturnDate").value = d.emptyReturn?.date || "";
+        workingEmptyReturnFile = d.emptyReturn?.fileName || "";
+
+        workingFiles = {
+          exchange: [...(d.exchange?.files || [])],
+          ddu: [...(d.ddu?.files || [])],
+          passation: [...(d.passation?.files || [])],
+          manutention: [...(d.manutention?.files || [])]
+        };
+        workingTruckAssignments = JSON.parse(JSON.stringify(d.passation?.truckAssignments || []));
+        workingEvolutions = JSON.parse(JSON.stringify(d.evolutions || []));
         renderContainerFields(d.containers && d.containers.length ? d.containers : [""]);
-        workingEvolutions = Array.isArray(d.evolutions) ? JSON.parse(JSON.stringify(d.evolutions)) : [];
         document.getElementById("fPoints").value = d.points || "";
       }
+
+      toggleTruckSections();
+      renderTruckAssignmentRows();
+      renderTruckDemandPreview();
+      renderEmptyReturnFile();
+      ["exchange", "ddu", "passation", "manutention"].forEach(renderSectionFiles);
       renderEvolutionList();
       modal.classList.add("open");
     }
 
-    function saveDossier() {
+    function collectDossierPayload(existingObj = null) {
       const id = document.getElementById("editDossierId").value;
       const rep = document.getElementById("fRepertoire").value.trim().toUpperCase();
-      if (!rep) {
-        showToast("Le numéro de répertoire est obligatoire.");
-        return;
-      }
-
       const rawContainers = getContainerFieldValues().filter(Boolean);
       const containers = Array.from(new Set(rawContainers));
 
@@ -1573,7 +2153,7 @@
         });
       }
 
-      const payload = {
+      return {
         id: id || "d_" + Date.now(),
         repertoire: rep,
         bl: document.getElementById("fBl").value.trim().toUpperCase(),
@@ -1585,15 +2165,61 @@
         containerType: document.getElementById("fContainerType").value,
         poids: document.getElementById("fPoids").value.trim(),
         quantite: document.getElementById("fQuantite").value.trim(),
+        transportMode: document.getElementById("fTransportMode").value,
         flux: document.getElementById("fFlux").value,
         circuit: document.getElementById("fCircuit").value,
         statut: document.getElementById("fStatut").value.trim(),
         isDdu: document.getElementById("fIsDdu").value === "true",
-        alert72h: document.getElementById("fAlert72h").value === "true",
+        closed: existingObj ? !!existingObj.closed : false,
         containers,
-        evolutions: workingEvolutions,
+        exchange: {
+          badEndDate: document.getElementById("fBadEndDate").value,
+          docType: document.getElementById("fDocType").value,
+          comment: document.getElementById("fExchangeComment").value.trim(),
+          files: [...workingFiles.exchange]
+        },
+        ddu: {
+          levee: document.getElementById("fDduLevee").checked,
+          declarationNum: document.getElementById("fDeclarationNum").value.trim().toUpperCase(),
+          t1Num: document.getElementById("fT1Num").value.trim().toUpperCase(),
+          t1ValidityDate: document.getElementById("fT1ValidityDate").value,
+          files: [...workingFiles.ddu]
+        },
+        passation: {
+          bon: document.getElementById("fPassationBon").value,
+          consigne: document.getElementById("fPassationConsigne").value.trim(),
+          truckAssignments: JSON.parse(JSON.stringify(workingTruckAssignments)),
+          files: [...workingFiles.passation]
+        },
+        manutention: {
+          factureRecue: document.getElementById("fManFactureRecue").checked,
+          facturePayee: document.getElementById("fManFacturePayee").checked,
+          dfuPaye: document.getElementById("fManDfuPaye").checked,
+          bactFait: document.getElementById("fManBactFait").checked,
+          gatePassDemande: document.getElementById("fManGatePassDemande").checked,
+          gatePassRecu: document.getElementById("fManGatePassRecu").checked,
+          truckRequested: document.getElementById("fManTruckRequested").checked,
+          files: [...workingFiles.manutention]
+        },
+        emptyReturn: {
+          date: document.getElementById("fEmptyReturnDate").value,
+          fileName: workingEmptyReturnFile
+        },
+        evolutions: JSON.parse(JSON.stringify(workingEvolutions)),
         points: document.getElementById("fPoints").value.trim()
       };
+    }
+
+    function saveDossier() {
+      const id = document.getElementById("editDossierId").value;
+      const rep = document.getElementById("fRepertoire").value.trim().toUpperCase();
+      if (!rep) {
+        showToast("Le numéro de répertoire est obligatoire.");
+        return;
+      }
+
+      const existing = id ? state.dossiers.find((d) => d.id === id) : null;
+      const payload = collectDossierPayload(existing);
 
       if (id) {
         const idx = state.dossiers.findIndex((d) => d.id === id);
@@ -1606,6 +2232,36 @@
       closeModal("dossierModal");
       renderApp();
       showToast(`Dossier ${rep} enregistré.`);
+    }
+
+    function closeDossierBySupervisor() {
+      if (!isSupervisor(getCurrentUser())) {
+        showToast("Seul le Superviseur peut clôturer le dossier.");
+        return;
+      }
+      const id = document.getElementById("editDossierId").value;
+      const existing = id ? state.dossiers.find((d) => d.id === id) : null;
+      const payload = collectDossierPayload(existing);
+      payload.closed = true;
+      payload.statut = payload.statut || "Clôturé";
+      payload.evolutions.unshift({
+        date: new Date().toLocaleString("fr-FR"),
+        stage: "Clôture dossier",
+        note: "Circuit terminé — dossier clôturé par le Superviseur",
+        author: getCurrentUser()?.username || "superviseur"
+      });
+
+      if (id) {
+        const idx = state.dossiers.findIndex((d) => d.id === id);
+        if (idx >= 0) state.dossiers[idx] = payload;
+      } else {
+        state.dossiers.unshift(payload);
+      }
+
+      saveState();
+      closeModal("dossierModal");
+      renderApp();
+      showToast(`Dossier ${payload.repertoire} clôturé.`);
     }
 
     /* Bordereau PDF (SANS FACTURATION) */
@@ -1634,6 +2290,7 @@
             <p style="margin:4px 0;"><strong>NAVIRE :</strong> ${escapeHtml(d.navire || "-")} &nbsp;|&nbsp; <strong>PROVENANCE :</strong> ${escapeHtml(d.paysProvenance || "-")} &nbsp;|&nbsp; <strong>DESTINATION :</strong> ${escapeHtml(d.paysDestination || d.destination || "-")}</p>
             <p style="margin:4px 0;"><strong>POIDS :</strong> ${escapeHtml(d.poids || "-")} &nbsp;|&nbsp; <strong>QUANTITÉ :</strong> ${escapeHtml(d.quantite || "-")} &nbsp;|&nbsp; <strong>TYPE CONTENEUR :</strong> ${escapeHtml(d.containerType || "-")}</p>
             <p style="margin:4px 0;"><strong>CONTENEURS :</strong> ${escapeHtml(containersText)}</p>
+            ${d.emptyReturn?.date ? `<p style="margin:4px 0;"><strong>RETOUR VIDE :</strong> ${escapeHtml(d.emptyReturn.date)} ${d.emptyReturn.fileName ? "(" + escapeHtml(d.emptyReturn.fileName) + ")" : ""}</p>` : ""}
             <div style="margin-top:8px;">
               <strong>POINTS / ÉTAPES D'AVANCEMENT :</strong>
               <ul style="margin:6px 0 0 18px; padding:0;">${pointsLines}</ul>
@@ -1687,13 +2344,20 @@
       triggerPrintHtml(buildBordereauHtml(list, `BORDEREAUX GROUPÉS (${list.length})`));
     }
 
-    /* Facturation DDU */
+    /* Facturation DDU (Numérotation GE001/FA/ANNÉE + Facture PDF détaillée + Transmission STE GEO) */
+    function formatInvoiceNumber(counterNum, year) {
+      const seq = String(counterNum || 1).padStart(3, "0");
+      return `GE${seq}/FA/${year}`;
+    }
+
     function openDduBillingModal() {
       const user = getCurrentUser();
       if (!canAccessDduBilling(user)) {
         showToast("Accès réservé à l'Agent DDU, l'Administrateur et le Superviseur.");
         return;
       }
+      const year = new Date().getFullYear();
+      currentInvoiceNumberPreview = formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
       document.getElementById("billUnitPrice").value = state.settings.dduUnitPrice ?? 10000;
       document.getElementById("billRecipientEmail").value = state.settings.emailK || "k@geosuvitransit.tg";
       prefillRangeFromDossiers();
@@ -1737,7 +2401,8 @@
 
       const startLabel = document.getElementById("billRepStart").value.trim().toUpperCase() || "DÉBUT";
       const endLabel = document.getElementById("billRepEnd").value.trim().toUpperCase() || "FIN";
-      const invoiceRef = `FAC-DDU-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}`;
+      const year = new Date().getFullYear();
+      const invoiceRef = currentInvoiceNumberPreview || formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
       const invoiceDate = new Date().toLocaleDateString("fr-FR");
 
       const linesHtml = matches.length
@@ -1747,20 +2412,22 @@
               <td><strong>${escapeHtml(d.repertoire)}</strong></td>
               <td>${escapeHtml(d.bl || "-")}</td>
               <td>${escapeHtml(d.client || "-")}</td>
+              <td>${escapeHtml(d.ddu?.declarationNum || "-")}</td>
+              <td>${escapeHtml(d.poids || "-")} / ${escapeHtml(d.quantite || "-")}</td>
               <td style="text-align:right;">${unitPrice.toLocaleString("fr-FR")} ${escapeHtml(currency)}</td>
             </tr>
           `).join("")
-        : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">Aucun répertoire trouvé dans cette plage.</td></tr>`;
+        : `<tr><td colspan="7" style="text-align:center; color:var(--muted);">Aucun répertoire trouvé dans cette plage.</td></tr>`;
 
       document.getElementById("invoicePreviewBox").innerHTML = `
         <div class="invoice-banner">
           <div>
             <p class="invoice-doc-title">FACTURE DDU</p>
-            <div style="font-size:13px;"><strong>Client / Destinataire :</strong> STE GEO (${escapeHtml(recipient || "Non défini")})</div>
-            <div style="font-size:12.5px; color:var(--muted);">Plage de répertoires : <strong>${escapeHtml(startLabel)}</strong> → <strong>${escapeHtml(endLabel)}</strong></div>
+            <div style="font-size:13px;"><strong>Destinataire :</strong> STE GEO (${escapeHtml(recipient || "Non défini")})</div>
+            <div style="font-size:12.5px; color:var(--muted);">Plage répertoires : <strong>${escapeHtml(startLabel)}</strong> → <strong>${escapeHtml(endLabel)}</strong></div>
           </div>
           <div style="text-align:right; font-size:12.5px;">
-            <div><strong>N° Facture :</strong> ${escapeHtml(invoiceRef)}</div>
+            <div><strong>N° Facture :</strong> <span style="font-size:14px; font-weight:800;">${escapeHtml(invoiceRef)}</span></div>
             <div><strong>Date :</strong> ${escapeHtml(invoiceDate)}</div>
             <div><strong>Tarif unitaire :</strong> ${unitPrice.toLocaleString("fr-FR")} ${escapeHtml(currency)}</div>
           </div>
@@ -1768,10 +2435,12 @@
         <table style="min-width:100%; margin-bottom:12px;">
           <thead>
             <tr>
-              <th style="width:45px;">#</th>
+              <th style="width:38px;">#</th>
               <th>Répertoire</th>
               <th>N° BL</th>
               <th>Client</th>
+              <th>N° Déclaration</th>
+              <th>Poids / Qté</th>
               <th style="text-align:right;">Montant DDU</th>
             </tr>
           </thead>
@@ -1805,24 +2474,37 @@
       const totalAmount = matches.length * unitPrice;
       const startLabel = document.getElementById("billRepStart").value.trim().toUpperCase() || "A";
       const endLabel = document.getElementById("billRepEnd").value.trim().toUpperCase() || "X";
+      const year = new Date().getFullYear();
+      const invoiceRef = currentInvoiceNumberPreview || formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
 
       if (!recipient) {
         showToast("Veuillez renseigner l'adresse e-mail de destination STE GEO (k).");
         return;
       }
 
-      const subject = encodeURIComponent(`Facture DDU STE GEO (${startLabel} à ${endLabel}) - ${matches.length} DDU`);
+      // Incrémente le compteur de facture pour la prochaine facture
+      state.settings.invoiceCounter = (Number(state.settings.invoiceCounter) || 1) + 1;
+      saveState();
+
+      // Génère / imprime la facture PDF détaillée puis ouvre l'envoi e-mail vers STE GEO
+      printInvoicePdf();
+
+      const subject = encodeURIComponent(`Facture ${invoiceRef} - DDU STE GEO (${startLabel} à ${endLabel})`);
       const body = encodeURIComponent(
-        `FACTURE DDU — STE GEO\n` +
+        `FACTURE N° : ${invoiceRef}\n` +
+        `Destinataire : STE GEO\n` +
         `Plage répertoires : ${startLabel} à ${endLabel}\n` +
         `Nombre de DDU : ${matches.length}\n` +
         `Tarif unitaire : ${unitPrice.toLocaleString("fr-FR")} ${currency}\n` +
         `Montant total : ${totalAmount.toLocaleString("fr-FR")} ${currency}\n` +
-        `Répertoires : ${matches.map((m) => m.repertoire).join(", ") || "Aucun"}`
+        `Détails : ${matches.map((m) => `${m.repertoire} (BL ${m.bl || "-"}, ${m.client || "-"})`).join(" | ") || "Aucun"}\n\n` +
+        `La facture PDF (${invoiceRef}) a été générée pour pièce jointe.`
       );
 
-      showToast(`Facture préparée et transmise à ${recipient}.`);
-      window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${subject}&body=${body}`;
+      showToast(`Facture ${invoiceRef} générée en PDF et transmise à ${recipient}.`);
+      setTimeout(() => {
+        window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${subject}&body=${body}`;
+      }, 300);
     }
 
     /* Administration */
