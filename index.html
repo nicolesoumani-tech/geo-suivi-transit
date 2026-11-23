@@ -51,9 +51,15 @@
       transition: background 0.15s ease, border-color 0.15s ease;
     }
 
-    button:hover {
+    button:hover:not(:disabled) {
       background: var(--surface-alt);
       border-color: #cbd5e1;
+    }
+
+    button:disabled, input:disabled, select:disabled, textarea:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      background: #f1f5f9;
     }
 
     button.primary {
@@ -62,7 +68,7 @@
       color: #fff;
     }
 
-    button.primary:hover {
+    button.primary:hover:not(:disabled) {
       background: var(--primary-hover);
       border-color: var(--primary-hover);
     }
@@ -245,7 +251,7 @@
       color: #fff;
     }
 
-    .topbar-actions button:hover {
+    .topbar-actions button:hover:not(:disabled) {
       background: rgba(255, 255, 255, 0.18);
     }
 
@@ -552,10 +558,20 @@
       background: var(--surface-alt);
     }
 
+    .section-box.locked-section {
+      opacity: 0.72;
+      background: #f1f5f9;
+    }
+
     .section-box h3 {
       margin: 0 0 10px 0;
       font-size: 14px;
       color: #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .role-grid {
@@ -694,7 +710,7 @@
         <button id="btnDduBilling" onclick="openDduBillingModal()" class="primary" style="display:none;">🧾 Facturation DDU</button>
         <button onclick="exportBulkBordereauPdf()">📄 Bordereau PDF (Groupé)</button>
         <button id="btnAdminPanel" onclick="openAdminModal()" style="display:none;">🛡️ Administration</button>
-        <button onclick="openSettingsModal()">⚙️ Paramètres</button>
+        <button id="btnSettings" onclick="openSettingsModal()" style="display:none;">⚙️ Paramètres</button>
         <button onclick="logout()" class="danger sm">Déconnexion</button>
       </div>
     </header>
@@ -728,7 +744,7 @@
         </div>
 
         <div class="toolbar-group">
-          <button onclick="openDossierModal()" class="primary">+ Nouveau Dossier</button>
+          <button id="btnNewDossier" onclick="openDossierModal()" class="primary">+ Nouveau Dossier</button>
         </div>
       </div>
 
@@ -768,8 +784,11 @@
         <div id="dossierStatusBanner" style="display:none; margin-bottom:12px;" class="truck-banner"></div>
 
         <!-- 1. Informations générales -->
-        <div class="section-box">
-          <h3>1. Informations générales &amp; Exploitation</h3>
+        <div id="secGeneral" class="section-box">
+          <h3>
+            <span>1. Informations générales &amp; Exploitation</span>
+            <span id="badgeGeneralAccess" class="pill bleu"></span>
+          </h3>
           <div class="grid-3">
             <div class="field">
               <label>N° Répertoire</label>
@@ -859,11 +878,11 @@
         </div>
 
         <!-- 2. Conteneurs (4 lettres + 7 chiffres) -->
-        <div class="section-box">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
-            <h3 style="margin:0;">2. Conteneurs (4 lettres + 7 chiffres — collage auto-réparti)</h3>
-            <button type="button" class="sm" onclick="addContainerField()">+ Ajouter un champ conteneur</button>
-          </div>
+        <div id="secContainers" class="section-box">
+          <h3>
+            <span>2. Conteneurs (4 lettres + 7 chiffres — collage auto-réparti)</span>
+            <button type="button" id="btnAddContainer" class="sm" onclick="addContainerField()">+ Ajouter un champ conteneur</button>
+          </h3>
           <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">
             Collez plusieurs numéros (4 lettres + 7 chiffres, ex. <code>MSCU1234567 CMAU9876543</code>) dans le <strong>premier champ</strong> : chaque conteneur est automatiquement renvoyé dans son champ.
           </div>
@@ -871,8 +890,11 @@
         </div>
 
         <!-- 3. Agent de l'échange -->
-        <div class="section-box">
-          <h3>3. Agent de l'Échange (BAD, Télex / Original &amp; Problème circuit)</h3>
+        <div id="secExchange" class="section-box">
+          <h3>
+            <span>3. Agent de l'Échange (BAD, Télex / Original &amp; Problème circuit)</span>
+            <span class="pill bleu">AGENT_ECHANGE</span>
+          </h3>
           <div class="grid-3">
             <div class="field">
               <label for="fBadEndDate">Date fin du BAD (Alerte &lt; 72h)</label>
@@ -898,8 +920,11 @@
         </div>
 
         <!-- 4. Agent DDU & T1 -->
-        <div class="section-box">
-          <h3>4. Agent DDU &amp; Transit T1</h3>
+        <div id="secDdu" class="section-box">
+          <h3>
+            <span>4. Agent DDU &amp; Transit T1</span>
+            <span class="pill bleu">AGENT_DDU_T1</span>
+          </h3>
           <div class="grid-2">
             <label class="check-inline" style="margin-bottom:8px;">
               <input type="checkbox" id="fDduLevee" />
@@ -928,8 +953,11 @@
         </div>
 
         <!-- 5. Agent de passation et enlèvement -->
-        <div class="section-box">
-          <h3>5. Agent de Passation et Enlèvement</h3>
+        <div id="secPassation" class="section-box">
+          <h3>
+            <span>5. Agent de Passation et Enlèvement</span>
+            <span class="pill bleu">AGENT_PASSATION</span>
+          </h3>
           <div class="grid-3">
             <div class="field">
               <label for="fPassationBon">Bon pris</label>
@@ -950,28 +978,29 @@
             </div>
           </div>
 
-          <!-- Sur camion : affectation conteneurs au camion -->
           <div id="surCamionSection" class="truck-alloc-card">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
               <strong>Affectation des conteneurs au camion (Sur camion)</strong>
-              <button type="button" class="sm" onclick="addTruckAssignmentRow('SUR_CAMION')">+ Ajouter un camion</button>
+              <button type="button" id="btnAddTruckSurCamion" class="sm" onclick="addTruckAssignmentRow('SUR_CAMION')">+ Ajouter un camion</button>
             </div>
             <div id="surCamionRows"></div>
           </div>
 
-          <!-- Dépotage : partage poids et quantités pour chaque camion -->
           <div id="depotageSection" class="truck-alloc-card" style="display:none;">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
               <strong>Répartition des poids et quantités par camion (Dépotage)</strong>
-              <button type="button" class="sm" onclick="addTruckAssignmentRow('DEPOTAGE')">+ Ajouter un camion de dépotage</button>
+              <button type="button" id="btnAddTruckDepotage" class="sm" onclick="addTruckAssignmentRow('DEPOTAGE')">+ Ajouter un camion de dépotage</button>
             </div>
             <div id="depotageRows"></div>
           </div>
         </div>
 
         <!-- 6. Agent de manutention -->
-        <div class="section-box">
-          <h3>6. Agent de Manutention &amp; Demande de Camion de Chargement</h3>
+        <div id="secManutention" class="section-box">
+          <h3>
+            <span>6. Agent de Manutention &amp; Demande de Camion de Chargement</span>
+            <span class="pill bleu">AGENT_MANUTENTION</span>
+          </h3>
           <div class="role-grid" style="margin-bottom:12px;">
             <label class="role-chip"><input type="checkbox" id="fManFactureRecue" /> Facture reçue</label>
             <label class="role-chip"><input type="checkbox" id="fManFacturePayee" /> Facture payée</label>
@@ -1003,7 +1032,7 @@
         <div id="emptyReturnSection" class="section-box">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
             <h3 style="margin:0;">7. Retour Vide (Dossiers sur camion)</h3>
-            <button type="button" class="warning sm" onclick="triggerEmptyReturnAction()">🔄 Retour vide</button>
+            <button type="button" id="btnEmptyReturn" class="warning sm" onclick="triggerEmptyReturnAction()">🔄 Retour vide</button>
           </div>
           <div class="grid-2">
             <div class="field" style="margin-bottom:0;">
@@ -1019,7 +1048,7 @@
         </div>
 
         <!-- 8. Évolution & Points du dossier -->
-        <div class="section-box">
+        <div id="secEvolution" class="section-box">
           <h3>8. Évolution &amp; Renseignement du suivi du dossier</h3>
           <div class="grid-2" style="margin-bottom:10px;">
             <div class="field" style="margin-bottom:0;">
@@ -1031,11 +1060,11 @@
               <input type="text" id="fEvoNote" placeholder="Ex: Dossier validé à SEGUCE, camion affecté" />
             </div>
           </div>
-          <button type="button" class="sm primary" onclick="addEvolutionEntry()">+ Enregistrer cette évolution</button>
+          <button type="button" id="btnAddEvolution" class="sm primary" onclick="addEvolutionEntry()">+ Enregistrer cette évolution</button>
           <div id="evolutionHistoryList" class="evolution-list"></div>
         </div>
 
-        <div class="section-box" style="margin-bottom:0;">
+        <div id="secPoints" class="section-box" style="margin-bottom:0;">
           <h3>9. Points / Étapes d'avancement (Bordereau PDF sans facturation)</h3>
           <div class="field" style="margin-bottom:0;">
             <textarea id="fPoints" rows="3" placeholder="Ex:&#10;- Arrivée navire et BAD récupéré&#10;- Déclaration validée&#10;- Enlèvement / Transport vers destination"></textarea>
@@ -1046,7 +1075,7 @@
       <div class="modal-footer">
         <button onclick="printSingleBordereauPdf()">📄 Télécharger / Imprimer Bordereau PDF</button>
         <button onclick="closeModal('dossierModal')">Annuler</button>
-        <button onclick="saveDossier()" class="primary">Enregistrer le dossier</button>
+        <button id="btnSaveDossier" onclick="saveDossier()" class="primary">Enregistrer le dossier</button>
       </div>
     </div>
   </div>
@@ -1099,7 +1128,7 @@
   <div id="adminModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
-        <h2>🛡️ Administration — Agents Connectés &amp; Rôles</h2>
+        <h2>🛡️ Administration — Agents Connectés &amp; Attribution des Rôles</h2>
         <button onclick="closeModal('adminModal')" class="sm">✕</button>
       </div>
       <div class="modal-body">
@@ -1111,7 +1140,7 @@
                 <tr>
                   <th>Agent</th>
                   <th>Identifiant</th>
-                  <th>Rôles</th>
+                  <th>Rôles attribués</th>
                   <th>État</th>
                   <th>Dernière activité</th>
                 </tr>
@@ -1122,7 +1151,10 @@
         </div>
 
         <div class="section-box" style="margin-bottom:0;">
-          <h3>Gestion multi-rôles des agents</h3>
+          <h3>Attribution multi-rôles par l'Administrateur</h3>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">
+            Cochez les rôles attribués à chaque agent pour ouvrir uniquement les volets correspondants dans les dossiers.
+          </div>
           <div id="adminUsersList"></div>
           <hr style="border:none; border-top:1px solid var(--border); margin:14px 0;" />
           <div class="grid-2">
@@ -1184,8 +1216,17 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V6";
-    const AVAILABLE_ROLES = ["ADMIN", "SUPERVISEUR", "AGENT_DDU_T1", "AGENT_TRANSIT", "AGENT_EXPLOITATION"];
+    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V7";
+    const AVAILABLE_ROLES = [
+      "ADMIN",
+      "SUPERVISEUR",
+      "AGENT_ECHANGE",
+      "AGENT_DDU_T1",
+      "AGENT_PASSATION",
+      "AGENT_MANUTENTION",
+      "AGENT_TRANSIT",
+      "AGENT_EXPLOITATION"
+    ];
 
     const DEFAULT_STATE = {
       settings: {
@@ -1272,10 +1313,7 @@
             truckRequested: true,
             files: []
           },
-          emptyReturn: {
-            date: "",
-            fileName: ""
-          },
+          emptyReturn: { date: "", fileName: "" },
           evolutions: [
             { date: "23/11/2026 09:15", stage: "Arrivée navire", note: "Navire accosté au terminal à conteneurs", author: "admin" }
           ],
@@ -1475,23 +1513,39 @@
       return state.users.find((u) => u.id === state.sessionUserId) || null;
     }
 
-    function isAdminOrSupervisor(user) {
-      if (!user) return false;
-      return user.roles.includes("ADMIN") || user.roles.includes("SUPERVISEUR");
+    function hasRole(user, role) {
+      return !!(user && Array.isArray(user.roles) && user.roles.includes(role));
+    }
+
+    function isAdmin(user) {
+      return hasRole(user, "ADMIN");
     }
 
     function isSupervisor(user) {
-      if (!user) return false;
-      return user.roles.includes("SUPERVISEUR") || user.roles.includes("ADMIN");
+      return hasRole(user, "SUPERVISEUR") || hasRole(user, "ADMIN");
     }
 
     function canAccessDduBilling(user) {
-      if (!user) return false;
-      return (
-        user.roles.includes("AGENT_DDU_T1") ||
-        user.roles.includes("ADMIN") ||
-        user.roles.includes("SUPERVISEUR")
-      );
+      return hasRole(user, "AGENT_DDU_T1") || hasRole(user, "ADMIN") || hasRole(user, "SUPERVISEUR");
+    }
+
+    function getPermissions(user) {
+      const admin = isAdmin(user);
+      const sup = hasRole(user, "SUPERVISEUR");
+      const fullOps = admin || sup;
+      return {
+        fullOps,
+        canCreateDossier: fullOps || hasRole(user, "AGENT_TRANSIT") || hasRole(user, "AGENT_EXPLOITATION") || hasRole(user, "AGENT_ECHANGE") || hasRole(user, "AGENT_DDU_T1"),
+        canEditGeneral: fullOps || hasRole(user, "AGENT_TRANSIT") || hasRole(user, "AGENT_EXPLOITATION"),
+        canEditContainers: fullOps || hasRole(user, "AGENT_TRANSIT") || hasRole(user, "AGENT_EXPLOITATION") || hasRole(user, "AGENT_PASSATION"),
+        canEditExchange: fullOps || hasRole(user, "AGENT_ECHANGE"),
+        canEditDdu: fullOps || hasRole(user, "AGENT_DDU_T1"),
+        canEditPassation: fullOps || hasRole(user, "AGENT_PASSATION"),
+        canEditManutention: fullOps || hasRole(user, "AGENT_MANUTENTION"),
+        canEditEmptyReturn: fullOps || hasRole(user, "AGENT_MANUTENTION") || hasRole(user, "AGENT_PASSATION"),
+        canEditEvolution: !!user,
+        canEditPoints: fullOps || hasRole(user, "AGENT_TRANSIT") || hasRole(user, "AGENT_EXPLOITATION")
+      };
     }
 
     /* Alertes < 72h pour BAD et T1 tant que le dossier n'est pas clôturé par le superviseur */
@@ -1595,13 +1649,16 @@
         return;
       }
 
+      const perms = getPermissions(user);
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("appScreen").style.display = "block";
 
       document.getElementById("currentUserLabel").textContent = `${user.name} (${user.username})`;
       document.getElementById("currentRolesLabel").textContent = `[${user.roles.join(", ")}]`;
       document.getElementById("btnDduBilling").style.display = canAccessDduBilling(user) ? "inline-block" : "none";
-      document.getElementById("btnAdminPanel").style.display = isAdminOrSupervisor(user) ? "inline-block" : "none";
+      document.getElementById("btnAdminPanel").style.display = isAdmin(user) ? "inline-block" : "none";
+      document.getElementById("btnSettings").style.display = isSupervisor(user) ? "inline-block" : "none";
+      document.getElementById("btnNewDossier").style.display = perms.canCreateDossier ? "inline-block" : "none";
 
       renderAlertBanner();
       renderTruckBanner(user);
@@ -1749,6 +1806,43 @@
       renderDossiers();
     }
 
+    /* Application des droits attribués par l'Administrateur dans le modal dossier */
+    function setSectionLock(sectionId, allowed) {
+      const sec = document.getElementById(sectionId);
+      if (!sec) return;
+      sec.classList.toggle("locked-section", !allowed);
+      sec.querySelectorAll("input, select, textarea, button").forEach((el) => {
+        el.disabled = !allowed;
+      });
+    }
+
+    function applyRolePermissionsToModal() {
+      const perms = getPermissions(getCurrentUser());
+      setSectionLock("secGeneral", perms.canEditGeneral);
+      setSectionLock("secContainers", perms.canEditContainers);
+      setSectionLock("secExchange", perms.canEditExchange);
+      setSectionLock("secDdu", perms.canEditDdu);
+      setSectionLock("secPassation", perms.canEditPassation);
+      setSectionLock("secManutention", perms.canEditManutention);
+      setSectionLock("emptyReturnSection", perms.canEditEmptyReturn);
+      setSectionLock("secEvolution", perms.canEditEvolution);
+      setSectionLock("secPoints", perms.canEditPoints);
+
+      const anyEditable =
+        perms.canEditGeneral ||
+        perms.canEditContainers ||
+        perms.canEditExchange ||
+        perms.canEditDdu ||
+        perms.canEditPassation ||
+        perms.canEditManutention ||
+        perms.canEditEmptyReturn ||
+        perms.canEditEvolution ||
+        perms.canEditPoints;
+
+      document.getElementById("btnSaveDossier").disabled = !anyEditable;
+      document.getElementById("badgeGeneralAccess").textContent = perms.canEditGeneral ? "Édition autorisée" : "Lecture seule";
+    }
+
     /* Conteneurs (4 lettres + 7 chiffres) */
     function renderContainerFields(values = []) {
       const list = Array.isArray(values) && values.length ? values : [""];
@@ -1773,6 +1867,7 @@
       const current = getContainerFieldValues();
       current.push(initialValue);
       renderContainerFields(current);
+      applyRolePermissionsToModal();
       const inputs = document.querySelectorAll(".container-field-input");
       if (inputs.length) inputs[inputs.length - 1].focus();
     }
@@ -1796,6 +1891,7 @@
       if (extracted.length > 1) {
         event.preventDefault();
         renderContainerFields(extracted);
+        applyRolePermissionsToModal();
         showToast(`${extracted.length} conteneurs répartis dans leurs champs.`);
       }
     }
@@ -1805,6 +1901,7 @@
       const extracted = extractContainers4L7N(value);
       if (extracted.length > 1) {
         renderContainerFields(extracted);
+        applyRolePermissionsToModal();
         showToast(`${extracted.length} conteneurs répartis dans leurs champs.`);
       }
     }
@@ -1862,11 +1959,13 @@
         quantite: ""
       });
       renderTruckAssignmentRows();
+      applyRolePermissionsToModal();
     }
 
     function removeTruckAssignmentRow(idx) {
       workingTruckAssignments.splice(idx, 1);
       renderTruckAssignmentRows();
+      applyRolePermissionsToModal();
     }
 
     function renderTruckAssignmentRows() {
@@ -1982,13 +2081,14 @@
         return;
       }
       const user = getCurrentUser();
+      const perms = getPermissions(user);
       workingEvolutions.unshift({
         date: new Date().toLocaleString("fr-FR"),
         stage: stage || (document.getElementById("fStatut").value || "").trim() || "Suivi",
         note: note || "Étape renseignée",
         author: user ? user.username : "agent"
       });
-      if (stage) {
+      if (stage && perms.canEditGeneral) {
         document.getElementById("fStatut").value = stage;
       }
       document.getElementById("fEvoStage").value = "";
@@ -2132,18 +2232,52 @@
       renderEmptyReturnFile();
       ["exchange", "ddu", "passation", "manutention"].forEach(renderSectionFiles);
       renderEvolutionList();
+      applyRolePermissionsToModal();
       modal.classList.add("open");
     }
 
     function collectDossierPayload(existingObj = null) {
-      const id = document.getElementById("editDossierId").value;
-      const rep = document.getElementById("fRepertoire").value.trim().toUpperCase();
-      const rawContainers = getContainerFieldValues().filter(Boolean);
-      const containers = Array.from(new Set(rawContainers));
+      const base = existingObj ? JSON.parse(JSON.stringify(existingObj)) : {
+        id: "d_" + Date.now(),
+        repertoire: "",
+        bl: "",
+        client: "",
+        navire: "",
+        paysProvenance: "",
+        paysDestination: "",
+        destination: "",
+        containerType: "40'HC",
+        poids: "",
+        quantite: "",
+        transportMode: "SUR_CAMION",
+        flux: "HINTERLAND",
+        circuit: "VERT",
+        statut: "En cours",
+        isDdu: true,
+        closed: false,
+        containers: [],
+        exchange: { badEndDate: "", docType: "TELEX", comment: "", files: [] },
+        ddu: { levee: false, declarationNum: "", t1Num: "", t1ValidityDate: "", files: [] },
+        passation: { bon: "AUCUN", consigne: "", truckAssignments: [], files: [] },
+        manutention: {
+          factureRecue: false,
+          facturePayee: false,
+          dfuPaye: false,
+          bactFait: false,
+          gatePassDemande: false,
+          gatePassRecu: false,
+          truckRequested: false,
+          files: []
+        },
+        emptyReturn: { date: "", fileName: "" },
+        evolutions: [],
+        points: ""
+      };
 
+      const perms = getPermissions(getCurrentUser());
       const pendingStage = (document.getElementById("fEvoStage").value || "").trim();
       const pendingNote = (document.getElementById("fEvoNote").value || "").trim();
-      if (pendingStage || pendingNote) {
+      if (perms.canEditEvolution && (pendingStage || pendingNote)) {
         const user = getCurrentUser();
         workingEvolutions.unshift({
           date: new Date().toLocaleString("fr-FR"),
@@ -2153,45 +2287,61 @@
         });
       }
 
-      return {
-        id: id || "d_" + Date.now(),
-        repertoire: rep,
-        bl: document.getElementById("fBl").value.trim().toUpperCase(),
-        client: document.getElementById("fClient").value.trim(),
-        navire: document.getElementById("fNavire").value.trim().toUpperCase(),
-        paysProvenance: document.getElementById("fPaysProvenance").value.trim(),
-        paysDestination: document.getElementById("fPaysDestination").value.trim(),
-        destination: document.getElementById("fDestination").value.trim().toUpperCase(),
-        containerType: document.getElementById("fContainerType").value,
-        poids: document.getElementById("fPoids").value.trim(),
-        quantite: document.getElementById("fQuantite").value.trim(),
-        transportMode: document.getElementById("fTransportMode").value,
-        flux: document.getElementById("fFlux").value,
-        circuit: document.getElementById("fCircuit").value,
-        statut: document.getElementById("fStatut").value.trim(),
-        isDdu: document.getElementById("fIsDdu").value === "true",
-        closed: existingObj ? !!existingObj.closed : false,
-        containers,
-        exchange: {
+      if (perms.canEditGeneral) {
+        base.repertoire = document.getElementById("fRepertoire").value.trim().toUpperCase();
+        base.bl = document.getElementById("fBl").value.trim().toUpperCase();
+        base.client = document.getElementById("fClient").value.trim();
+        base.navire = document.getElementById("fNavire").value.trim().toUpperCase();
+        base.paysProvenance = document.getElementById("fPaysProvenance").value.trim();
+        base.paysDestination = document.getElementById("fPaysDestination").value.trim();
+        base.destination = document.getElementById("fDestination").value.trim().toUpperCase();
+        base.containerType = document.getElementById("fContainerType").value;
+        base.poids = document.getElementById("fPoids").value.trim();
+        base.quantite = document.getElementById("fQuantite").value.trim();
+        base.transportMode = document.getElementById("fTransportMode").value;
+        base.flux = document.getElementById("fFlux").value;
+        base.circuit = document.getElementById("fCircuit").value;
+        base.statut = document.getElementById("fStatut").value.trim();
+        base.isDdu = document.getElementById("fIsDdu").value === "true";
+      } else if (!existingObj) {
+        base.repertoire = document.getElementById("fRepertoire").value.trim().toUpperCase();
+      }
+
+      if (perms.canEditContainers) {
+        const rawContainers = getContainerFieldValues().filter(Boolean);
+        base.containers = Array.from(new Set(rawContainers));
+      }
+
+      if (perms.canEditExchange) {
+        base.exchange = {
           badEndDate: document.getElementById("fBadEndDate").value,
           docType: document.getElementById("fDocType").value,
           comment: document.getElementById("fExchangeComment").value.trim(),
           files: [...workingFiles.exchange]
-        },
-        ddu: {
+        };
+      }
+
+      if (perms.canEditDdu) {
+        base.ddu = {
           levee: document.getElementById("fDduLevee").checked,
           declarationNum: document.getElementById("fDeclarationNum").value.trim().toUpperCase(),
           t1Num: document.getElementById("fT1Num").value.trim().toUpperCase(),
           t1ValidityDate: document.getElementById("fT1ValidityDate").value,
           files: [...workingFiles.ddu]
-        },
-        passation: {
+        };
+      }
+
+      if (perms.canEditPassation) {
+        base.passation = {
           bon: document.getElementById("fPassationBon").value,
           consigne: document.getElementById("fPassationConsigne").value.trim(),
           truckAssignments: JSON.parse(JSON.stringify(workingTruckAssignments)),
           files: [...workingFiles.passation]
-        },
-        manutention: {
+        };
+      }
+
+      if (perms.canEditManutention) {
+        base.manutention = {
           factureRecue: document.getElementById("fManFactureRecue").checked,
           facturePayee: document.getElementById("fManFacturePayee").checked,
           dfuPaye: document.getElementById("fManDfuPaye").checked,
@@ -2200,26 +2350,36 @@
           gatePassRecu: document.getElementById("fManGatePassRecu").checked,
           truckRequested: document.getElementById("fManTruckRequested").checked,
           files: [...workingFiles.manutention]
-        },
-        emptyReturn: {
+        };
+      }
+
+      if (perms.canEditEmptyReturn) {
+        base.emptyReturn = {
           date: document.getElementById("fEmptyReturnDate").value,
           fileName: workingEmptyReturnFile
-        },
-        evolutions: JSON.parse(JSON.stringify(workingEvolutions)),
-        points: document.getElementById("fPoints").value.trim()
-      };
+        };
+      }
+
+      if (perms.canEditEvolution) {
+        base.evolutions = JSON.parse(JSON.stringify(workingEvolutions));
+      }
+
+      if (perms.canEditPoints) {
+        base.points = document.getElementById("fPoints").value.trim();
+      }
+
+      return base;
     }
 
     function saveDossier() {
       const id = document.getElementById("editDossierId").value;
-      const rep = document.getElementById("fRepertoire").value.trim().toUpperCase();
-      if (!rep) {
+      const existing = id ? state.dossiers.find((d) => d.id === id) : null;
+      const payload = collectDossierPayload(existing);
+
+      if (!payload.repertoire) {
         showToast("Le numéro de répertoire est obligatoire.");
         return;
       }
-
-      const existing = id ? state.dossiers.find((d) => d.id === id) : null;
-      const payload = collectDossierPayload(existing);
 
       if (id) {
         const idx = state.dossiers.findIndex((d) => d.id === id);
@@ -2231,7 +2391,7 @@
       saveState();
       closeModal("dossierModal");
       renderApp();
-      showToast(`Dossier ${rep} enregistré.`);
+      showToast(`Dossier ${payload.repertoire} enregistré.`);
     }
 
     function closeDossierBySupervisor() {
@@ -2344,7 +2504,7 @@
       triggerPrintHtml(buildBordereauHtml(list, `BORDEREAUX GROUPÉS (${list.length})`));
     }
 
-    /* Facturation DDU (Numérotation GE001/FA/ANNÉE + Facture PDF détaillée + Transmission STE GEO) */
+    /* Facturation DDU */
     function formatInvoiceNumber(counterNum, year) {
       const seq = String(counterNum || 1).padStart(3, "0");
       return `GE${seq}/FA/${year}`;
@@ -2482,11 +2642,9 @@
         return;
       }
 
-      // Incrémente le compteur de facture pour la prochaine facture
       state.settings.invoiceCounter = (Number(state.settings.invoiceCounter) || 1) + 1;
       saveState();
 
-      // Génère / imprime la facture PDF détaillée puis ouvre l'envoi e-mail vers STE GEO
       printInvoicePdf();
 
       const subject = encodeURIComponent(`Facture ${invoiceRef} - DDU STE GEO (${startLabel} à ${endLabel})`);
@@ -2510,8 +2668,8 @@
     /* Administration */
     function openAdminModal() {
       const user = getCurrentUser();
-      if (!isAdminOrSupervisor(user)) {
-        showToast("Accès réservé aux administrateurs et superviseurs.");
+      if (!isAdmin(user)) {
+        showToast("Accès réservé à l'Administrateur.");
         return;
       }
 
@@ -2562,7 +2720,7 @@
       target.roles = Array.from(set);
       saveState();
       renderApp();
-      showToast(`Rôles mis à jour pour ${target.username}.`);
+      showToast(`Rôles attribués mis à jour pour ${target.username}.`);
     }
 
     function createNewAgent() {
@@ -2586,7 +2744,7 @@
         name,
         username,
         passwordHash: btoa(password),
-        roles: roles.length ? roles : ["AGENT_DDU_T1"],
+        roles: roles.length ? roles : ["AGENT_TRANSIT"],
         online: false,
         lastSeen: "Jamais connecté"
       });
@@ -2596,11 +2754,15 @@
       document.getElementById("newAgentUser").value = "";
       document.getElementById("newAgentPass").value = "";
       openAdminModal();
-      showToast(`Agent ${username} ajouté.`);
+      showToast(`Agent ${username} ajouté avec ses rôles.`);
     }
 
     /* Paramètres */
     function openSettingsModal() {
+      if (!isSupervisor(getCurrentUser())) {
+        showToast("Accès réservé au Superviseur et à l'Administrateur.");
+        return;
+      }
       document.getElementById("settingEmailK").value = state.settings.emailK || "k@geosuvitransit.tg";
       document.getElementById("settingDefaultDduPrice").value = state.settings.dduUnitPrice ?? 10000;
       document.getElementById("settingCurrency").value = state.settings.currency || "FCFA";
@@ -2608,6 +2770,7 @@
     }
 
     function saveSettings() {
+      if (!isSupervisor(getCurrentUser())) return;
       state.settings.emailK = (document.getElementById("settingEmailK").value || "").trim() || "k@geosuvitransit.tg";
       state.settings.dduUnitPrice = Number(document.getElementById("settingDefaultDduPrice").value) || 0;
       state.settings.currency = (document.getElementById("settingCurrency").value || "").trim() || "FCFA";
