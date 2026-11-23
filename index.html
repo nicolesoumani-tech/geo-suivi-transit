@@ -1,1141 +1,1830 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GEO SUIVI TRANSIT — Traçabilité Douanière &amp; Logistique</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <style>
-    @media print {
-      body * {
-        visibility: hidden !important;
-      }
-      #print-zone, #print-zone * {
-        visibility: visible !important;
-      }
-      #print-zone {
-        position: fixed !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        padding: 20px !important;
-        background: #ffffff !important;
-        color: #0f172a !important;
-        z-index: 99999 !important;
-      }
-      .no-print {
-        display: none !important;
-      }
-    }
-  </style>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
-
-  <!-- ÉCRAN DE CONNEXION / CHOIX DU RÔLE -->
-  <section id="login-screen" class="min-h-screen flex flex-col justify-between bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6">
-    <header class="max-w-6xl w-full mx-auto flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 font-black text-lg">
-          GS
-        </div>
-        <div>
-          <div class="font-extrabold tracking-wide text-white text-lg">GEO SUIVI TRANSIT</div>
-          <div class="text-xs text-slate-400">Port Autonome &amp; Corridor Transit</div>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3 py-1.5 rounded-full">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>Système Opérationnel • Lomé / Corridor</span>
-      </div>
-    </header>
-
-    <main class="max-w-4xl w-full mx-auto my-10">
-      <div class="text-center mb-8">
-        <div class="inline-block px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-semibold mb-3">
-          GEO SUIVI TRANSIT
-        </div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Plateforme de Traçabilité Douanière &amp; Logistique
-        </h1>
-        <p class="text-slate-400 mt-2 text-sm sm:text-base">
-          Sélectionnez votre profil opérationnel pour accéder au suivi des dossiers, aux bordereaux et au circuit DDU / Enregistrement.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-2xl">
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Rôle / Profil</label>
-          <select id="login-role" class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400">
-            <option value="AGENT_ENREGISTREMENT">Agent d'Enregistrement</option>
-            <option value="AGENT_DDU">Agent DDU</option>
-            <option value="ADMINISTRATEUR">Administrateur</option>
-            <option value="EXPLOITATION">Agent Exploitation / Transit</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Nom de l'Agent</label>
-          <input id="login-name" type="text" value="Agent Opérationnel" placeholder="Ex. Koffi Mensah" class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400" />
-        </div>
-
-        <div class="flex items-end">
-          <button onclick="connexionUtilisateur()" class="w-full rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 px-4 text-sm transition cursor-pointer">
-            Accéder au Système
-          </button>
-        </div>
-      </div>
-    </main>
-
-    <footer class="max-w-6xl w-full mx-auto border-t border-slate-800/80 pt-4 text-xs text-slate-400 flex flex-wrap items-center justify-between gap-2">
-      <p>© 2026 <strong class="text-slate-200">GEO SUIVI TRANSIT</strong> — Tous droits réservés.</p>
-      <p>Créateur : <strong class="text-slate-200">LEBDE Isaac</strong></p>
-    </footer>
-  </section>
-
-  <!-- APPLICATION PRINCIPALE -->
-  <div id="app-screen" class="hidden min-h-screen flex flex-col">
-    <!-- En-tête supérieur -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
-      <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 font-extrabold">
-            GS
-          </div>
-          <div>
-            <h1 class="text-lg font-extrabold text-white tracking-tight">GEO SUIVI TRANSIT</h1>
-            <p class="text-xs text-slate-400">Suivi Intégral • Enregistrement, Douane, Manutention &amp; Corridor</p>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2.5">
-          <!-- Bouton Facturation DDU (10 000) : Réservé à l'Agent DDU (et Admin pour supervision) -->
-          <button id="btn-facturation-ddu" onclick="ouvrirModalFacturationDDU()" class="hidden items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition cursor-pointer shadow">
-            <span>Facturation DDU (10 000 / DDU)</span>
-          </button>
-
-          <!-- Bouton Factures DDU reçues : Visible surtout pour l'Agent d'Enregistrement & tous les rôles -->
-          <button onclick="ouvrirListeFactures()" class="relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition cursor-pointer">
-            <span>Factures GEO</span>
-            <span id="badge-factures-attente" class="px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[11px] font-black">0</span>
-          </button>
-
-          <!-- Nouveau Dossier -->
-          <button onclick="ouvrirModalNouveauDossier()" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold transition cursor-pointer">
-            <span>+ Nouveau Dossier</span>
-          </button>
-
-          <!-- Badge Rôle Connecté -->
-          <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl text-xs">
-            <span id="user-avatar" class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 font-black flex items-center justify-center">A</span>
-            <div>
-              <span class="text-slate-400">Rôle :</span>
-              <strong id="user-role-label" class="text-white ml-1">Administrateur</strong>
-            </div>
-          </div>
-
-          <button onclick="deconnexion()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer">
-            Changer de rôle
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Bandeau Alertes Urgentes -->
-    <div class="bg-rose-950/40 border-b border-rose-900/50">
-      <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div class="flex items-center gap-2 font-bold text-rose-300">
-          <span class="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
-          <span>Dossiers en Souffrance &amp; Alerte &lt; 72H</span>
-        </div>
-        <div id="urgent-alerts-container" class="text-rose-200 flex flex-wrap gap-3">
-          <span>Aucune alerte critique active.</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Contenu Principal -->
-    <main class="max-w-7xl w-full mx-auto px-4 py-6 space-y-6 flex-1">
-      <!-- Compteurs Code Couleur -->
-      <section class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <div onclick="filtrerParCouleur('ALL')" class="cursor-pointer bg-slate-900 hover:bg-slate-800/80 border border-slate-800 rounded-2xl p-4 transition">
-          <p class="text-xs text-slate-400 font-medium">Total Dossiers</p>
-          <p id="count-total" class="text-2xl font-black text-white mt-1">0</p>
-          <p class="text-[11px] text-slate-500 mt-1">Tous les dossiers</p>
-        </div>
-
-        <div onclick="filtrerParCouleur('ROUGE')" class="cursor-pointer bg-rose-950/30 hover:bg-rose-950/50 border border-rose-800/50 rounded-2xl p-4 transition">
-          <p class="text-xs text-rose-300 font-semibold">Rouge (Urgent / Validé)</p>
-          <p id="count-rouge" class="text-2xl font-black text-rose-400 mt-1">0</p>
-          <p class="text-[11px] text-rose-300/70 mt-1">&lt;72h exp. / Souffrance / Prêt</p>
-        </div>
-
-        <div onclick="filtrerParCouleur('VERT')" class="cursor-pointer bg-emerald-950/30 hover:bg-emerald-950/50 border border-emerald-800/50 rounded-2xl p-4 transition">
-          <p class="text-xs text-emerald-300 font-semibold">Vert (Circuit Normal)</p>
-          <p id="count-vert" class="text-2xl font-black text-emerald-400 mt-1">0</p>
-          <p class="text-[11px] text-emerald-300/70 mt-1">En cours sans blocage</p>
-        </div>
-
-        <div onclick="filtrerParCouleur('BLEU')" class="cursor-pointer bg-sky-950/30 hover:bg-sky-950/50 border border-sky-800/50 rounded-2xl p-4 transition">
-          <p class="text-xs text-sky-300 font-semibold">Bleu (Dépotage / Palan)</p>
-          <p id="count-bleu" class="text-2xl font-black text-sky-400 mt-1">0</p>
-          <p class="text-[11px] text-sky-300/70 mt-1">Dépotage CFS / Sous palan</p>
-        </div>
-
-        <div onclick="filtrerParCouleur('JAUNE')" class="cursor-pointer bg-amber-950/30 hover:bg-amber-950/50 border border-amber-800/50 rounded-2xl p-4 transition">
-          <p class="text-xs text-amber-300 font-semibold">Jaune (Sans Mouvement)</p>
-          <p id="count-jaune" class="text-2xl font-black text-amber-400 mt-1">0</p>
-          <p class="text-[11px] text-amber-300/70 mt-1">Créés, en attente d'action</p>
-        </div>
-      </section>
-
-      <!-- Barre de Recherche & Filtres -->
-      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <div class="flex flex-col md:flex-row gap-3 justify-between">
-          <input id="search-input" oninput="rendreTableau()" type="text" placeholder="Rechercher par N° Répertoire (ex. GEO0001), BL, Client, TC, Navire ou Destination..." class="flex-1 rounded-xl bg-slate-950 border border-slate-700 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400" />
-          <div class="flex flex-wrap gap-2">
-            <select id="filter-couleur" onchange="rendreTableau()" class="rounded-xl bg-slate-950 border border-slate-700 px-3 py-2.5 text-xs text-white">
-              <option value="ALL">Toutes couleurs</option>
-              <option value="ROUGE">Rouge (Urgent / Validé)</option>
-              <option value="VERT">Vert (Circuit Normal)</option>
-              <option value="BLEU">Bleu (Dépotage / Palan)</option>
-              <option value="JAUNE">Jaune (Sans Mouvement)</option>
-            </select>
-            <button onclick="reinitialiserFiltres()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 cursor-pointer">
-              Réinitialiser
-            </button>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400 pt-1">
-          <div class="flex flex-wrap items-center gap-2">
-            <span>Code Couleur Lignes :</span>
-            <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">Rouge</span>
-            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Vert</span>
-            <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">Bleu</span>
-            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Jaune</span>
-          </div>
-          <div>Affichage : <strong id="display-count" class="text-white">0</strong> dossier(s)</div>
-        </div>
-      </section>
-
-      <!-- Tableau Principal des Dossiers -->
-      <section class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-950/90 border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-400">
-                <th class="py-3.5 px-4">REP.</th>
-                <th class="py-3.5 px-4">BL</th>
-                <th class="py-3.5 px-4">NOM DU CLIENT</th>
-                <th class="py-3.5 px-4">N/BRE TC</th>
-                <th class="py-3.5 px-4">NAVIRE</th>
-                <th class="py-3.5 px-4">DESTINATION</th>
-                <th class="py-3.5 px-4">STATUT / ÉTAPE</th>
-                <th class="py-3.5 px-4 text-right">VOIR DÉTAILS DU DOSSIER</th>
-              </tr>
-            </thead>
-            <tbody id="dossiers-tbody" class="divide-y divide-slate-800/70 text-xs sm:text-sm"></tbody>
-          </table>
-        </div>
-
-        <div id="empty-state" class="hidden text-center py-12 px-4">
-          <h3 class="text-base font-bold text-slate-200">Aucun dossier trouvé</h3>
-          <p class="text-xs text-slate-400 mt-1">Modifiez vos filtres ou créez un nouveau dossier.</p>
-        </div>
-      </section>
-    </main>
-
-    <!-- Pied de page -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-4 px-4 text-xs text-slate-400">
-      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-        <div><strong class="text-slate-200">GEO SUIVI TRANSIT</strong> • Ordre : Enregistrement → DDU/Échange → Manutention → Passation → Enlèvement → Sortie &amp; Retour Vide</div>
-        <div>Créateur : <strong class="text-slate-200">LEBDE Isaac</strong></div>
-      </div>
-    </footer>
-  </div>
-
-  <!-- MODALE CRÉATION DE NOUVEAU DOSSIER (AVEC COLLAGE MULTI-CONTENEURS) -->
-  <div id="modal-nouveau-dossier" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 space-y-5 my-auto">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div>
-          <h2 class="text-lg font-extrabold text-white">CRÉATION D'UN NOUVEAU DOSSIER</h2>
-          <p class="text-xs text-slate-400">Étape I : Enregistrement initial • Astuce : collez plusieurs conteneurs d'un coup dans le 1er champ TC</p>
-        </div>
-        <button onclick="fermerModal('modal-nouveau-dossier')" class="text-slate-400 hover:text-white text-xl font-bold px-2 cursor-pointer">×</button>
-      </div>
-
-      <form id="form-nouveau-dossier" onsubmit="enregistrerNouveauDossier(event)" class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">N° Répertoire</label>
-            <input id="nd-rep" type="text" required class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-white" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">N° BL</label>
-            <input id="nd-bl" type="text" required placeholder="Ex. MAEU123456789" class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-white" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Code Couleur</label>
-            <select id="nd-couleur" class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-white">
-              <option value="JAUNE">Jaune (Sans Mouvement)</option>
-              <option value="VERT">Vert (Circuit Normal)</option>
-              <option value="BLEU">Bleu (Dépotage / Palan)</option>
-              <option value="ROUGE">Rouge (Urgent / Validé)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Nom du Client</label>
-            <input id="nd-client" type="text" required placeholder="Nom du client" class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-white" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Navire</label>
-            <input id="nd-navire" type="text" required placeholder="Ex. CMA CGM LIBRA" class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-white" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Destination</label>
-            <input id="nd-destination" type="text" required placeholder="Ex. Lomé / Corridor" class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-white" />
-          </div>
-        </div>
-
-        <!-- Section Conteneurs avec Collage Multiple Automatique -->
-        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <label class="block text-xs font-bold text-amber-300">Numéros de Conteneurs (TC)</label>
-              <p class="text-[11px] text-slate-400">Collez une liste de conteneurs dans le premier champ : ils se répartiront automatiquement.</p>
-            </div>
-            <button type="button" onclick="ajouterChampConteneur()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white cursor-pointer">
-              + Ajouter un TC
-            </button>
-          </div>
-
-          <div id="conteneurs-inputs-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="fermerModal('modal-nouveau-dossier')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 cursor-pointer">
-            Annuler
-          </button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold cursor-pointer">
-            Enregistrer le Dossier
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODALE DÉTAILS DU DOSSIER + BORDEREAU SANS FACTURATION -->
-  <div id="modal-details-dossier" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-3xl w-full p-6 space-y-5 my-auto">
-      <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-4">
-        <div>
-          <div class="flex items-center gap-2">
-            <span id="det-rep" class="px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-black text-xs">GEO0001</span>
-            <h2 id="det-bl" class="text-lg font-extrabold text-white">BL</h2>
-            <span id="det-statut-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-slate-200">STATUT</span>
-          </div>
-          <p id="det-meta" class="text-xs text-slate-400 mt-1">Client • Navire • Destination</p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- Bouton Bordereau : génère un bordereau détaillé sans aucune mention de facturation -->
-          <button onclick="ouvrirBordereauSansFacturation()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold cursor-pointer">
-            Tirer le Bordereau
-          </button>
-          <button onclick="fermerModal('modal-details-dossier')" class="text-slate-400 hover:text-white text-xl font-bold px-2 cursor-pointer">×</button>
-        </div>
-      </div>
-
-      <!-- Conteneurs associés -->
-      <div>
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Conteneurs du dossier</h3>
-        <div id="det-tcs" class="flex flex-wrap gap-2"></div>
-      </div>
-
-      <!-- Mise à jour Code Couleur -->
-      <div class="flex flex-wrap items-center gap-3 bg-slate-950/70 p-3 rounded-xl border border-slate-800">
-        <span class="text-xs font-semibold text-slate-300">Couleur du dossier :</span>
-        <select id="det-couleur-select" onchange="changerCouleurDossierActif(this.value)" class="rounded-lg bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-white">
-          <option value="JAUNE">Jaune (Sans Mouvement)</option>
-          <option value="VERT">Vert (Circuit Normal)</option>
-          <option value="BLEU">Bleu (Dépotage / Palan)</option>
-          <option value="ROUGE">Rouge (Urgent / Validé)</option>
-        </select>
-      </div>
-
-      <!-- Étapes du transit -->
-      <div class="space-y-2.5">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Suivi des étapes opérationnelles</h3>
-        <div id="det-etapes-list" class="space-y-2"></div>
-      </div>
-
-      <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs text-slate-400">
-        <span>Sauvegarde automatique active</span>
-        <button onclick="fermerModal('modal-details-dossier')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold cursor-pointer">
-          Fermer
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE FACTURATION DDU (10 000 / DDU POUR GEO) -->
-  <div id="modal-facturation-ddu" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-3xl w-full p-6 space-y-5 my-auto">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div>
-          <h2 class="text-lg font-extrabold text-white">FACTURATION DDU — CLIENT : GEO</h2>
-          <p class="text-xs text-slate-400">Tarif : 10 000 FCFA par DDU • Calcul par plage de numéros de répertoire</p>
-        </div>
-        <button onclick="fermerModal('modal-facturation-ddu')" class="text-slate-400 hover:text-white text-xl font-bold px-2 cursor-pointer">×</button>
-      </div>
-
-      <!-- Saisie de la plage de répertoires -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950/80 p-4 rounded-xl border border-slate-800">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Répertoire de début</label>
-          <input id="ddu-rep-debut" type="text" placeholder="Ex. GEO0001 ou 1" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Répertoire de fin (X)</label>
-          <input id="ddu-rep-fin" type="text" placeholder="Ex. GEO0010 ou 10" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-white" />
-        </div>
-        <div class="flex items-end">
-          <button onclick="genererFactureDDU()" class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 text-xs cursor-pointer">
-            Calculer &amp; Générer Facture GEO
-          </button>
-        </div>
-      </div>
-
-      <!-- Aperçu de la facture générée -->
-      <div id="facture-generee-box" class="hidden bg-white text-slate-900 rounded-xl p-6 space-y-4 shadow-xl">
-        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-4">
-          <div>
-            <div class="text-xs font-bold uppercase tracking-wider text-indigo-700">GEO SUIVI TRANSIT</div>
-            <h3 class="text-xl font-black text-slate-900">FACTURE DDU — DOIT : GEO</h3>
-            <p id="fac-meta" class="text-xs text-slate-600 mt-1"></p>
-          </div>
-          <div id="fac-tampon-zone"></div>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-100 p-3.5 rounded-lg text-xs">
-          <div>
-            <div class="text-slate-500">Plage Répertoire</div>
-            <div id="fac-plage" class="font-bold text-slate-900 text-sm"></div>
-          </div>
-          <div>
-            <div class="text-slate-500">Nombre de DDU</div>
-            <div id="fac-qte" class="font-bold text-slate-900 text-sm"></div>
-          </div>
-          <div>
-            <div class="text-slate-500">Tarif Unitaire</div>
-            <div class="font-bold text-slate-900 text-sm">10 000</div>
-          </div>
-          <div>
-            <div class="text-slate-500">Montant Total GEO</div>
-            <div id="fac-total" class="font-black text-indigo-700 text-base"></div>
-          </div>
-        </div>
-
-        <div>
-          <div class="text-xs font-bold text-slate-700 mb-1.5">Répertoires inclus dans le calcul :</div>
-          <div id="fac-liste-reps" class="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg p-3 max-h-28 overflow-y-auto"></div>
-        </div>
-
-        <!-- Boutons d'action demandés -->
-        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200 no-print">
-          <div class="flex flex-wrap gap-2">
-            <button onclick="envoyerCaptureVersEmail()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold cursor-pointer">
-              Envoyer la capture à kpageorgette@live.fr
-            </button>
-            <button onclick="imprimerDocumentActif()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold cursor-pointer">
-              Imprimer / Télécharger (PDF)
-            </button>
-          </div>
-
-          <!-- Bouton Exécuter le paiement : visible pour l'Agent d'Enregistrement (et Admin si besoin) -->
-          <button id="btn-executer-paiement-fac" onclick="executerPaiementFactureCourante()" class="hidden px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold cursor-pointer">
-            Exécuter le paiement
-          </button>
-        </div>
-        <p id="fac-email-status" class="text-xs font-semibold text-emerald-700 hidden"></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODALE LISTE DES FACTURES GEO (AGENT D'ENREGISTREMENT & SUIVI) -->
-  <div id="modal-liste-factures" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-3xl w-full p-6 space-y-4 my-auto">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div>
-          <h2 class="text-lg font-extrabold text-white">FACTURES DDU ÉMISES POUR GEO</h2>
-          <p class="text-xs text-slate-400">Visibles automatiquement par l'Agent d'Enregistrement pour exécution du paiement</p>
-        </div>
-        <button onclick="fermerModal('modal-liste-factures')" class="text-slate-400 hover:text-white text-xl font-bold px-2 cursor-pointer">×</button>
-      </div>
-
-      <div id="liste-factures-contenu" class="space-y-3 max-h-96 overflow-y-auto"></div>
-    </div>
-  </div>
-
-  <!-- ZONE D'IMPRESSION DÉDIÉE (BORDEREAU SANS FACTURATION OU FACTURE) -->
-  <div id="print-zone" class="hidden"></div>
-
-  <script>
-    const TARIF_DDU = 10000;
-    const EMAIL_CAPTURE_DDU = 'kpageorgette@live.fr';
-    const STORAGE_DOSSIERS = 'geo_suivi_transit_dossiers_v1';
-    const STORAGE_FACTURES = 'geo_suivi_transit_factures_v1';
-
-    const ETAPES_STANDARD = [
-      'Enregistrement',
-      'DDU / Échange',
-      'Manutention',
-      'Passation',
-      'Enlèvement',
-      'Sortie & Retour Vide'
-    ];
-
-    let sessionUser = {
-      role: 'ADMINISTRATEUR',
-      nom: 'Administrateur'
-    };
-
-    let dossiers = [];
-    let factures = [];
-    let dossierActifId = null;
-    let factureCouranteId = null;
-
-    function chargerDonneesInitiales() {
-      const savedDossiers = localStorage.getItem(STORAGE_DOSSIERS);
-      if (savedDossiers) {
-        dossiers = JSON.parse(savedDossiers);
-      } else {
-        dossiers = [
-          creerObjetDossier('GEO0001', 'MAEU90817263', 'SOTRACO TOGO', ['MSKU1234567', 'MSKU7654321'], 'MAERSK NINGBO', 'Lomé / Corridor', 'VERT', 'DDU / Échange'),
-          creerObjetDossier('GEO0002', 'CMDU44556677', 'CORRIDOR EXPRESS', ['CMAU9988776'], 'CMA CGM LIBRA', 'Cinkassé / Burkina', 'ROUGE', 'Manutention'),
-          creerObjetDossier('GEO0003', 'MSCU11223344', 'AFRICA LOGISTIQUE', ['MSCU5544332'], 'MSC DIANA', 'Lomé CFS', 'BLEU', 'Passation'),
-          creerObjetDossier('GEO0004', 'COSU66778899', 'DELTA IMPORT', ['CSQU2233445'], 'CSCL STAR', 'Lomé', 'JAUNE', 'Enregistrement')
-        ];
-        sauvegarderDossiers();
-      }
-
-      const savedFactures = localStorage.getItem(STORAGE_FACTURES);
-      factures = savedFactures ? JSON.parse(savedFactures) : [];
-    }
-
-    function creerObjetDossier(rep, bl, client, tcs, navire, destination, couleur = 'JAUNE', etapeActuelle = 'Enregistrement') {
-      return {
-        id: 'DOS-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
-        rep: rep.trim().toUpperCase(),
-        bl: bl.trim().toUpperCase(),
-        client: client.trim().toUpperCase(),
-        tcs: Array.isArray(tcs) ? tcs.filter(Boolean) : [tcs].filter(Boolean),
-        navire: navire.trim().toUpperCase(),
-        destination: destination.trim(),
-        couleur,
-        etapeActuelle,
-        alerteUrgente: couleur === 'ROUGE',
-        etapes: ETAPES_STANDARD.map((nom, idx) => ({
-          nom,
-          statut: idx === 0 ? 'Terminé' : (nom === etapeActuelle ? 'En cours' : 'En attente'),
-          date: idx === 0 ? new Date().toLocaleDateString('fr-FR') : '-',
-          observation: ''
-        }))
-      };
-    }
-
-    function sauvegarderDossiers() {
-      localStorage.setItem(STORAGE_DOSSIERS, JSON.stringify(dossiers));
-    }
-
-    function sauvegarderFactures() {
-      localStorage.setItem(STORAGE_FACTURES, JSON.stringify(factures));
-      mettreAJourBadgeFactures();
-    }
-
-    // CONNEXION & RÔLES
-    function connexionUtilisateur() {
-      const role = document.getElementById('login-role').value;
-      const nom = (document.getElementById('login-name').value || '').trim() || 'Agent';
-      sessionUser = { role, nom };
-
-      document.getElementById('login-screen').classList.add('hidden');
-      document.getElementById('app-screen').classList.remove('hidden');
-
-      appliquerPermissionsRole();
-      rendreTableau();
-      mettreAJourBadgeFactures();
-    }
-
-    function deconnexion() {
-      document.getElementById('app-screen').classList.add('hidden');
-      document.getElementById('login-screen').classList.remove('hidden');
-    }
-
-    function libelleRole(role) {
-      const map = {
-        AGENT_DDU: 'Agent DDU',
-        AGENT_ENREGISTREMENT: "Agent d'Enregistrement",
-        ADMINISTRATEUR: 'Administrateur',
-        EXPLOITATION: 'Agent Exploitation / Transit'
-      };
-      return map[role] || role;
-    }
-
-    function appliquerPermissionsRole() {
-      document.getElementById('user-role-label').textContent = libelleRole(sessionUser.role);
-      document.getElementById('user-avatar').textContent = (sessionUser.nom[0] || 'U').toUpperCase();
-
-      // Bouton Facturation DDU (10 000) accessible à l'Agent DDU (et Administrateur)
-      const btnFacturationDDU = document.getElementById('btn-facturation-ddu');
-      if (sessionUser.role === 'AGENT_DDU' || sessionUser.role === 'ADMINISTRATEUR') {
-        btnFacturationDDU.classList.remove('hidden');
-        btnFacturationDDU.classList.add('flex');
-      } else {
-        btnFacturationDDU.classList.add('hidden');
-        btnFacturationDDU.classList.remove('flex');
-      }
-    }
-
-    // TABLEAU & COMPTEURS
-    function filtrerParCouleur(couleur) {
-      document.getElementById('filter-couleur').value = couleur;
-      rendreTableau();
-    }
-
-    function reinitialiserFiltres() {
-      document.getElementById('search-input').value = '';
-      document.getElementById('filter-couleur').value = 'ALL';
-      rendreTableau();
-    }
-
-    function classeLigneCouleur(couleur) {
-      switch (couleur) {
-        case 'ROUGE':
-          return 'bg-rose-950/25 hover:bg-rose-950/40 border-l-4 border-l-rose-500';
-        case 'VERT':
-          return 'bg-emerald-950/20 hover:bg-emerald-950/35 border-l-4 border-l-emerald-500';
-        case 'BLEU':
-          return 'bg-sky-950/20 hover:bg-sky-950/35 border-l-4 border-l-sky-500';
-        default:
-          return 'bg-amber-950/20 hover:bg-amber-950/35 border-l-4 border-l-amber-400';
-      }
-    }
-
-    function mettreAJourCompteurs() {
-      document.getElementById('count-total').textContent = dossiers.length;
-      document.getElementById('count-rouge').textContent = dossiers.filter(d => d.couleur === 'ROUGE').length;
-      document.getElementById('count-vert').textContent = dossiers.filter(d => d.couleur === 'VERT').length;
-      document.getElementById('count-bleu').textContent = dossiers.filter(d => d.couleur === 'BLEU').length;
-      document.getElementById('count-jaune').textContent = dossiers.filter(d => d.couleur === 'JAUNE').length;
-
-      const urgents = dossiers.filter(d => d.couleur === 'ROUGE' || d.alerteUrgente);
-      const alertBox = document.getElementById('urgent-alerts-container');
-      if (urgents.length === 0) {
-        alertBox.innerHTML = '<span>Aucune alerte critique active.</span>';
-      } else {
-        alertBox.innerHTML = urgents.map(u =>
-          `<span class="px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 font-semibold">${u.rep} (${u.client}) — ${u.etapeActuelle}</span>`
-        ).join('');
-      }
-    }
-
-    function rendreTableau() {
-      mettreAJourCompteurs();
-
-      const query = (document.getElementById('search-input').value || '').trim().toLowerCase();
-      const couleurFiltre = document.getElementById('filter-couleur').value;
-
-      const filtres = dossiers.filter(d => {
-        const matchCouleur = couleurFiltre === 'ALL' || d.couleur === couleurFiltre;
-        const texte = `${d.rep} ${d.bl} ${d.client} ${d.tcs.join(' ')} ${d.navire} ${d.destination} ${d.etapeActuelle}`.toLowerCase();
-        const matchQuery = !query || texte.includes(query);
-        return matchCouleur && matchQuery;
-      });
-
-      document.getElementById('display-count').textContent = filtres.length;
-      const tbody = document.getElementById('dossiers-tbody');
-      const emptyState = document.getElementById('empty-state');
-
-      if (filtres.length === 0) {
-        tbody.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-      tbody.innerHTML = filtres.map(d => `
-        <tr class="${classeLigneCouleur(d.couleur)} transition">
-          <td class="py-3.5 px-4 font-extrabold text-amber-300 whitespace-nowrap">${d.rep}</td>
-          <td class="py-3.5 px-4 font-semibold text-white whitespace-nowrap">${d.bl}</td>
-          <td class="py-3.5 px-4 text-slate-200">${d.client}</td>
-          <td class="py-3.5 px-4 text-slate-300">
-            <span class="font-semibold text-white">${d.tcs.length} TC</span>
-            <div class="text-[11px] text-slate-400 truncate max-w-[180px]">${d.tcs.join(', ') || '-'}</div>
-          </td>
-          <td class="py-3.5 px-4 text-slate-300 whitespace-nowrap">${d.navire}</td>
-          <td class="py-3.5 px-4 text-slate-300 whitespace-nowrap">${d.destination}</td>
-          <td class="py-3.5 px-4 whitespace-nowrap">
-            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-950/80 border border-slate-700 text-slate-100">
-              ${d.etapeActuelle}
-            </span>
-          </td>
-          <td class="py-3.5 px-4 text-right whitespace-nowrap">
-            <button onclick="ouvrirDetailsDossier('${d.id}')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-xs font-bold text-white transition cursor-pointer">
-              Voir Détails
-            </button>
-          </td>
-        </tr>
-      `).join('');
-    }
-
-    // CRÉATION DE DOSSIER + COLLAGE MULTI-CONTENEURS
-    function ouvrirModalNouveauDossier() {
-      const prochainNum = dossiers.length + 1;
-      document.getElementById('nd-rep').value = 'GEO' + String(prochainNum).padStart(4, '0');
-      document.getElementById('nd-bl').value = '';
-      document.getElementById('nd-client').value = '';
-      document.getElementById('nd-navire').value = '';
-      document.getElementById('nd-destination').value = 'Lomé / Corridor';
-      document.getElementById('nd-couleur').value = 'JAUNE';
-
-      const liste = document.getElementById('conteneurs-inputs-list');
-      liste.innerHTML = '';
-      ajouterChampConteneur(true);
-      ajouterChampConteneur(false);
-
-      document.getElementById('modal-nouveau-dossier').classList.remove('hidden');
-    }
-
-    function ajouterChampConteneur(estPremier = false) {
-      const liste = document.getElementById('conteneurs-inputs-list');
-      const index = liste.children.length + 1;
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.placeholder = estPremier ? 'TC 1 (Collez plusieurs TC ici...)' : `TC ${index}`;
-      input.className = 'tc-field w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold uppercase text-white focus:outline-none focus:border-amber-400';
-
-      if (estPremier) {
-        input.addEventListener('paste', gererCollageMultiConteneurs);
-      }
-
-      liste.appendChild(input);
-      return input;
-    }
-
-    function extraireListeConteneurs(texte) {
-      if (!texte) return [];
-      return texte
-        .split(/[\r\n,;|\t]+|\s{2,}/)
-        .map(item => item.trim().toUpperCase())
-        .filter(Boolean);
-    }
-
-    function gererCollageMultiConteneurs(event) {
-      const clipboardData = event.clipboardData || window.clipboardData;
-      const texte = clipboardData ? clipboardData.getData('text') : '';
-      const listeTC = extraireListeConteneurs(texte);
-
-      // Si un seul conteneur est collé, comportement normal
-      if (listeTC.length <= 1) return;
-
-      event.preventDefault();
-      let champs = Array.from(document.querySelectorAll('#conteneurs-inputs-list .tc-field'));
-
-      while (champs.length < listeTC.length) {
-        ajouterChampConteneur(false);
-        champs = Array.from(document.querySelectorAll('#conteneurs-inputs-list .tc-field'));
-      }
-
-      listeTC.forEach((tc, idx) => {
-        if (champs[idx]) {
-          champs[idx].value = tc;
-        }
-      });
-    }
-
-    function enregistrerNouveauDossier(event) {
-      event.preventDefault();
-      const rep = document.getElementById('nd-rep').value;
-      const bl = document.getElementById('nd-bl').value;
-      const client = document.getElementById('nd-client').value;
-      const navire = document.getElementById('nd-navire').value;
-      const destination = document.getElementById('nd-destination').value;
-      const couleur = document.getElementById('nd-couleur').value;
-
-      const tcs = Array.from(document.querySelectorAll('#conteneurs-inputs-list .tc-field'))
-        .map(inp => inp.value.trim().toUpperCase())
-        .filter(Boolean);
-
-      const nouveau = creerObjetDossier(rep, bl, client, tcs, navire, destination, couleur, 'Enregistrement');
-      dossiers.unshift(nouveau);
-      sauvegarderDossiers();
-      rendreTableau();
-      fermerModal('modal-nouveau-dossier');
-    }
-
-    // DÉTAILS DOSSIER & BORDEREAU SANS FACTURATION
-    function ouvrirDetailsDossier(id) {
-      const dossier = dossiers.find(d => d.id === id);
-      if (!dossier) return;
-      dossierActifId = id;
-
-      document.getElementById('det-rep').textContent = dossier.rep;
-      document.getElementById('det-bl').textContent = dossier.bl;
-      document.getElementById('det-statut-badge').textContent = dossier.etapeActuelle;
-      document.getElementById('det-meta').textContent = `Client : ${dossier.client} • Navire : ${dossier.navire} • Destination : ${dossier.destination}`;
-      document.getElementById('det-couleur-select').value = dossier.couleur;
-
-      document.getElementById('det-tcs').innerHTML = dossier.tcs.length
-        ? dossier.tcs.map(tc => `<span class="px-3 py-1 rounded-lg bg-slate-950 border border-slate-700 text-xs font-bold text-amber-300">${tc}</span>`).join('')
-        : '<span class="text-xs text-slate-400">Aucun conteneur renseigné</span>';
-
-      rendreEtapesDossier(dossier);
-      document.getElementById('modal-details-dossier').classList.remove('hidden');
-    }
-
-    function rendreEtapesDossier(dossier) {
-      const container = document.getElementById('det-etapes-list');
-      container.innerHTML = dossier.etapes.map((etape, index) => `
-        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div class="text-xs font-bold text-white">${index + 1}. ${etape.nom}</div>
-            <div class="text-[11px] text-slate-400">Date : ${etape.date || '-'}</div>
-          </div>
-          <div class="flex items-center gap-2">
-            <select onchange="mettreAJourEtape('${dossier.id}', ${index}, this.value)" class="rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1.5 text-xs text-white">
-              <option value="En attente" ${etape.statut === 'En attente' ? 'selected' : ''}>En attente</option>
-              <option value="En cours" ${etape.statut === 'En cours' ? 'selected' : ''}>En cours</option>
-              <option value="Terminé" ${etape.statut === 'Terminé' ? 'selected' : ''}>Terminé</option>
-            </select>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function mettreAJourEtape(dossierId, indexEtape, nouveauStatut) {
-      const dossier = dossiers.find(d => d.id === dossierId);
-      if (!dossier) return;
-
-      dossier.etapes[indexEtape].statut = nouveauStatut;
-      dossier.etapes[indexEtape].date = new Date().toLocaleDateString('fr-FR');
-
-      if (nouveauStatut === 'En cours' || nouveauStatut === 'Terminé') {
-        dossier.etapeActuelle = dossier.etapes[indexEtape].nom;
-        document.getElementById('det-statut-badge').textContent = dossier.etapeActuelle;
-      }
-
-      sauvegarderDossiers();
-      rendreEtapesDossier(dossier);
-      rendreTableau();
-    }
-
-    function changerCouleurDossierActif(nouvelleCouleur) {
-      const dossier = dossiers.find(d => d.id === dossierActifId);
-      if (!dossier) return;
-      dossier.couleur = nouvelleCouleur;
-      dossier.alerteUrgente = nouvelleCouleur === 'ROUGE';
-      sauvegarderDossiers();
-      rendreTableau();
-    }
-
-    // BORDEREAU DÉTAILLÉ SANS AUCUNE MENTION DE FACTURATION
-    function ouvrirBordereauSansFacturation() {
-      const dossier = dossiers.find(d => d.id === dossierActifId);
-      if (!dossier) return;
-
-      const lignesEtapes = dossier.etapes.map((e, idx) => `
-        <tr>
-          <td style="border:1px solid #cbd5e1;padding:8px;">${idx + 1}. ${e.nom}</td>
-          <td style="border:1px solid #cbd5e1;padding:8px;">${e.statut}</td>
-          <td style="border:1px solid #cbd5e1;padding:8px;">${e.date || '-'}</td>
-        </tr>
-      `).join('');
-
-      const printZone = document.getElementById('print-zone');
-      printZone.innerHTML = `
-        <div style="font-family:sans-serif;color:#0f172a;max-width:800px;margin:0 auto;">
-          <div style="border-bottom:2px solid #0f172a;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <h1 style="margin:0;font-size:20px;">BORDEREAU DE SUIVI DE DOSSIER</h1>
-              <p style="margin:2px 0 0;font-size:12px;color:#475569;">GEO SUIVI TRANSIT — Traçabilité Opérationnelle</p>
-            </div>
-            <div style="text-align:right;font-size:12px;">
-              <strong>Répertoire : ${dossier.rep}</strong><br/>
-              Édité le : ${new Date().toLocaleDateString('fr-FR')}
-            </div>
-          </div>
-
-          <table style="width:100%;border-collapse:collapse;margin-bottom:18px;font-size:13px;">
-            <tr>
-              <td style="border:1px solid #cbd5e1;padding:8px;"><strong>N° BL :</strong> ${dossier.bl}</td>
-              <td style="border:1px solid #cbd5e1;padding:8px;"><strong>Client :</strong> ${dossier.client}</td>
-            </tr>
-            <tr>
-              <td style="border:1px solid #cbd5e1;padding:8px;"><strong>Navire :</strong> ${dossier.navire}</td>
-              <td style="border:1px solid #cbd5e1;padding:8px;"><strong>Destination :</strong> ${dossier.destination}</td>
-            </tr>
-            <tr>
-              <td style="border:1px solid #cbd5e1;padding:8px;"><strong>Conteneurs (${dossier.tcs.length}) :</strong> ${dossier.tcs.join(', ') || '-'}</td>
-              <td style="border:1px solid #cbd5e1;padding:8px;"><strong>Étape / Statut :</strong> ${dossier.etapeActuelle}</td>
-            </tr>
-          </table>
-
-          <h2 style="font-size:15px;margin-bottom:8px;">Détail des étapes du dossier</h2>
-          <table style="width:100%;border-collapse:collapse;font-size:13px;">
-            <thead>
-              <tr style="background:#f1f5f9;">
-                <th style="border:1px solid #cbd5e1;padding:8px;text-align:left;">Étape</th>
-                <th style="border:1px solid #cbd5e1;padding:8px;text-align:left;">Statut</th>
-                <th style="border:1px solid #cbd5e1;padding:8px;text-align:left;">Date</th>
-              </tr>
-            </thead>
-            <tbody>${lignesEtapes}</tbody>
-          </table>
-        </div>
-      `;
-
-      printZone.classList.remove('hidden');
-      window.print();
-      printZone.classList.add('hidden');
-    }
-
-    // FACTURATION DDU (10 000 / DDU POUR GEO) & PAIEMENT PAR AGENT D'ENREGISTREMENT
-    function ouvrirModalFacturationDDU() {
-      document.getElementById('facture-generee-box').classList.add('hidden');
-      document.getElementById('fac-email-status').classList.add('hidden');
-      document.getElementById('modal-facturation-ddu').classList.remove('hidden');
-    }
-
-    function extraireNumeroRep(valeur) {
-      const match = String(valeur || '').match(/(\d+)/);
-      return match ? parseInt(match[1], 10) : NaN;
-    }
-
-    function genererFactureDDU() {
-      const repDebutRaw = document.getElementById('ddu-rep-debut').value.trim();
-      const repFinRaw = document.getElementById('ddu-rep-fin').value.trim();
-
-      const debutNum = extraireNumeroRep(repDebutRaw);
-      const finNum = extraireNumeroRep(repFinRaw);
-
-      if (Number.isNaN(debutNum) || Number.isNaN(finNum) || finNum < debutNum) {
-        alert('Veuillez saisir une plage de répertoires valide (ex. début : GEO0001, fin : GEO0003).');
-        return;
-      }
-
-      // Inclut les dossiers existants dans la plage, ou génère la plage numérique si les numéros sont saisis directement
-      const dossiersDansPlage = dossiers.filter(d => {
-        const num = extraireNumeroRep(d.rep);
-        return !Number.isNaN(num) && num >= debutNum && num <= finNum;
-      });
-
-      let listeReps = dossiersDansPlage.map(d => d.rep);
-      if (listeReps.length === 0) {
-        for (let i = debutNum; i <= finNum; i++) {
-          listeReps.push('GEO' + String(i).padStart(4, '0'));
-        }
-      }
-
-      const nombreDDU = listeReps.length;
-      const montantTotal = nombreDDU * TARIF_DDU;
-
-      const nouvelleFacture = {
-        id: 'FAC-GEO-' + Date.now(),
-        clientFacture: 'GEO',
-        repDebut: repDebutRaw.toUpperCase(),
-        repFin: repFinRaw.toUpperCase(),
-        repsInclus: listeReps,
-        nombreDDU,
-        tarifUnitaire: TARIF_DDU,
-        montantTotal,
-        emisePar: sessionUser.nom,
-        dateEmission: new Date().toLocaleDateString('fr-FR'),
-        statut: 'EN_ATTENTE_PAIEMENT', // Automatiquement visible par l'Agent d'Enregistrement
-        datePaiement: null,
-        payeePar: null
-      };
-
-      factures.unshift(nouvelleFacture);
-      sauvegarderFactures();
-      factureCouranteId = nouvelleFacture.id;
-      afficherFactureDansModale(nouvelleFacture);
-    }
-
-    function afficherFactureDansModale(facture) {
-      factureCouranteId = facture.id;
-      document.getElementById('facture-generee-box').classList.remove('hidden');
-      document.getElementById('fac-meta').textContent = `N° Facture : ${facture.id} • Émise le ${facture.dateEmission} par ${facture.emisePar}`;
-      document.getElementById('fac-plage').textContent = `${facture.repDebut} → ${facture.repFin}`;
-      document.getElementById('fac-qte').textContent = `${facture.nombreDDU} DDU`;
-      document.getElementById('fac-total').textContent = `${facture.montantTotal.toLocaleString('fr-FR')} FCFA`;
-      document.getElementById('fac-liste-reps').textContent = facture.repsInclus.join(', ');
-
-      const tamponZone = document.getElementById('fac-tampon-zone');
-      const btnPayer = document.getElementById('btn-executer-paiement-fac');
-
-      if (facture.statut === 'PAYEE') {
-        tamponZone.innerHTML = `
-          <div style="border:3px solid #16a34a;color:#16a34a;padding:6px 12px;border-radius:8px;font-weight:900;font-size:12px;text-transform:uppercase;">
-            FACTURE PAYÉE LE ${facture.datePaiement}
-          </div>
-        `;
-        btnPayer.classList.add('hidden');
-      } else {
-        tamponZone.innerHTML = `
-          <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold">
-            EN ATTENTE DE PAIEMENT
-          </span>
-        `;
-
-        // L'Agent d'Enregistrement (et l'Administrateur) peut exécuter le paiement
-        if (sessionUser.role === 'AGENT_ENREGISTREMENT' || sessionUser.role === 'ADMINISTRATEUR') {
-          btnPayer.classList.remove('hidden');
-        } else {
-          btnPayer.classList.add('hidden');
-        }
-      }
-    }
-
-    function executerPaiementFactureCourante() {
-      if (!factureCouranteId) return;
-      const facture = factures.find(f => f.id === factureCouranteId);
-      if (!facture) return;
-
-      const datePaiement = new Date().toLocaleDateString('fr-FR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
-
-      facture.statut = 'PAYEE';
-      facture.datePaiement = datePaiement;
-      facture.payeePar = sessionUser.nom;
-
-      sauvegarderFactures();
-      afficherFactureDansModale(facture);
-      if (!document.getElementById('modal-liste-factures').classList.contains('hidden')) {
-        rendreListeFactures();
-      }
-    }
-
-    function envoyerCaptureVersEmail() {
-      const box = document.getElementById('facture-generee-box');
-      const statusEl = document.getElementById('fac-email-status');
-      statusEl.classList.remove('hidden');
-      statusEl.textContent = `Préparation de la capture pour ${EMAIL_CAPTURE_DDU}...`;
-
-      if (typeof html2canvas === 'function') {
-        html2canvas(box).then(canvas => {
-          const dataUrl = canvas.toDataURL('image/png');
-          // Téléchargement automatique de la capture PNG + ouverture mailto vers kpageorgette@live.fr
-          const lien = document.createElement('a');
-          lien.download = `Facture-GEO-${factureCouranteId || 'DDU'}.png`;
-          lien.href = dataUrl;
-          lien.click();
-
-          const sujet = encodeURIComponent(`Facture GEO SUIVI TRANSIT - ${factureCouranteId || 'DDU'}`);
-          const corps = encodeURIComponent(`Bonjour,\n\nVeuillez trouver la capture de la facture GEO générée dans GEO SUIVI TRANSIT.\n\nDestinataire : ${EMAIL_CAPTURE_DDU}`);
-          window.location.href = `mailto:${EMAIL_CAPTURE_DDU}?subject=${sujet}&body=${corps}`;
-
-          statusEl.textContent = `Capture générée et envoi initié vers ${EMAIL_CAPTURE_DDU}.`;
-        });
-      } else {
-        window.location.href = `mailto:${EMAIL_CAPTURE_DDU}?subject=${encodeURIComponent('Facture GEO SUIVI TRANSIT')}`;
-        statusEl.textContent = `Client mail ouvert vers ${EMAIL_CAPTURE_DDU}.`;
-      }
-    }
-
-    function imprimerDocumentActif() {
-      const box = document.getElementById('facture-generee-box');
-      if (!box || box.classList.contains('hidden')) return;
-      const printZone = document.getElementById('print-zone');
-      printZone.innerHTML = box.innerHTML;
-      printZone.classList.remove('hidden');
-      window.print();
-      printZone.classList.add('hidden');
-    }
-
-    function mettreAJourBadgeFactures() {
-      const enAttente = factures.filter(f => f.statut !== 'PAYEE').length;
-      document.getElementById('badge-factures-attente').textContent = enAttente;
-    }
-
-    function ouvrirListeFactures() {
-      rendreListeFactures();
-      document.getElementById('modal-liste-factures').classList.remove('hidden');
-    }
-
-    function rendreListeFactures() {
-      const container = document.getElementById('liste-factures-contenu');
-      if (factures.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">Aucune facture GEO émise pour le moment.</p>';
-        return;
-      }
-
-      container.innerHTML = factures.map(f => {
-        const estPayee = f.statut === 'PAYEE';
-        const peutPayer = !estPayee && (sessionUser.role === 'AGENT_ENREGISTREMENT' || sessionUser.role === 'ADMINISTRATEUR');
-
-        return `
-          <div class="bg-slate-950 border ${estPayee ? 'border-emerald-700/60' : 'border-amber-600/50'} rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="space-y-1">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="font-extrabold text-sm text-white">${f.id}</span>
-                <span class="text-xs text-slate-400">(${f.repDebut} → ${f.repFin} • ${f.nombreDDU} DDU)</span>
-                ${
-                  estPayee
-                    ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-extrabold">FACTURE PAYÉE LE ${f.datePaiement}</span>`
-                    : `<span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold">EN ATTENTE DE PAIEMENT</span>`
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEO SUIVI TRANSIT | Gestion & Suivi Portuaire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        navy: { 800: '#0f294a', 900: '#091b33', 950: '#051020' }
+                    }
                 }
-              </div>
-              <div class="text-xs text-slate-300">
-                Montant GEO : <strong class="text-white">${f.montantTotal.toLocaleString('fr-FR')} FCFA</strong> • Émise le ${f.dateEmission} par ${f.emisePar}
-              </div>
+            }
+        };
+    </script>
+    <style>
+        /* Animation clignotante pour les alertes critiques */
+        @keyframes urgentBlink {
+            0%, 100% { background-color: #dc2626; box-shadow: 0 0 15px rgba(220, 38, 38, 0.7); }
+            50% { background-color: #991b1b; box-shadow: 0 0 5px rgba(153, 27, 27, 0.4); }
+        }
+        .animate-urgent-blink { animation: urgentBlink 1.4s infinite ease-in-out; }
+
+        /* Défilement horizontal du bandeau d'alerte */
+        @keyframes marqueeScroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .marquee-container { overflow: hidden; white-space: nowrap; position: relative; }
+        .marquee-content { display: inline-block; padding-left: 10%; animation: marqueeScroll 28s linear infinite; }
+        .marquee-container:hover .marquee-content { animation-play-state: paused; }
+
+        button, label, select, input, a { touch-action: manipulation; }
+
+        .login-bg {
+            background-image: radial-gradient(circle at top right, rgba(37, 99, 235, 0.35), transparent 55%),
+                              linear-gradient(135deg, #051020 0%, #0f294a 55%, #091b33 100%);
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased">
+
+    <!-- Conteneur de notifications flottantes (sans alert()) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- ÉCRAN DE CONNEXION -->
+    <div id="login-screen" class="login-bg min-h-screen flex flex-col justify-between p-4 sm:p-8">
+        <div class="max-w-7xl w-full mx-auto flex justify-between items-center text-white/90">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-ship text-xl text-white"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold text-xl tracking-tight block leading-none">GEO SUIVI TRANSIT</span>
+                    <span class="text-xs text-blue-300 font-medium tracking-wider uppercase">Port Autonome & Corridor Transit</span>
+                </div>
+            </div>
+            <div class="hidden sm:flex items-center gap-2 text-xs bg-white/10 px-3.5 py-2 rounded-full border border-white/15">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Système Opérationnel • Lomé / Corridor</span>
+            </div>
+        </div>
+
+        <div class="max-w-md w-full mx-auto my-8 bg-white/95 rounded-2xl shadow-2xl border border-white/40 overflow-hidden">
+            <div class="bg-navy-900 p-6 text-white text-center relative overflow-hidden">
+                <div class="w-14 h-14 mx-auto bg-blue-600 rounded-2xl flex items-center justify-center mb-3 shadow-lg">
+                    <i class="fa-solid fa-globe text-2xl text-white"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight">GEO SUIVI TRANSIT</h1>
+                <p class="text-slate-300 text-sm mt-1">Plateforme de Traçabilité Douanière & Logistique</p>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
-              <button onclick="ouvrirFactureDepuisListe('${f.id}')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white cursor-pointer">
-                Voir Facture
-              </button>
-              ${
-                peutPayer
-                  ? `<button onclick="payerDepuisListe('${f.id}')" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-extrabold text-white cursor-pointer">
-                       Exécuter le paiement
-                     </button>`
-                  : ''
-              }
+            <form id="login-form" onsubmit="return handleLoginSubmit(event)" class="p-6 sm:p-8 space-y-5">
+                <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-xl p-3 text-xs flex items-start gap-2.5">
+                    <i class="fa-solid fa-shield-halved text-blue-600 mt-0.5"></i>
+                    <span>Les comptes agents et profils sont attribués exclusivement par l'<strong>Administrateur</strong>.</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Identifiant / Nom d'utilisateur</label>
+                    <div class="relative">
+                        <input type="text" id="login-username" value="admin" required
+                               class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 outline-none">
+                        <i class="fa-solid fa-id-badge absolute left-3.5 top-3.5 text-slate-400"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Mot de passe</label>
+                    <div class="relative">
+                        <input type="password" id="login-password" value="admin123" required
+                               class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:ring-2 focus:ring-blue-600 outline-none">
+                        <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400"></i>
+                    </div>
+                </div>
+
+                <div class="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    Compte Administrateur par défaut : <strong class="text-slate-700">admin</strong> / <strong class="text-slate-700">admin123</strong>
+                </div>
+
+                <button type="submit" id="btn-login-submit" onclick="return handleLoginSubmit(event)" class="w-full py-3.5 px-6 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 text-sm cursor-pointer">
+                    <span>SE CONNECTER</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+
+        <footer class="max-w-7xl w-full mx-auto flex flex-col sm:flex-row justify-between items-center text-xs text-slate-300/90 gap-2 border-t border-white/10 pt-4">
+            <p>© 2026 <strong class="text-white">GEO SUIVI TRANSIT</strong> — Tous droits réservés.</p>
+            <p class="bg-white/10 px-3 py-1 rounded-full border border-white/10">Créateur : <strong class="text-white tracking-wide">LEBDE Isaac</strong></p>
+        </footer>
+    </div>
+
+    <!-- APPLICATION PRINCIPALE -->
+    <div id="app-screen" class="hidden min-h-screen flex flex-col">
+        <header class="bg-navy-900 text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
+            <div class="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-ship text-lg text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-base sm:text-lg tracking-tight leading-tight">GEO SUIVI TRANSIT</h1>
+                        <p class="text-[11px] text-blue-300 hidden sm:block">Suivi Intégral • Enregistrement, Douane, Manutention & Corridor</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="hidden md:flex items-center gap-2 bg-navy-800 px-3 py-1.5 rounded-xl border border-slate-700 text-xs">
+                        <div id="header-avatar-badge" class="w-6 h-6 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center text-[11px] border border-blue-400">A</div>
+                        <span class="text-slate-300">Rôle :</span>
+                        <strong id="header-role-badge" class="text-white font-semibold">Administrateur</strong>
+                        <span id="header-status-badge" class="hidden ml-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[10px] font-bold"></span>
+                    </div>
+
+                    <button type="button" onclick="openSettingsModal()" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition cursor-pointer">
+                        <i class="fa-solid fa-sliders text-blue-400"></i>
+                        <span>PROFIL / PARAMÈTRES / RÉGLAGES</span>
+                    </button>
+
+                    <button type="button" onclick="logout()" title="Déconnexion" class="bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/30 p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="hidden lg:inline">Quitter</span>
+                    </button>
+                </div>
             </div>
-          </div>
-        `;
-      }).join('');
-    }
+        </header>
 
-    function ouvrirFactureDepuisListe(id) {
-      const facture = factures.find(f => f.id === id);
-      if (!facture) return;
-      fermerModal('modal-liste-factures');
-      document.getElementById('modal-facturation-ddu').classList.remove('hidden');
-      afficherFactureDansModale(facture);
-    }
+        <!-- BANDEAU D'ALERTE ROUGE CLIGNOTANT -->
+        <div id="urgent-alert-banner" class="animate-urgent-blink text-white border-b-2 border-red-950 shadow-md">
+            <div class="max-w-[1440px] mx-auto px-4 py-2.5 flex flex-col lg:flex-row items-center justify-between gap-2">
+                <div class="flex items-center gap-2 shrink-0 bg-red-950/60 px-3 py-1 rounded-lg border border-red-400/40">
+                    <i class="fa-solid fa-triangle-exclamation text-yellow-300 animate-bounce"></i>
+                    <span class="text-xs font-extrabold uppercase tracking-wider">Dossiers en Souffrance & Alerte &lt; 72H</span>
+                </div>
+                <div class="marquee-container flex-1 w-full py-0.5 text-xs sm:text-sm font-bold tracking-wide">
+                    <div id="urgent-marquee-text" class="marquee-content">Chargement des alertes urgentes en cours...</div>
+                </div>
+                <button type="button" onclick="openWhatsAppAlertModal()" class="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition border border-emerald-400/40 cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-base"></i>
+                    <span>Alerter WhatsApp</span>
+                </button>
+            </div>
+        </div>
 
-    function payerDepuisListe(id) {
-      factureCouranteId = id;
-      executerPaiementFactureCourante();
-    }
+        <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+            <!-- STATISTIQUES -->
+            <section class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                <div onclick="filterByColor('ALL')" class="cursor-pointer bg-white p-4 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 transition flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-slate-500 uppercase">Total Dossiers</p>
+                        <p id="stat-total" class="text-2xl font-extrabold text-slate-900 mt-1">0</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-lg"><i class="fa-solid fa-folder-open"></i></div>
+                </div>
+                <div onclick="filterByColor('RED')" class="cursor-pointer bg-red-50 p-4 rounded-2xl shadow-sm border border-red-200 hover:border-red-500 transition flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-red-700 uppercase">Rouge (Urgent / Validé)</p>
+                        <p id="stat-red" class="text-2xl font-extrabold text-red-800 mt-1">0</p>
+                        <p class="text-[10px] text-red-600 mt-0.5">&lt;72h exp. / Souffrance / Prêt</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-bell"></i></div>
+                </div>
+                <div onclick="filterByColor('GREEN')" class="cursor-pointer bg-emerald-50 p-4 rounded-2xl shadow-sm border border-emerald-200 hover:border-emerald-500 transition flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-emerald-700 uppercase">Vert (Circuit Normal)</p>
+                        <p id="stat-green" class="text-2xl font-extrabold text-emerald-800 mt-1">0</p>
+                        <p class="text-[10px] text-emerald-600 mt-0.5">En cours sans blocage</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-route"></i></div>
+                </div>
+                <div onclick="filterByColor('BLUE')" class="cursor-pointer bg-blue-50 p-4 rounded-2xl shadow-sm border border-blue-200 hover:border-blue-500 transition flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-blue-700 uppercase">Bleu (Dépotage / Palan)</p>
+                        <p id="stat-blue" class="text-2xl font-extrabold text-blue-800 mt-1">0</p>
+                        <p class="text-[10px] text-blue-600 mt-0.5">Dépotage CFS / Sous palan</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-boxes-stacked"></i></div>
+                </div>
+                <div onclick="filterByColor('YELLOW')" class="cursor-pointer col-span-2 lg:col-span-1 bg-amber-50 p-4 rounded-2xl shadow-sm border border-amber-200 hover:border-amber-500 transition flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-amber-700 uppercase">Jaune (Sans Mouvement)</p>
+                        <p id="stat-yellow" class="text-2xl font-extrabold text-amber-800 mt-1">0</p>
+                        <p class="text-[10px] text-amber-600 mt-0.5">Créés, en attente d'action</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-clock"></i></div>
+                </div>
+            </section>
 
-    function fermerModal(id) {
-      document.getElementById(id).classList.add('hidden');
-    }
+            <!-- RECHERCHE & CRÉATION -->
+            <section class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                    <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2.5 flex-1">
+                        <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0 overflow-x-auto">
+                            <button type="button" onclick="setSearchCriterion('ALL')" data-crit="ALL" class="crit-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-navy-900 text-white cursor-pointer">TOUT</button>
+                            <button type="button" onclick="setSearchCriterion('REP')" data-crit="REP" class="crit-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">RÉPERTOIRE</button>
+                            <button type="button" onclick="setSearchCriterion('BL')" data-crit="BL" class="crit-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">BL</button>
+                            <button type="button" onclick="setSearchCriterion('TC')" data-crit="TC" class="crit-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">TC</button>
+                            <button type="button" onclick="setSearchCriterion('T1')" data-crit="T1" class="crit-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 cursor-pointer">T1</button>
+                        </div>
 
-    // INITIALISATION
-    chargerDonneesInitiales();
-    mettreAJourBadgeFactures();
-  </script>
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                            <input type="text" id="search-input" oninput="renderTable()" placeholder="Rechercher par Répertoire (GEO0001), BL, N° TC ou N° T1..."
+                                   class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-600 outline-none">
+                        </div>
+
+                        <div class="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5">
+                            <i class="fa-regular fa-calendar text-slate-500 text-sm"></i>
+                            <input type="date" id="date-filter" onchange="renderTable()" class="bg-transparent text-xs font-medium text-slate-700 outline-none">
+                            <button type="button" onclick="clearDateFilter()" id="clear-date-btn" class="hidden text-slate-400 hover:text-red-600 text-xs cursor-pointer">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="openCreateModal()" class="w-full xl:w-auto bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-extrabold text-sm px-5 py-3 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition cursor-pointer">
+                        <i class="fa-solid fa-folder-plus text-base"></i>
+                        <span>+ CRÉER UN NOUVEAU DOSSIER</span>
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-bold text-slate-500 uppercase mr-1">Code Couleur Lignes :</span>
+                        <button type="button" onclick="filterByColor('ALL')" data-color="ALL" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-slate-800 text-white cursor-pointer">Tous</button>
+                        <button type="button" onclick="filterByColor('RED')" data-color="RED" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-red-100 text-red-800 border border-red-300 cursor-pointer">🔴 Rouge</button>
+                        <button type="button" onclick="filterByColor('GREEN')" data-color="GREEN" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 cursor-pointer">🟢 Vert</button>
+                        <button type="button" onclick="filterByColor('BLUE')" data-color="BLUE" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-blue-100 text-blue-800 border border-blue-300 cursor-pointer">🔵 Bleu</button>
+                        <button type="button" onclick="filterByColor('YELLOW')" data-color="YELLOW" class="color-filter-btn px-3 py-1 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300 cursor-pointer">🟡 Jaune</button>
+                    </div>
+                    <div class="text-slate-500 flex flex-wrap items-center gap-2">
+                        <button type="button" onclick="sendInvoiceEmailForFiltered()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>Envoyer Facture (k)</span>
+                        </button>
+                        <button type="button" onclick="downloadBulkBordereaux()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-file-zipper"></i>
+                            <span>Export Groupé Bordereaux</span>
+                        </button>
+                        <span>Affichage : <strong id="visible-count" class="text-slate-800">0</strong> dossier(s)</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TABLEAU DES DOSSIERS -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-navy-900 text-white text-xs uppercase tracking-wider">
+                                <th class="py-3.5 px-4 font-bold">REP.</th>
+                                <th class="py-3.5 px-4 font-bold">BL</th>
+                                <th class="py-3.5 px-4 font-bold">NOM DU CLIENT</th>
+                                <th class="py-3.5 px-4 font-bold">N/BRE TC</th>
+                                <th class="py-3.5 px-4 font-bold">NAVIRE</th>
+                                <th class="py-3.5 px-4 font-bold">DESTINATION</th>
+                                <th class="py-3.5 px-4 font-bold">STATUT / ÉTAPE</th>
+                                <th class="py-3.5 px-4 font-bold text-right">VOIR DÉTAILS DU DOSSIER</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dossiers-table-body" class="divide-y divide-slate-200 text-sm"></tbody>
+                    </table>
+                </div>
+                <div id="empty-state" class="hidden p-12 text-center">
+                    <h3 class="text-base font-bold text-slate-800">Aucun dossier trouvé</h3>
+                    <p class="text-xs text-slate-500 mt-1">Modifiez vos filtres ou créez un nouveau dossier.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="bg-white border-t border-slate-200 py-4 px-4 sm:px-6 mt-8">
+            <div class="max-w-[1440px] mx-auto flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
+                <div><strong class="text-navy-900">GEO SUIVI TRANSIT</strong> • Ordre : Enregistrement → DDU/Échange → Manutention → Passation → Enlèvement → Sortie & Retour Vide</div>
+                <div>Créateur : <strong class="text-navy-900">LEBDE Isaac</strong></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODALE CRÉATION DOSSIER -->
+    <div id="create-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 my-8">
+            <div class="bg-navy-900 text-white px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-extrabold tracking-tight">CRÉATION D'UN NOUVEAU DOSSIER</h2>
+                    <p class="text-xs text-blue-300">Étape I : Enregistrement initial</p>
+                </div>
+                <button type="button" onclick="closeCreateModal()" class="text-slate-300 hover:text-white p-2 rounded-lg cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <form id="create-dossier-form" onsubmit="submitCreateDossier(event)" class="p-6 space-y-5 max-h-[82vh] overflow-y-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-extrabold uppercase text-blue-700 mb-1">N° Répertoire</label>
+                        <input type="text" id="create-rep" readonly class="w-full px-3 py-2.5 bg-blue-100/70 border border-blue-300 rounded-xl text-sm font-extrabold text-navy-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">BL *</label>
+                        <input type="text" id="create-bl" required placeholder="Ex: LOM40231" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Nombre de TCs *</label>
+                        <input type="number" id="create-nb-tc" min="1" max="30" value="2" required oninput="generateTcFields()" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Type à Sélectionner *</label>
+                        <select id="create-tc-type" required class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
+                            <option value="40'">40'</option>
+                            <option value="20'">20'</option>
+                            <option value="40' HC">40' HC</option>
+                            <option value="RORO">RORO</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Nom du Client *</label>
+                        <input type="text" id="create-client" required placeholder="Ex: STE DG" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold uppercase">
+                    </div>
+                </div>
+
+                <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-extrabold uppercase text-navy-900">Numéros de Conteneurs (Collage multi-TC automatique)</label>
+                        <span id="tc-counter-badge" class="text-xs font-bold bg-blue-600 text-white px-2.5 py-0.5 rounded-full">2 champs</span>
+                    </div>
+                    <div id="dynamic-tc-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Poids Brut *</label>
+                        <input type="text" id="create-poids" required placeholder="Ex: 48 500 KG" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Quantité Totale *</label>
+                        <input type="text" id="create-quantite" required placeholder="Ex: 1 250 Colis" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Désignation *</label>
+                        <input type="text" id="create-designation" required placeholder="Ex: Marchandise générale" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Pays d'Origine *</label>
+                        <input type="text" id="create-origine" required placeholder="Ex: CHINE" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Pays de Destination *</label>
+                        <input type="text" id="create-destination" required placeholder="Ex: OUAGA BF" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Type de Dépotage *</label>
+                        <select id="create-depotage" required class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
+                            <option value="Sur camion (SC)">Sur camion (SC)</option>
+                            <option value="Dépotage CFS">Dépotage CFS</option>
+                            <option value="Sous palan">Sous palan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Nom du Navire *</label>
+                        <input type="text" id="create-navire" required placeholder="Ex: MSC LOME" class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Date d'Arrivée *</label>
+                        <input type="date" id="create-date-arrivee" required class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+                    <button type="button" onclick="closeCreateModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">Annuler</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-extrabold bg-blue-600 hover:bg-blue-700 text-white shadow-lg cursor-pointer">ENREGISTRER LE DOSSIER</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALE DÉTAILS DOSSIER -->
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-5">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200">
+            <div id="detail-modal-header" class="bg-navy-900 text-white px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 shrink-0">
+                <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span id="detail-rep-badge" class="bg-blue-600 text-white font-extrabold px-2.5 py-0.5 rounded-lg text-xs sm:text-sm">GEO0001</span>
+                        <h2 id="detail-title" class="text-sm sm:text-lg font-extrabold truncate">BL</h2>
+                        <span id="detail-color-pill" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase bg-white text-slate-900">STATUT</span>
+                    </div>
+                    <p id="detail-subtitle" class="text-[11px] sm:text-xs text-slate-300 mt-1 truncate">Navire • Destination</p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" onclick="downloadDossierBordereau()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-file-arrow-down text-base"></i>
+                        <span class="hidden sm:inline">Télécharger Bordereau</span>
+                    </button>
+                    <button type="button" onclick="sendInvoiceEmailForDossier()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-envelope text-base"></i>
+                        <span class="hidden sm:inline">Envoyer Facture</span>
+                    </button>
+                    <button type="button" onclick="sendSingleDossierWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-brands fa-whatsapp text-base"></i>
+                        <span class="hidden sm:inline">Alerte WhatsApp</span>
+                    </button>
+                    <button type="button" onclick="closeDetailModal()" aria-label="Fermer" class="bg-red-600 hover:bg-red-700 text-white w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-6 flex-1 overflow-y-auto space-y-6" id="detail-modal-body"></div>
+
+            <div class="bg-slate-50 border-t border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 shrink-0">
+                <span class="text-[11px] font-semibold text-slate-500"><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Sauvegarde automatique</span>
+                <button type="button" onclick="closeDetailModal()" class="bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer">Fermer le dossier</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE PROFIL / PARAMÈTRES / RÉGLAGES -->
+    <div id="settings-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm p-4 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 my-8">
+            <div class="bg-navy-900 text-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-sliders text-blue-400 text-lg"></i>
+                    <h3 class="font-extrabold text-base">PROFIL / PARAMÈTRES / RÉGLAGES</h3>
+                </div>
+                <button type="button" onclick="closeSettingsModal()" class="text-slate-300 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="p-6 space-y-5 max-h-[82vh] overflow-y-auto">
+                <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200 space-y-4">
+                    <h4 class="text-xs font-extrabold uppercase text-navy-900 flex items-center justify-between">
+                        <span><i class="fa-solid fa-user-gear text-blue-600 mr-1.5"></i> Mon Profil Connecté</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Rôle attribué par Admin</span>
+                    </h4>
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <div class="flex flex-col items-center gap-2 shrink-0">
+                            <div id="profile-avatar-box" class="w-20 h-20 rounded-2xl bg-navy-900 text-white font-extrabold text-2xl flex items-center justify-center border-2 border-blue-500 overflow-hidden">
+                                <span id="profile-avatar-initials">AD</span>
+                                <img id="profile-avatar-preview" src="" alt="Photo de profil" class="hidden w-full h-full object-cover">
+                            </div>
+                            <button type="button" onclick="document.getElementById('profile-photo-input').click()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg cursor-pointer">
+                                <i class="fa-solid fa-camera mr-1"></i> Photo de profil
+                            </button>
+                            <input type="file" id="profile-photo-input" accept="image/*" class="hidden" onchange="handleProfilePhotoChange(this)">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 w-full">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Identifiant</label>
+                                <input type="text" id="set-username" disabled class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl text-sm font-semibold text-slate-700">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Rôles Attribués</label>
+                                <input type="text" id="set-role-display" disabled class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl text-sm font-bold text-navy-900">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Nouveau Mot de Passe</label>
+                                <input type="password" id="set-new-password" placeholder="Laisser vide pour conserver le mot de passe actuel" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-blue-200/70">
+                        <label class="block text-xs font-bold text-slate-700">Message de statut / disponibilité</label>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" onclick="setQuickStatusMessage('Disponible')" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 text-[11px] font-bold cursor-pointer">Disponible</button>
+                            <button type="button" onclick="setQuickStatusMessage('En congé')" class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 text-[11px] font-bold cursor-pointer">En congé</button>
+                            <button type="button" onclick="setQuickStatusMessage('En mission au port')" class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-900 text-[11px] font-bold cursor-pointer">En mission au port</button>
+                        </div>
+                        <input type="text" id="set-status-message" placeholder="Ex: En congé, En mission..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm">
+                    </div>
+                </div>
+
+                <!-- PANEL ADMIN EXCLUSIF -->
+                <div id="admin-accounts-panel" class="hidden bg-indigo-50/70 p-4 rounded-xl border-2 border-indigo-200 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-extrabold uppercase text-indigo-950"><i class="fa-solid fa-users-gear text-indigo-600 mr-1.5"></i> Administration : Comptes & Multi-Rôles</h4>
+                        <span class="text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-full">ADMIN UNIQUEMENT</span>
+                    </div>
+
+                    <form id="create-account-form" onsubmit="handleCreateAccount(event)" class="bg-white p-3.5 rounded-xl border border-indigo-200 grid grid-cols-1 sm:grid-cols-4 gap-2.5 items-end">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Identifiant</label>
+                            <input type="text" id="new-acc-username" required placeholder="ex: agent.t1" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Mot de passe</label>
+                            <input type="text" id="new-acc-password" required placeholder="ex: pass123" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Profil Principal</label>
+                            <select id="new-acc-role" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold">
+                                <option value="ENREGISTREMENT">I. Agent Enregistrement</option>
+                                <option value="ECHANGE">II. Agent Échange</option>
+                                <option value="MANUTENTION">III. Le Manutentionnaire</option>
+                                <option value="PASSATION_ENLEVEMENT">IV. Passation & Enlèvement</option>
+                                <option value="DDU_T1">V. Agent DDU & T1</option>
+                                <option value="SUPERVISEUR">👑 Superviseur</option>
+                                <option value="ADMIN">🛡️ Administrateur</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs py-2 px-3 rounded-lg cursor-pointer">
+                            <i class="fa-solid fa-user-plus mr-1"></i> Créer Compte
+                        </button>
+                    </form>
+
+                    <div id="accounts-list-container" class="space-y-2 max-h-56 overflow-y-auto"></div>
+
+                    <div id="connected-agents-box" class="bg-white p-3.5 rounded-xl border border-indigo-200 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold uppercase text-indigo-950"><i class="fa-solid fa-circle-dot text-emerald-500 mr-1.5"></i> Agents Connectés & Sessions Actives</span>
+                            <span id="connected-agents-count" class="text-[11px] font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full">0 connecté(s)</span>
+                        </div>
+                        <div id="connected-agents-list" class="space-y-1.5 text-xs"></div>
+                    </div>
+                </div>
+
+                <!-- FACTURATION DDU & ADRESSE K -->
+                <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 space-y-3">
+                    <h4 class="text-xs font-extrabold uppercase text-amber-950"><i class="fa-solid fa-file-invoice-dollar text-amber-700 mr-1.5"></i> Facturation par DDU & Envoi Facture (Adresse K)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tarif par DDU</label>
+                            <input type="number" id="set-ddu-rate" min="0" step="100" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold text-amber-900">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Devise</label>
+                            <input type="text" id="set-ddu-currency" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold uppercase">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Adresse E-mail (k)</label>
+                            <input type="email" id="set-invoice-email-k" placeholder="k@geosuvitransit.tg" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEUILS & WHATSAPP -->
+                <div class="bg-red-50/60 p-4 rounded-xl border border-red-200 space-y-3">
+                    <h4 class="text-xs font-extrabold uppercase text-red-900">Règles d'Alerte Souffrance & Expiration</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Enregistrement sans action (Jours)</label>
+                            <input type="number" id="set-days-unprocessed" min="1" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold text-red-700">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">T1 sans apurement (Jours)</label>
+                            <input type="number" id="set-days-t1" min="1" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold text-red-700">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Expiration (Heures)</label>
+                            <input type="number" id="set-hours-exp" min="1" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold text-red-700">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200 space-y-3">
+                    <h4 class="text-xs font-extrabold uppercase text-emerald-900">Numéros WhatsApp d'Alerte</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Service (Expéditeur)</label>
+                            <input type="text" id="set-wa-sender" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Destinataire 1</label>
+                            <input type="text" id="set-wa-dest1" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Destinataire 2</label>
+                            <input type="text" id="set-wa-dest2" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-semibold">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-200">
+                    <button type="button" onclick="resetDemoData()" class="text-xs font-bold text-red-600 hover:underline cursor-pointer">Réinitialiser les dossiers démo</button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer">Annuler</button>
+                        <button type="button" onclick="saveSettings()" class="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-blue-600 hover:bg-blue-700 text-white shadow cursor-pointer">Enregistrer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE WHATSAPP -->
+    <div id="whatsapp-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm p-4 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+        function sendInvoiceEmailForDossier(targetDossier = null) {
+            const d = targetDossier || dossiers.find(x => x.id === activeDetailDossierId);
+            if (!d) return;
+            const inv = computeDduInvoiceAmount(d);
+            const targetEmail = (settings.invoiceEmailK || 'k@geosuvitransit.tg').trim();
+            const subject = `Facture DDU - Dossier ${d.rep} (BL ${d.bl} - ${d.client})`;
+            const body = [
+                `Bonjour,`,
+                `Veuillez trouver ci-dessous les informations de facturation DDU pour le dossier ${d.rep} :`,
+                `- BL : ${d.bl}`,
+                `- Client : ${d.client}`,
+                `- Navire : ${d.navire} | Destination : ${d.destination}`,
+                `- N° DDU : ${d.dduT1?.dduNumber || 'Non renseigné'}`,
+                `- Nombre de DDU : ${inv.count}`,
+                `- Tarif unitaire par DDU : ${formatMoney(inv.rate, inv.currency)}`,
+                `- Montant total facturé : ${formatMoney(inv.total, inv.currency)}`,
+                `Cordialement, GEO SUIVI TRANSIT.`
+            ].join('\n');
+
+            d.dduT1 = d.dduT1 || {};
+            d.dduT1.invoiceSent = true;
+            d.dduT1.invoiceSentAt = new Date().toISOString();
+            saveDossiers();
+
+            const mailtoUrl = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailtoUrl, '_blank', 'noopener');
+            if (activeDetailDossierId === d.id) openDetailModal(d.id);
+            showToast(`Facture (${formatMoney(inv.total, inv.currency)}) préparée pour envoi à ${targetEmail}.`, 'success');
+        }
+
+        function sendInvoiceEmailForFiltered() {
+            const list = currentFilteredDossiers.length ? currentFilteredDossiers : dossiers;
+            if (!list.length) {
+                showToast('Aucun dossier disponible pour envoyer la facture.', 'error');
+                return;
+            }
+            if (list.length === 1) {
+                sendInvoiceEmailForDossier(list[0]);
+                return;
+            }
+            const targetEmail = (settings.invoiceEmailK || 'k@geosuvitransit.tg').trim();
+            const rate = Math.max(0, Number(settings.dduRate ?? 10000));
+            const currency = settings.dduCurrency || 'FCFA';
+            let totalCount = 0;
+            let totalAmount = 0;
+
+            const lines = list.map(d => {
+                const inv = computeDduInvoiceAmount(d);
+                totalCount += inv.count;
+                totalAmount += inv.total;
+                return `- ${d.rep} | BL ${d.bl} | Client ${d.client} | ${inv.count} DDU × ${formatMoney(inv.rate, inv.currency)} = ${formatMoney(inv.total, inv.currency)}`;
+            });
+
+            const subject = `Facture Globale DDU - GEO SUIVI TRANSIT (${list.length} dossier(s))`;
+            const body = [
+                'Bonjour,',
+                `Récapitulatif de facturation DDU (${formatMoney(rate, currency)} par DDU) :`,
+                ...lines,
+                `Total DDU : ${totalCount} | Montant global : ${formatMoney(totalAmount, currency)}`,
+                'Cordialement, GEO SUIVI TRANSIT.'
+            ].join('\n');
+
+            const mailtoUrl = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailtoUrl, '_blank', 'noopener');
+            showToast(`Facture globale (${formatMoney(totalAmount, currency)}) préparée pour ${targetEmail}.`, 'success');
+        }
+
+        function formatRolesLabel(userObj = session) {
+            const roles = getUserRoles(userObj);
+            if (!roles.length) return 'Aucun rôle';
+            return roles.map(r => ROLE_LABELS[r] || r).join(' + ');
+        }
+
+        function hasRolePermission(requiredRoles) {
+            const roles = getUserRoles(session);
+            if (roles.includes('ADMIN') || roles.includes('SUPERVISEUR')) return true;
+            return requiredRoles.some(r => roles.includes(r));
+        }
+
+        function isAdminUser() {
+            const roles = getUserRoles(session);
+            return roles.includes('ADMIN') || roles.includes('SUPERVISEUR');
+        }
+
+        function getDefaultAccounts() {
+            return [
+                { id: 'acc-admin', username: 'admin', password: 'admin123', role: 'ADMIN', roles: ['ADMIN'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-sup', username: 'superviseur', password: '123', role: 'SUPERVISEUR', roles: ['SUPERVISEUR'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-reg', username: 'agent.enregistrement', password: '123', role: 'ENREGISTREMENT', roles: ['ENREGISTREMENT'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-ech', username: 'agent.echange', password: '123', role: 'ECHANGE', roles: ['ECHANGE'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-man', username: 'manutentionnaire', password: '123', role: 'MANUTENTION', roles: ['MANUTENTION'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-pas', username: 'agent.passation', password: '123', role: 'PASSATION_ENLEVEMENT', roles: ['PASSATION_ENLEVEMENT'], avatar: '', statusMessage: 'Disponible' },
+                { id: 'acc-ddu', username: 'agent.ddu', password: '123', role: 'DDU_T1', roles: ['DDU_T1'], avatar: '', statusMessage: 'Disponible' }
+            ];
+        }
+
+        let accounts = (() => {
+            try {
+                const p = JSON.parse(safeGet(STORAGE_KEY_ACCOUNTS));
+                return Array.isArray(p) && p.length ? p : getDefaultAccounts();
+            } catch (e) { return getDefaultAccounts(); }
+        })();
+
+        let settings = (() => {
+            try {
+                const p = JSON.parse(safeGet(STORAGE_KEY_SETTINGS));
+                return p ? { ...DEFAULT_SETTINGS, ...p } : { ...DEFAULT_SETTINGS };
+            } catch (e) { return { ...DEFAULT_SETTINGS }; }
+        })();
+
+        let session = (() => {
+            try { return JSON.parse(safeGet(STORAGE_KEY_SESSION)); } catch (e) { return null; }
+        })();
+
+        let onlineAgents = (() => {
+            try {
+                const p = JSON.parse(safeGet(STORAGE_KEY_ONLINE));
+                return Array.isArray(p) ? p : [];
+            } catch (e) { return []; }
+        })();
+
+        function saveOnlineAgents() {
+            safeSet(STORAGE_KEY_ONLINE, JSON.stringify(onlineAgents));
+        }
+
+        function recordAgentConnected(userObj) {
+            if (!userObj || !userObj.username) return;
+            const nowIso = new Date().toISOString();
+            const entry = {
+                accountId: userObj.accountId || userObj.username,
+                username: userObj.username,
+                roles: getUserRoles(userObj),
+                statusMessage: userObj.statusMessage || 'Disponible',
+                isOnline: true,
+                lastSeenAt: nowIso
+            };
+            const idx = onlineAgents.findIndex(x => x.username.toLowerCase() === entry.username.toLowerCase());
+            if (idx >= 0) onlineAgents[idx] = { ...onlineAgents[idx], ...entry, isOnline: true, lastSeenAt: nowIso };
+            else onlineAgents.unshift(entry);
+            saveOnlineAgents();
+        }
+
+        function markAgentDisconnected(username) {
+            if (!username) return;
+            const idx = onlineAgents.findIndex(x => x.username.toLowerCase() === String(username).toLowerCase());
+            if (idx >= 0) {
+                onlineAgents[idx].isOnline = false;
+                onlineAgents[idx].lastSeenAt = new Date().toISOString();
+                saveOnlineAgents();
+            }
+        }
+
+        function renderConnectedAgentsList() {
+            const listEl = document.getElementById('connected-agents-list');
+            const countEl = document.getElementById('connected-agents-count');
+            if (!listEl || !countEl) return;
+
+            const activeList = onlineAgents.filter(a => a.isOnline);
+            countEl.textContent = `${activeList.length} connecté(s)`;
+
+            if (!onlineAgents.length) {
+                listEl.innerHTML = `<p class="text-slate-500 text-xs">Aucune session enregistrée pour le moment.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = onlineAgents.map(ag => {
+                const accMatch = accounts.find(a => a.username.toLowerCase() === ag.username.toLowerCase());
+                const rolesLabel = formatRolesLabel(accMatch || ag);
+                const statusLabel = (accMatch && accMatch.statusMessage) || ag.statusMessage || 'Disponible';
+                const timeLabel = ag.lastSeenAt ? new Date(ag.lastSeenAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+                return `
+                    <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 px-2.5 py-2 rounded-lg border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full ${ag.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}"></span>
+                            <strong class="text-slate-900">${ag.username}</strong>
+                            <span class="text-[11px] text-slate-600">(${rolesLabel})</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-[11px]">
+                            <span class="px-2 py-0.5 rounded-full ${ag.isOnline ? 'bg-emerald-100 text-emerald-900' : 'bg-slate-200 text-slate-700'} font-bold">${ag.isOnline ? 'En ligne' : 'Déconnecté'}</span>
+                            <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold">${statusLabel}</span>
+                            ${timeLabel ? `<span class="text-slate-400">${timeLabel}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        let currentSearchCriterion = 'ALL';
+        let currentColorFilter = 'ALL';
+        let currentFilteredDossiers = [];
+        let activeDetailDossierId = null;
+        let tempProfilePhotoBase64 = '';
+
+        function offsetDate(days, hours = 0) {
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            d.setHours(d.getHours() + hours);
+            return d.toISOString();
+        }
+
+        function formatDateInput(iso) {
+            return iso ? iso.split('T')[0] : '';
+        }
+
+        function getInitialDossiers() {
+            return [
+                {
+                    id: 'dos-1', rep: 'GEO0001', bl: 'LOM40231', client: 'STE DG',
+                    nbTc: 2, tcType: "40'", tcNumbers: ['MRKU2094812', 'MSCU7741903'],
+                    poids: '52 400 KG', quantite: '980 Colis', designation: 'Équipements industriels',
+                    origine: 'CHINE', destination: 'OUAGA BF', depotage: 'Sur camion (SC)',
+                    navire: 'MSC LOME', dateArrivee: offsetDate(-6), createdAt: offsetDate(-16),
+                    expirationAt: offsetDate(2, 6),
+                    modificationPending: false, modificationNote: '',
+                    echange: { docType: 'TELEX', telexConfirmed: true, invoiceReceived: true, invoicePaid: true, depotageValidated: 'Sur camion (SC)', badReceived: true, badValidity: formatDateInput(offsetDate(5)), validated: true },
+                    manutention: { invoiceRequested: true, invoiceReceived: true, invoicePaid: true, bactDone: true, dfuPaid: true, gatePassSubmitted: true, gatePassReceived: true, truckRequested: true, validated: true },
+                    passation: { bonEnlever: true, bonConduire: true, brigadeDone: true, customsReportDone: true, t1Requested: true, t1Validated: true, bonSortie: true, validated: true },
+                    enlevement: {
+                        trucks: [
+                            { tc: 'MRKU2094812', truckNumber: 'TG-4821-AM', driverPhone: '+228 90 11 22 33', photoData: '', exitedPort: true, emptyReturn: '' },
+                            { tc: 'MSCU7741903', truckNumber: 'TG-9012-AN', driverPhone: '+228 91 44 55 66', photoData: '', exitedPort: false, emptyReturn: '' }
+                        ]
+                    },
+                    dduT1: { dduNumber: 'DDU-2026-8841', dduCount: 1, t1Number: 'T1-LME-5520', t1IssuedAt: offsetDate(-7), t1Validity: formatDateInput(offsetDate(4)), t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
+                },
+                {
+                    id: 'dos-2', rep: 'GEO0002', bl: 'LOM55910', client: 'FASO IMPORT SARL',
+                    nbTc: 1, tcType: "20'", tcNumbers: ['CMAU4412098'],
+                    poids: '21 150 KG', quantite: '420 Sacs', designation: 'Intrants agricoles',
+                    origine: 'INDE', destination: 'NIAMEY NE', depotage: 'Dépotage CFS',
+                    navire: 'CMA CGM AFRICA', dateArrivee: offsetDate(-3), createdAt: offsetDate(-3),
+                    expirationAt: offsetDate(12),
+                    modificationPending: false, modificationNote: '',
+                    echange: { docType: 'ORIGINALE', telexConfirmed: false, invoiceReceived: true, invoicePaid: false, depotageValidated: 'Dépotage CFS', badReceived: false, badValidity: '', validated: false },
+                    manutention: { invoiceRequested: false, invoiceReceived: false, invoicePaid: false, bactDone: false, dfuPaid: false, gatePassSubmitted: false, gatePassReceived: false, truckRequested: false, validated: false },
+                    passation: { bonEnlever: false, bonConduire: false, brigadeDone: false, customsReportDone: false, t1Requested: false, t1Validated: false, bonSortie: false, validated: false },
+                    enlevement: { trucks: [{ tc: 'CMAU4412098', truckNumber: '', driverPhone: '', photoData: '', exitedPort: false, emptyReturn: '' }] },
+                    dduT1: { dduNumber: '', dduCount: 1, t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
+                },
+                {
+                    id: 'dos-3', rep: 'GEO0003', bl: 'LOM66302', client: 'TRANSIT SAHEL',
+                    nbTc: 3, tcType: "40' HC", tcNumbers: ['TCLU9001122', 'TCLU9001123', 'TCLU9001124'],
+                    poids: '74 000 KG', quantite: '1 600 Cartons', designation: 'Pièces détachées auto',
+                    origine: 'ÉMIRATS ARABES UNIS', destination: 'BAMAKO ML', depotage: 'Sur camion (SC)',
+                    navire: 'MAERSK KENSINGTON', dateArrivee: offsetDate(-1), createdAt: offsetDate(-1),
+                    expirationAt: offsetDate(20),
+                    modificationPending: false, modificationNote: '',
+                    echange: { docType: 'TELEX', telexConfirmed: false, invoiceReceived: false, invoicePaid: false, depotageValidated: 'Sur camion (SC)', badReceived: false, badValidity: '', validated: false },
+                    manutention: { invoiceRequested: false, invoiceReceived: false, invoicePaid: false, bactDone: false, dfuPaid: false, gatePassSubmitted: false, gatePassReceived: false, truckRequested: false, validated: false },
+                    passation: { bonEnlever: false, bonConduire: false, brigadeDone: false, customsReportDone: false, t1Requested: false, t1Validated: false, bonSortie: false, validated: false },
+                    enlevement: { trucks: [] },
+                    dduT1: { dduNumber: '', dduCount: 1, t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
+                }
+            ];
+        }
+
+        let dossiers = (() => {
+            try {
+                const p = JSON.parse(safeGet(STORAGE_KEY_DOSSIERS));
+                return Array.isArray(p) && p.length ? p : getInitialDossiers();
+            } catch (e) { return getInitialDossiers(); }
+        })();
+
+        function saveDossiers() {
+            safeSet(STORAGE_KEY_DOSSIERS, JSON.stringify(dossiers));
+            updateAlertsAndStats();
+            renderTable();
+        }
+
+        function saveAccounts() {
+            safeSet(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+        }
+
+        function showToast(msg, type = 'info') {
+            const box = document.getElementById('toast-container');
+            if (!box) return;
+            const colors = { success: 'bg-emerald-700 border-emerald-400', error: 'bg-red-700 border-red-400', info: 'bg-navy-900 border-blue-400' };
+            const el = document.createElement('div');
+            el.className = `${colors[type] || colors.info} text-white px-4 py-3 rounded-xl shadow-xl border text-xs font-bold pointer-events-auto`;
+            el.textContent = msg;
+            box.appendChild(el);
+            setTimeout(() => el.remove(), 3500);
+        }
+
+        function computeDduInvoiceAmount(d) {
+            const count = Math.max(1, parseInt(d?.dduT1?.dduCount || '1', 10));
+            const rate = Math.max(0, Number(settings.dduRate ?? 10000));
+            return { count, rate, total: count * rate, currency: settings.dduCurrency || 'FCFA' };
+        }
+
+        function formatMoney(val, currency = 'FCFA') {
+            return `${Number(val || 0).toLocaleString('fr-FR')} ${currency}`;
+        }
+
+        function handleLoginSubmit(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const u = (document.getElementById('login-username')?.value || 'admin').trim().toLowerCase();
+            const p = (document.getElementById('login-password')?.value || 'admin123').trim();
+
+            let found = accounts.find(a => a.username.toLowerCase() === u && a.password === p);
+            if (!found && u === 'admin' && (p === 'admin123' || p === '123456')) {
+                found = accounts[0] || { id: 'acc-admin', username: 'admin', password: p, role: 'ADMIN', roles: ['ADMIN'], avatar: '', statusMessage: 'Disponible' };
+            }
+            if (!found) {
+                showToast('Identifiant ou mot de passe incorrect (admin / admin123).', 'error');
+                return false;
+            }
+
+            session = {
+                accountId: found.id,
+                username: found.username,
+                roles: getUserRoles(found),
+                role: found.role || getUserRoles(found)[0] || 'ENREGISTREMENT',
+                avatar: found.avatar || '',
+                statusMessage: found.statusMessage || ''
+            };
+            safeSet(STORAGE_KEY_SESSION, JSON.stringify(session));
+            recordAgentConnected(session);
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            initAppView();
+            showToast(`Connecté : ${found.username} (${formatRolesLabel(session)})`, 'success');
+            return false;
+        }
+
+        function logout() {
+            if (session && session.username) markAgentDisconnected(session.username);
+            session = null;
+            safeSet(STORAGE_KEY_SESSION, '');
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+
+        function initAppView() {
+            if (!session) return;
+            document.getElementById('header-role-badge').textContent = `${session.username} (${formatRolesLabel(session)})`;
+            const badge = document.getElementById('header-avatar-badge');
+            if (session.avatar) {
+                badge.innerHTML = `<img src="${session.avatar}" alt="" class="w-full h-full object-cover rounded-full">`;
+            } else {
+                badge.textContent = (session.username || 'A').slice(0, 2).toUpperCase();
+            }
+            const stBadge = document.getElementById('header-status-badge');
+            if (session.statusMessage) {
+                stBadge.textContent = session.statusMessage;
+                stBadge.classList.remove('hidden');
+            } else {
+                stBadge.classList.add('hidden');
+            }
+            updateAlertsAndStats();
+            renderTable();
+        }
+
+        function evaluateDossierStatus(d) {
+            const now = Date.now();
+            const daysSinceCreated = (now - new Date(d.createdAt).getTime()) / 86400000;
+            const hoursToExp = d.expirationAt ? (new Date(d.expirationAt).getTime() - now) / 3600000 : 999;
+            const hasT1Pending = d.dduT1 && d.dduT1.t1Number && !d.dduT1.t1Cleared && d.dduT1.t1IssuedAt &&
+                ((now - new Date(d.dduT1.t1IssuedAt).getTime()) / 86400000 >= settings.daysT1Alert);
+
+            const isSuffering = (daysSinceCreated >= settings.daysUnprocessedAlert && !d.echange?.validated) || hasT1Pending;
+            const isNearExp = hoursToExp <= settings.hoursExpirationAlert;
+            const allValidated = Boolean(d.echange?.validated && d.manutention?.validated && d.passation?.validated);
+            const hasMovement = Boolean(d.echange?.validated || d.echange?.invoiceReceived || d.manutention?.invoiceRequested || d.dduT1?.dduNumber || d.dduT1?.t1Number);
+            const isDepotage = d.depotage === 'Dépotage CFS' || d.depotage === 'Sous palan' || d.echange?.depotageValidated === 'Dépotage CFS' || d.echange?.depotageValidated === 'Sous palan';
+
+            let color = 'GREEN';
+            let label = 'Circuit Normal';
+            let alertReason = '';
+
+            if (isSuffering || isNearExp || allValidated) {
+                color = 'RED';
+                if (isNearExp) { alertReason = `Expiration < ${settings.hoursExpirationAlert}h`; label = `⚠️ Expire < ${settings.hoursExpirationAlert}h`; }
+                else if (isSuffering) { alertReason = hasT1Pending ? `T1 > ${settings.daysT1Alert}j sans apurement` : `Enregistrement > ${settings.daysUnprocessedAlert}j sans traitement`; label = `🚨 En Souffrance`; }
+                else { label = 'Validé / Prêt'; }
+            } else if (isDepotage) {
+                color = 'BLUE';
+                label = d.depotage;
+            } else if (!hasMovement) {
+                color = 'YELLOW';
+                label = 'Créé • Sans mouvement';
+            }
+
+            return { color, label, isUrgentAlert: Boolean(isSuffering || isNearExp), alertReason };
+        }
+
+        function updateAlertsAndStats() {
+            let r = 0, g = 0, b = 0, y = 0;
+            const alerts = [];
+            dossiers.forEach(d => {
+                const st = evaluateDossierStatus(d);
+                if (st.color === 'RED') r++;
+                else if (st.color === 'GREEN') g++;
+                else if (st.color === 'BLUE') b++;
+                else y++;
+                if (st.isUrgentAlert) alerts.push(`${d.rep} (${d.bl} - ${d.client}) : ${st.alertReason}`);
+            });
+            document.getElementById('stat-total').textContent = dossiers.length;
+            document.getElementById('stat-red').textContent = r;
+            document.getElementById('stat-green').textContent = g;
+            document.getElementById('stat-blue').textContent = b;
+            document.getElementById('stat-yellow').textContent = y;
+
+            const marquee = document.getElementById('urgent-marquee-text');
+            marquee.textContent = alerts.length
+                ? `🚨 ALERTE URGENTE : ${alerts.join('  |  ')}  —  Alerte WhatsApp : ${settings.waSender} → ${settings.waDest1} & ${settings.waDest2}`
+                : `✅ Aucun dossier en souffrance ou à < ${settings.hoursExpirationAlert}h de l'expiration. Tarif DDU : ${formatMoney(settings.dduRate, settings.dduCurrency)} • Facture → ${settings.invoiceEmailK}.`;
+        }
+
+        function setSearchCriterion(crit) {
+            currentSearchCriterion = crit;
+            document.querySelectorAll('.crit-btn').forEach(btn => {
+                const active = btn.dataset.crit === crit;
+                btn.className = active ? 'crit-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-navy-900 text-white cursor-pointer' : 'crit-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 cursor-pointer';
+            });
+            renderTable();
+        }
+
+        function filterByColor(color) {
+            currentColorFilter = color;
+            renderTable();
+        }
+
+        function clearDateFilter() {
+            document.getElementById('date-filter').value = '';
+            document.getElementById('clear-date-btn').classList.add('hidden');
+            renderTable();
+        }
+
+        function renderTable() {
+            const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+            const dateVal = document.getElementById('date-filter')?.value || '';
+            document.getElementById('clear-date-btn').classList.toggle('hidden', !dateVal);
+
+            const filtered = dossiers.filter(d => {
+                const st = evaluateDossierStatus(d);
+                if (currentColorFilter !== 'ALL' && st.color !== currentColorFilter) return false;
+                if (dateVal) {
+                    const arr = formatDateInput(d.dateArrivee);
+                    const cre = formatDateInput(d.createdAt);
+                    if (arr !== dateVal && cre !== dateVal) return false;
+                }
+                if (!q) return true;
+                const rep = (d.rep || '').toLowerCase();
+                const bl = (d.bl || '').toLowerCase();
+                const tcs = (d.tcNumbers || []).join(' ').toLowerCase();
+                const t1 = (d.dduT1?.t1Number || '').toLowerCase();
+                const ddu = (d.dduT1?.dduNumber || '').toLowerCase();
+                if (currentSearchCriterion === 'REP') return rep.includes(q);
+                if (currentSearchCriterion === 'BL') return bl.includes(q);
+                if (currentSearchCriterion === 'TC') return tcs.includes(q);
+                if (currentSearchCriterion === 'T1') return t1.includes(q);
+                return rep.includes(q) || bl.includes(q) || tcs.includes(q) || t1.includes(q) || ddu.includes(q) || (d.client || '').toLowerCase().includes(q);
+            });
+
+            const tbody = document.getElementById('dossiers-table-body');
+            const empty = document.getElementById('empty-state');
+            currentFilteredDossiers = filtered.slice();
+            document.getElementById('visible-count').textContent = filtered.length;
+
+            if (!filtered.length) {
+                tbody.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            const rowClasses = {
+                RED: 'bg-red-50 hover:bg-red-100/80 border-l-4 border-l-red-600',
+                GREEN: 'bg-emerald-50/70 hover:bg-emerald-100/70 border-l-4 border-l-emerald-600',
+                BLUE: 'bg-blue-50/70 hover:bg-blue-100/70 border-l-4 border-l-blue-600',
+                YELLOW: 'bg-amber-50/80 hover:bg-amber-100/80 border-l-4 border-l-amber-500'
+            };
+
+            const badgeClasses = {
+                RED: 'bg-red-600 text-white',
+                GREEN: 'bg-emerald-600 text-white',
+                BLUE: 'bg-blue-600 text-white',
+                YELLOW: 'bg-amber-500 text-white'
+            };
+
+            tbody.innerHTML = filtered.map(d => {
+                const st = evaluateDossierStatus(d);
+                return `
+                    <tr class="${rowClasses[st.color] || ''}">
+                        <td class="py-3.5 px-4 font-extrabold text-navy-900">${d.rep}</td>
+                        <td class="py-3.5 px-4 font-bold">${d.bl}</td>
+                        <td class="py-3.5 px-4 font-semibold">${d.client}</td>
+                        <td class="py-3.5 px-4 text-xs font-bold">${String(d.nbTc).padStart(2, '0')} TC de ${d.tcType}</td>
+                        <td class="py-3.5 px-4 font-semibold">${d.navire}</td>
+                        <td class="py-3.5 px-4 font-bold">${d.destination}</td>
+                        <td class="py-3.5 px-4"><span class="${badgeClasses[st.color]} px-2.5 py-1 rounded-full text-[11px] font-extrabold">${st.label}</span></td>
+                        <td class="py-3.5 px-4 text-right">
+                            <button type="button" onclick="openDetailModal('${d.id}')" class="bg-navy-900 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl cursor-pointer">
+                                Voir les détails
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function generateNextRep() {
+            const maxNum = dossiers.reduce((max, d) => {
+                const m = String(d.rep || '').match(/(\d+)$/);
+                return m ? Math.max(max, parseInt(m[1], 10)) : max;
+            }, 0);
+            return 'GEO' + String(maxNum + 1).padStart(4, '0');
+        }
+
+        // Analyse intelligente d'un texte collé contenant plusieurs numéros de conteneurs
+        function parsePastedContainers(rawText) {
+            return String(rawText || '')
+                .split(/[\r\n,;\t]+|\s{2,}/)
+                .flatMap(chunk => {
+                    const tokens = chunk.trim().split(/\s+/).filter(Boolean);
+                    if (tokens.length > 1 && tokens.every(t => /^[A-Z]{3,4}U?\d{6,7}$/i.test(t))) {
+                        return tokens;
+                    }
+                    return chunk.trim() ? [chunk.trim()] : [];
+                })
+                .map(s => s.replace(/^[\-\•\*]+/, '').trim().toUpperCase())
+                .filter(Boolean);
+        }
+
+        function handleFirstTcPaste(e) {
+            const clipboard = e.clipboardData || window.clipboardData;
+            const text = clipboard ? clipboard.getData('text') : '';
+            const items = parsePastedContainers(text);
+            if (items.length > 1) {
+                e.preventDefault();
+                const nbInput = document.getElementById('create-nb-tc');
+                nbInput.value = Math.min(30, items.length);
+                generateTcFields(items.slice(0, 30));
+                showToast(`${items.length} conteneurs détectés et répartis automatiquement.`, 'success');
+            }
+        }
+
+        function handleSingleTcInput(idx, val) {
+            if (idx !== 0) return;
+            const items = parsePastedContainers(val);
+            if (items.length > 1) {
+                const nbInput = document.getElementById('create-nb-tc');
+                nbInput.value = Math.min(30, items.length);
+                generateTcFields(items.slice(0, 30));
+                showToast(`${items.length} conteneurs répartis automatiquement.`, 'success');
+            }
+        }
+
+        function generateTcFields(existing = []) {
+            const count = Math.max(1, Math.min(30, parseInt(document.getElementById('create-nb-tc').value || '1', 10)));
+            document.getElementById('tc-counter-badge').textContent = `${count} champ(s)`;
+            const container = document.getElementById('dynamic-tc-container');
+            container.innerHTML = Array.from({ length: count }, (_, i) => `
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">NUMERO TC ${i + 1} *</label>
+                    <input type="text" required value="${existing[i] || ''}" ${i === 0 ? 'onpaste="handleFirstTcPaste(event)" oninput="handleSingleTcInput(0, this.value)"' : ''} placeholder="Ex: MSCU123456${i}" class="tc-number-input w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold uppercase">
+                </div>
+            `).join('');
+        }
+
+        function openCreateModal() {
+            if (!hasRolePermission(['ENREGISTREMENT'])) {
+                showToast('Accès refusé : rôle Enregistrement non attribué à votre compte.', 'error');
+                return;
+            }
+            document.getElementById('create-dossier-form').reset();
+            document.getElementById('create-rep').value = generateNextRep();
+            document.getElementById('create-nb-tc').value = 2;
+            document.getElementById('create-date-arrivee').value = formatDateInput(new Date().toISOString());
+            generateTcFields();
+            document.getElementById('create-modal').classList.remove('hidden');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('create-modal').classList.add('hidden');
+        }
+
+        function submitCreateDossier(e) {
+            e.preventDefault();
+            const tcInputs = Array.from(document.querySelectorAll('.tc-number-input'));
+            const tcNumbers = tcInputs.map(inp => inp.value.trim().toUpperCase()).filter(Boolean);
+            const nbTc = parseInt(document.getElementById('create-nb-tc').value, 10) || tcNumbers.length;
+            const depotage = document.getElementById('create-depotage').value;
+
+            const newDos = {
+                id: 'dos-' + Date.now(),
+                rep: document.getElementById('create-rep').value,
+                bl: document.getElementById('create-bl').value.trim().toUpperCase(),
+                client: document.getElementById('create-client').value.trim().toUpperCase(),
+                nbTc,
+                tcType: document.getElementById('create-tc-type').value,
+                tcNumbers,
+                poids: document.getElementById('create-poids').value.trim(),
+                quantite: document.getElementById('create-quantite').value.trim(),
+                designation: document.getElementById('create-designation').value.trim(),
+                origine: document.getElementById('create-origine').value.trim().toUpperCase(),
+                destination: document.getElementById('create-destination').value.trim().toUpperCase(),
+                depotage,
+                navire: document.getElementById('create-navire').value.trim().toUpperCase(),
+                dateArrivee: new Date(document.getElementById('create-date-arrivee').value).toISOString(),
+                createdAt: new Date().toISOString(),
+                expirationAt: offsetDate(15),
+                modificationPending: false,
+                modificationNote: '',
+                echange: { docType: 'TELEX', telexConfirmed: false, invoiceReceived: false, invoicePaid: false, depotageValidated: depotage, badReceived: false, badValidity: '', validated: false },
+                manutention: { invoiceRequested: false, invoiceReceived: false, invoicePaid: false, bactDone: false, dfuPaid: false, gatePassSubmitted: false, gatePassReceived: false, truckRequested: false, validated: false },
+                passation: { bonEnlever: false, bonConduire: false, brigadeDone: false, customsReportDone: false, t1Requested: false, t1Validated: false, bonSortie: false, validated: false },
+                enlevement: { trucks: tcNumbers.map(tc => ({ tc, truckNumber: '', driverPhone: '', photoData: '', exitedPort: false, emptyReturn: '' })) },
+                dduT1: { dduNumber: '', dduCount: 1, t1Number: '', t1IssuedAt: '', t1Validity: '', t1Cleared: false, invoiceSent: false, invoiceSentAt: '' }
+            };
+
+            dossiers.unshift(newDos);
+            saveDossiers();
+            closeCreateModal();
+            showToast(`Dossier ${newDos.rep} créé avec succès.`, 'success');
+        }
+
+        // Génération du texte du bordereau (sans facturation)
+        function buildDossierBordereauText(d) {
+            const st = evaluateDossierStatus(d);
+            const trucksLines = (d.enlevement?.trucks || []).length
+                ? d.enlevement.trucks.map((tr, i) =>
+                    `  ${i + 1}. TC ${tr.tc} | Camion: ${tr.truckNumber || 'Non saisi'} | Chauffeur: ${tr.driverPhone || 'Non saisi'} | Sorti port: ${tr.exitedPort ? 'OUI' : 'NON'}${d.depotage === 'Sur camion (SC)' ? ` | Retour vide: ${tr.emptyReturn || 'En attente'}` : ''} | Photo: ${tr.photoData ? 'Déposée' : 'Non déposée'}`
+                  ).join('\n')
+                : '  Aucun camion/conteneur enregistré';
+
+            return [
+                '============================================================',
+                '           GEO SUIVI TRANSIT — BORDEREAU DE SUIVI',
+                '============================================================',
+                `Répertoire       : ${d.rep}`,
+                `BL               : ${d.bl}`,
+                `Client           : ${d.client}`,
+                `Navire           : ${d.navire}`,
+                `Origine -> Dest. : ${d.origine} -> ${d.destination}`,
+                `Type Dépotage    : ${d.depotage}`,
+                `Conteneurs       : ${d.nbTc} TC (${d.tcType}) — ${(d.tcNumbers || []).join(', ') || '—'}`,
+                `Poids / Quantité : ${d.poids} | ${d.quantite}`,
+                `Désignation      : ${d.designation}`,
+                `Date Arrivée     : ${formatDateInput(d.dateArrivee) || '—'}`,
+                `Statut Actuel    : ${st.label} (${st.color})${st.alertReason ? ` — Alerte: ${st.alertReason}` : ''}`,
+                '',
+                '--- POINTS & ÉTAPES D\'AVANCEMENT ---',
+                `• I. Enregistrement : Créé le ${formatDateInput(d.createdAt)} | Modif. en attente: ${d.modificationPending ? 'OUI' : 'NON'}`,
+                `• II. Échange       : Doc ${d.echange?.docType || '—'} | Télex: ${d.echange?.telexConfirmed ? 'OK' : 'En attente'} | Facture reçue: ${d.echange?.invoiceReceived ? 'OK' : 'Non'} | Facture payée: ${d.echange?.invoicePaid ? 'OK' : 'Non'} | BAD reçu: ${d.echange?.badReceived ? 'OK' : 'Non'} (Val. ${d.echange?.badValidity || '—'}) | Validé: ${d.echange?.validated ? 'OUI' : 'NON'}`,
+                `• III. Manutention  : Facture dem.: ${d.manutention?.invoiceRequested ? 'OK' : 'Non'} | Reçue: ${d.manutention?.invoiceReceived ? 'OK' : 'Non'} | Payée: ${d.manutention?.invoicePaid ? 'OK' : 'Non'} | BACT: ${d.manutention?.bactDone ? 'OK' : 'Non'} | DFU: ${d.manutention?.dfuPaid ? 'OK' : 'Non'} | GatePass soumis/reçu: ${d.manutention?.gatePassSubmitted ? 'OK' : 'Non'}/${d.manutention?.gatePassReceived ? 'OK' : 'Non'} | Camion dem.: ${d.manutention?.truckRequested ? 'OK' : 'Non'} | Validé: ${d.manutention?.validated ? 'OUI' : 'NON'}`,
+                `• IV. Passation/Enl.: BAE: ${d.passation?.bonEnlever ? 'OK' : 'Non'} | BAC: ${d.passation?.bonConduire ? 'OK' : 'Non'} | Brigade: ${d.passation?.brigadeDone ? 'OK' : 'Non'} | Rapport douane: ${d.passation?.customsReportDone ? 'OK' : 'Non'} | T1 dem./val.: ${d.passation?.t1Requested ? 'OK' : 'Non'}/${d.passation?.t1Validated ? 'OK' : 'Non'} | Bon sortie: ${d.passation?.bonSortie ? 'OK' : 'Non'} | Validé: ${d.passation?.validated ? 'OUI' : 'NON'}`,
+                trucksLines,
+                `• V. DDU & T1       : N° DDU: ${d.dduT1?.dduNumber || '—'} | N° T1: ${d.dduT1?.t1Number || '—'} | Validité T1: ${d.dduT1?.t1Validity || '—'} | T1 apuré: ${d.dduT1?.t1Cleared ? 'OUI' : 'NON'}`,
+                '============================================================'
+            ].join('\n');
+        }
+
+        function triggerTextDownload(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function downloadDossierBordereau() {
+            const d = dossiers.find(x => x.id === activeDetailDossierId);
+            if (!d) return;
+            triggerTextDownload(`Bordereau_${d.rep}_${d.bl || 'DOSSIER'}.txt`, buildDossierBordereauText(d));
+            showToast(`Bordereau ${d.rep} téléchargé.`, 'success');
+        }
+
+        function downloadBulkBordereaux() {
+            const list = currentFilteredDossiers.length ? currentFilteredDossiers : dossiers;
+            if (!list.length) {
+                showToast('Aucun dossier à exporter.', 'error');
+                return;
+            }
+            const combined = [
+                `EXPORT GROUPÉ DES BORDEREAUX — GEO SUIVI TRANSIT (${list.length} dossier(s))`,
+                `Généré le : ${new Date().toLocaleString('fr-FR')}`,
+                '',
+                ...list.map(d => buildDossierBordereauText(d))
+            ].join('\n\n');
+            const stamp = new Date().toISOString().slice(0, 10);
+            triggerTextDownload(`Export_Groupe_Bordereaux_${stamp}.txt`, combined);
+            showToast(`${list.length} bordereau(x) exporté(s) sans la facturation.`, 'success');
+        }
+
+        function sendInvoiceEmailForDossier() {
+            const d = dossiers.find(x => x.id === activeDetailDossierId);
+            if (!d) return;
+            const inv = computeDduInvoiceAmount(d);
+            const targetEmail = (settings.invoiceEmailK || 'k@geosuvitransit.tg').trim();
+            const subject = `Facture DDU - Dossier ${d.rep} (BL ${d.bl} - ${d.client})`;
+            const body = [
+                `Bonjour,`,
+                `Veuillez trouver ci-dessous les informations de facturation DDU pour le dossier ${d.rep} :`,
+                `- BL : ${d.bl}`,
+                `- Client : ${d.client}`,
+                `- Navire : ${d.navire} | Destination : ${d.destination}`,
+                `- N° DDU : ${d.dduT1?.dduNumber || 'Non renseigné'}`,
+                `- Nombre de DDU : ${inv.count}`,
+                `- Tarif unitaire par DDU : ${formatMoney(inv.rate, inv.currency)}`,
+                `- Montant total facturé : ${formatMoney(inv.total, inv.currency)}`,
+                `Cordialement, GEO SUIVI TRANSIT.`
+            ].join('\n');
+
+            d.dduT1 = d.dduT1 || {};
+            d.dduT1.invoiceSent = true;
+            d.dduT1.invoiceSentAt = new Date().toISOString();
+            saveDossiers();
+
+            const mailtoUrl = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailtoUrl, '_blank', 'noopener');
+            openDetailModal(d.id);
+            showToast(`Facture (${formatMoney(inv.total, inv.currency)}) préparée pour envoi à ${targetEmail}.`, 'success');
+        }
+
+        function openDetailModal(id) {
+            const d = dossiers.find(x => x.id === id);
+            if (!d) return;
+            activeDetailDossierId = id;
+            const st = evaluateDossierStatus(d);
+            const inv = computeDduInvoiceAmount(d);
+            const targetEmail = settings.invoiceEmailK || 'k@geosuvitransit.tg';
+
+            document.getElementById('detail-rep-badge').textContent = d.rep;
+            document.getElementById('detail-title').textContent = `BL : ${d.bl} — ${d.client}`;
+            document.getElementById('detail-subtitle').textContent = `Navire : ${d.navire} • Destination : ${d.destination} • Dépotage : ${d.depotage}`;
+            document.getElementById('detail-color-pill').textContent = st.label;
+
+            document.getElementById('detail-modal-body').innerHTML = `
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div><span class="text-slate-400 block">TCs (${d.tcType})</span><strong>${(d.tcNumbers || []).join(', ') || '—'}</strong></div>
+                    <div><span class="text-slate-400 block">Poids / Quantité</span><strong>${d.poids} • ${d.quantite}</strong></div>
+                    <div><span class="text-slate-400 block">Origine → Dest.</span><strong>${d.origine} → ${d.destination}</strong></div>
+                    <div><span class="text-slate-400 block">Désignation</span><strong>${d.designation}</strong></div>
+                </div>
+
+                <!-- I. ENREGISTREMENT -->
+                <div class="border border-slate-200 rounded-xl p-4 space-y-3 ${hasRolePermission(['ENREGISTREMENT']) ? '' : 'opacity-60'}">
+                    <h4 class="font-extrabold text-sm text-navy-900">I. ENREGISTREMENT ${hasRolePermission(['ENREGISTREMENT']) ? '(Autorisé)' : '(Lecture seule - Non autorisé)'}</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" ${hasRolePermission(['ENREGISTREMENT']) ? '' : 'disabled'} onclick="requestModif('${d.id}')" class="bg-amber-100 hover:bg-amber-200 disabled:opacity-50 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer">Demander modification</button>
+                        ${isAdminUser() ? `<button type="button" onclick="approveModif('${d.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg cursor-pointer">Valider modification (Admin/Superviseur)</button>` : ''}
+                    </div>
+                    ${d.modificationPending ? `<p class="text-xs font-bold text-amber-800 bg-amber-50 p-2 rounded-lg">En attente de validation superviseur/admin.</p>` : ''}
+                </div>
+
+                <!-- II. ÉCHANGE -->
+                <div class="border border-slate-200 rounded-xl p-4 space-y-3 ${hasRolePermission(['ECHANGE']) ? '' : 'opacity-60'}">
+                    <h4 class="font-extrabold text-sm text-navy-900">II. ÉCHANGE ${hasRolePermission(['ECHANGE']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
+                    <fieldset ${hasRolePermission(['ECHANGE']) ? '' : 'disabled'} class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <label class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
+                            <span class="font-bold">Type de document</span>
+                            <select onchange="updateField('${d.id}', 'echange.docType', this.value)" class="border rounded px-2 py-1 font-bold">
+                                <option value="TELEX" ${d.echange.docType === 'TELEX' ? 'selected' : ''}>Télex</option>
+                                <option value="ORIGINALE" ${d.echange.docType === 'ORIGINALE' ? 'selected' : ''}>Originale</option>
+                            </select>
+                        </label>
+                        <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
+                            <input type="checkbox" ${d.echange.telexConfirmed ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.telexConfirmed', this.checked)" class="w-4 h-4">
+                            <span>Télex confirmé</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
+                            <input type="checkbox" ${d.echange.invoiceReceived ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.invoiceReceived', this.checked)" class="w-4 h-4">
+                            <span>Facture échange reçue</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
+                            <input type="checkbox" ${d.echange.invoicePaid ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.invoicePaid', this.checked)" class="w-4 h-4">
+                            <span>Facture échange payée</span>
+                        </label>
+                        <label class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
+                            <span class="font-bold">Validation dépotage</span>
+                            <select onchange="updateField('${d.id}', 'echange.depotageValidated', this.value)" class="border rounded px-2 py-1 font-bold">
+                                <option value="Sur camion (SC)" ${d.echange.depotageValidated === 'Sur camion (SC)' ? 'selected' : ''}>Sur camion (SC)</option>
+                                <option value="Dépotage CFS" ${d.echange.depotageValidated === 'Dépotage CFS' ? 'selected' : ''}>Dépotage CFS</option>
+                                <option value="Sous palan" ${d.echange.depotageValidated === 'Sous palan' ? 'selected' : ''}>Sous palan</option>
+                            </select>
+                        </label>
+                        <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
+                            <input type="checkbox" ${d.echange.badReceived ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.badReceived', this.checked)" class="w-4 h-4">
+                            <span>Réception BAD confirmée</span>
+                        </label>
+                        <label class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
+                            <span class="font-bold">Validité du BAD</span>
+                            <input type="date" value="${d.echange.badValidity || ''}" onchange="updateField('${d.id}', 'echange.badValidity', this.value)" class="border rounded px-2 py-1 text-xs font-bold">
+                        </label>
+                        <label class="flex items-center gap-2 bg-emerald-50 p-2.5 rounded-lg font-extrabold text-emerald-900 cursor-pointer">
+                            <input type="checkbox" ${d.echange.validated ? 'checked' : ''} onchange="updateField('${d.id}', 'echange.validated', this.checked)" class="w-4 h-4">
+                            <span>Validation Échange</span>
+                        </label>
+                    </fieldset>
+                </div>
+
+                <!-- III. LE MANUTENTIONNAIRE -->
+                <div class="border border-slate-200 rounded-xl p-4 space-y-3 ${hasRolePermission(['MANUTENTION']) ? '' : 'opacity-60'}">
+                    <h4 class="font-extrabold text-sm text-navy-900">III. LE MANUTENTIONNAIRE ${hasRolePermission(['MANUTENTION']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
+                    <fieldset ${hasRolePermission(['MANUTENTION']) ? '' : 'disabled'} class="space-y-3">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                            ${[
+                                ['invoiceRequested', 'Demande facture'],
+                                ['invoiceReceived', 'Réception facture'],
+                                ['invoicePaid', 'Paiement facture'],
+                                ['bactDone', 'BACT'],
+                                ['dfuPaid', 'Paiement DFU'],
+                                ['gatePassSubmitted', 'Soumission Gate Pass'],
+                                ['gatePassReceived', 'Réception Gate Pass'],
+                                ['truckRequested', 'Demande camion']
+                            ].map(([k, lbl]) => `
+                                <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
+                                    <input type="checkbox" ${d.manutention[k] ? 'checked' : ''} onchange="updateField('${d.id}', 'manutention.${k}', this.checked)" class="w-4 h-4">
+                                    <span>${lbl}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                        <label class="inline-flex items-center gap-2 bg-emerald-50 px-3 py-2 rounded-lg text-xs font-extrabold text-emerald-900 cursor-pointer">
+                            <input type="checkbox" ${d.manutention.validated ? 'checked' : ''} onchange="updateField('${d.id}', 'manutention.validated', this.checked)" class="w-4 h-4">
+                            <span>Validation Manutention</span>
+                        </label>
+                    </fieldset>
+                </div>
+
+                <!-- IV. PASSATION ET ENLÈVEMENT -->
+                <div class="border border-slate-200 rounded-xl p-4 space-y-4 ${hasRolePermission(['PASSATION_ENLEVEMENT']) ? '' : 'opacity-60'}">
+                    <h4 class="font-extrabold text-sm text-navy-900">IV. PASSATION ET ENLÈVEMENT ${hasRolePermission(['PASSATION_ENLEVEMENT']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
+                    <fieldset ${hasRolePermission(['PASSATION_ENLEVEMENT']) ? '' : 'disabled'} class="space-y-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                            ${[
+                                ['bonEnlever', 'Bon à enlever'],
+                                ['bonConduire', 'Bon à conduire'],
+                                ['brigadeDone', 'Brigade'],
+                                ['customsReportDone', 'Rapport douane'],
+                                ['t1Requested', 'Demande T1'],
+                                ['t1Validated', 'Validation T1'],
+                                ['bonSortie', 'Bon de sortie'],
+                                ['validated', 'Validation Passation']
+                            ].map(([k, lbl]) => `
+                                <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold cursor-pointer">
+                                    <input type="checkbox" ${d.passation[k] ? 'checked' : ''} onchange="updateField('${d.id}', 'passation.${k}', this.checked)" class="w-4 h-4">
+                                    <span>${lbl}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+
+                        <div class="space-y-3">
+                            <p class="text-xs font-extrabold uppercase text-blue-900">Enleveur : Camions, Chauffeurs, Photos TC/Camion, Sortie & Retour Vide</p>
+                            ${(d.enlevement.trucks || []).map((tr, idx) => `
+                                <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3.5 space-y-3 text-xs">
+                                    <div class="font-extrabold text-navy-900">Conteneur : ${tr.tc}</div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block font-bold mb-1">N° Camion</label>
+                                            <input type="text" value="${tr.truckNumber || ''}" onchange="updateTruck('${d.id}', ${idx}, 'truckNumber', this.value.toUpperCase())" placeholder="Ex: TG-0000-AA" class="w-full px-3 py-2 bg-white border rounded-lg font-bold uppercase">
+                                        </div>
+                                        <div>
+                                            <label class="block font-bold mb-1">Tél. Chauffeur</label>
+                                            <input type="text" value="${tr.driverPhone || ''}" onchange="updateTruck('${d.id}', ${idx}, 'driverPhone', this.value)" placeholder="+228 90..." class="w-full px-3 py-2 bg-white border rounded-lg font-semibold">
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="document.getElementById('tc-photo-${d.id}-${idx}').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-lg cursor-pointer">
+                                                <i class="fa-solid fa-camera mr-1"></i> Déposer Photo TC/Camion
+                                            </button>
+                                            <input type="file" id="tc-photo-${d.id}-${idx}" accept="image/*" class="hidden" onchange="handleTruckPhoto('${d.id}', ${idx}, this)">
+                                            <span class="text-slate-600 font-semibold">${tr.photoData ? 'Photo déposée ✓' : 'Aucune photo'}</span>
+                                        </div>
+                                        <label class="inline-flex items-center gap-2 font-bold text-emerald-900 cursor-pointer">
+                                            <input type="checkbox" ${tr.exitedPort ? 'checked' : ''} onchange="updateTruck('${d.id}', ${idx}, 'exitedPort', this.checked)" class="w-4 h-4">
+                                            <span>Camion sorti du port</span>
+                                        </label>
+                                    </div>
+                                    ${d.depotage === 'Sur camion (SC)' ? `
+                                        <div>
+                                            <label class="block font-bold text-amber-800 mb-1">Retour vide (réservé Sur camion)</label>
+                                            <input type="text" value="${tr.emptyReturn || ''}" onchange="updateTruck('${d.id}', ${idx}, 'emptyReturn', this.value)" placeholder="Réservé / Date retour vide..." class="w-full px-3 py-2 bg-amber-50 border border-amber-300 rounded-lg">
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- V. DDU ET T1 + FACTURATION 10 000 PAR DDU -->
+                <div class="border border-slate-200 rounded-xl p-4 space-y-4 ${hasRolePermission(['DDU_T1']) ? '' : 'opacity-60'}">
+                    <h4 class="font-extrabold text-sm text-navy-900">V. DDU ET T1 • FACTURATION DDU (${formatMoney(inv.rate, inv.currency)} / DDU) ${hasRolePermission(['DDU_T1']) ? '(Autorisé)' : '(Non autorisé)'}</h4>
+                    <fieldset ${hasRolePermission(['DDU_T1']) ? '' : 'disabled'} class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                            <div>
+                                <label class="block font-bold mb-1">N° Déclaration DDU</label>
+                                <input type="text" value="${d.dduT1.dduNumber || ''}" onchange="updateField('${d.id}', 'dduT1.dduNumber', this.value.toUpperCase())" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold uppercase">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1">Nombre de DDU</label>
+                                <input type="number" min="1" value="${inv.count}" onchange="updateField('${d.id}', 'dduT1.dduCount', Math.max(1, parseInt(this.value || '1', 10)))" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold text-amber-900">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1">N° T1</label>
+                                <input type="text" value="${d.dduT1.t1Number || ''}" onchange="updateField('${d.id}', 'dduT1.t1Number', this.value.toUpperCase())" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold uppercase">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1">Validité T1 (Destination)</label>
+                                <input type="date" value="${d.dduT1.t1Validity || ''}" onchange="updateField('${d.id}', 'dduT1.t1Validity', this.value)" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold">
+                            </div>
+                            <div class="flex items-end">
+                                <label class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg font-bold w-full cursor-pointer">
+                                    <input type="checkbox" ${d.dduT1.t1Cleared ? 'checked' : ''} onchange="updateField('${d.id}', 'dduT1.t1Cleared', this.checked)" class="w-4 h-4">
+                                    <span>T1 apuré</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                            <div>
+                                <div class="font-extrabold text-amber-950">Facturation DDU : ${inv.count} × ${formatMoney(inv.rate, inv.currency)} = <span class="text-sm text-blue-800">${formatMoney(inv.total, inv.currency)}</span></div>
+                                <div class="text-slate-600 mt-0.5">Destinataire facture (k) : <strong class="text-slate-800">${targetEmail}</strong> ${d.dduT1.invoiceSent ? `<span class="ml-2 text-emerald-700 font-bold">• Envoyée ✓</span>` : ''}</div>
+                            </div>
+                            <button type="button" onclick="sendInvoiceEmailForDossier()" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shrink-0 cursor-pointer">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Envoyer Facture à ${targetEmail}</span>
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+            `;
+
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+            activeDetailDossierId = null;
+        }
+
+        function updateField(id, path, val) {
+            const d = dossiers.find(x => x.id === id);
+            if (!d) return;
+            const parts = path.split('.');
+            let obj = d;
+            for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
+            obj[parts[parts.length - 1]] = val;
+            if (path === 'dduT1.t1Number' && val && !d.dduT1.t1IssuedAt) {
+                d.dduT1.t1IssuedAt = new Date().toISOString();
+            }
+            saveDossiers();
+            openDetailModal(id);
+        }
+
+        function updateTruck(id, idx, field, val) {
+            const d = dossiers.find(x => x.id === id);
+            if (!d || !d.enlevement.trucks[idx]) return;
+            d.enlevement.trucks[idx][field] = val;
+            saveDossiers();
+        }
+
+        function handleTruckPhoto(id, idx, input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                updateTruck(id, idx, 'photoData', reader.result);
+                openDetailModal(id);
+                showToast('Photo conteneur/camion enregistrée.', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function requestModif(id) {
+            const d = dossiers.find(x => x.id === id);
+            if (!d) return;
+            d.modificationPending = true;
+            saveDossiers();
+            openDetailModal(id);
+            showToast('Demande de modification envoyée au superviseur/admin.', 'info');
+        }
+
+        function approveModif(id) {
+            const d = dossiers.find(x => x.id === id);
+            if (!d) return;
+            d.modificationPending = false;
+            saveDossiers();
+            openDetailModal(id);
+            showToast('Modification validée.', 'success');
+        }
+
+        function openSettingsModal() {
+            if (!session) return;
+            tempProfilePhotoBase64 = session.avatar || '';
+            document.getElementById('set-username').value = session.username;
+            document.getElementById('set-role-display').value = formatRolesLabel(session);
+            document.getElementById('set-new-password').value = '';
+            document.getElementById('set-status-message').value = session.statusMessage || '';
+
+            const img = document.getElementById('profile-avatar-preview');
+            const ini = document.getElementById('profile-avatar-initials');
+            if (tempProfilePhotoBase64) {
+                img.src = tempProfilePhotoBase64;
+                img.classList.remove('hidden');
+                ini.classList.add('hidden');
+            } else {
+                img.classList.add('hidden');
+                ini.classList.remove('hidden');
+                ini.textContent = (session.username || 'GEO').slice(0, 2).toUpperCase();
+            }
+
+            document.getElementById('set-ddu-rate').value = settings.dduRate ?? 10000;
+            document.getElementById('set-ddu-currency').value = settings.dduCurrency || 'FCFA';
+            document.getElementById('set-invoice-email-k').value = settings.invoiceEmailK || 'k@geosuvitransit.tg';
+
+            document.getElementById('set-days-unprocessed').value = settings.daysUnprocessedAlert;
+            document.getElementById('set-days-t1').value = settings.daysT1Alert;
+            document.getElementById('set-hours-exp').value = settings.hoursExpirationAlert;
+            document.getElementById('set-wa-sender').value = settings.waSender;
+            document.getElementById('set-wa-dest1').value = settings.waDest1;
+            document.getElementById('set-wa-dest2').value = settings.waDest2;
+
+            const adminPanel = document.getElementById('admin-accounts-panel');
+            if (isAdminUser()) {
+                adminPanel.classList.remove('hidden');
+                renderAccountsList();
+                renderConnectedAgentsList();
+            } else {
+                adminPanel.classList.add('hidden');
+            }
+
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function handleProfilePhotoChange(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                tempProfilePhotoBase64 = reader.result;
+                const img = document.getElementById('profile-avatar-preview');
+                const ini = document.getElementById('profile-avatar-initials');
+                img.src = tempProfilePhotoBase64;
+                img.classList.remove('hidden');
+                ini.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setQuickStatusMessage(msg) {
+            document.getElementById('set-status-message').value = msg;
+        }
+
+        function renderAccountsList() {
+            const cont = document.getElementById('accounts-list-container');
+            const assignableRoles = ['ENREGISTREMENT', 'ECHANGE', 'MANUTENTION', 'PASSATION_ENLEVEMENT', 'DDU_T1', 'SUPERVISEUR', 'ADMIN'];
+            cont.innerHTML = accounts.map(acc => {
+                const accRoles = getUserRoles(acc);
+                return `
+                <div class="bg-white p-3 rounded-lg border border-indigo-100 text-xs space-y-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <strong class="text-slate-900">${acc.username}</strong>
+                            ${acc.statusMessage ? `<span class="ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold">${acc.statusMessage}</span>` : ''}
+                        </div>
+                        ${acc.username !== 'admin' ? `<button type="button" onclick="deleteAccount('${acc.id}')" class="text-red-600 hover:bg-red-50 px-2 py-1 rounded font-bold cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        ${assignableRoles.map(rk => `
+                            <label class="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-50 border border-slate-200 font-semibold cursor-pointer">
+                                <input type="checkbox" ${accRoles.includes(rk) ? 'checked' : ''} onchange="toggleAccountRole('${acc.id}', '${rk}', this.checked)" class="w-3.5 h-3.5">
+                                <span>${ROLE_LABELS[rk]}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function handleCreateAccount(e) {
+            e.preventDefault();
+            const u = document.getElementById('new-acc-username').value.trim();
+            const p = document.getElementById('new-acc-password').value.trim();
+            const r = document.getElementById('new-acc-role').value;
+            if (!u || !p) return;
+            if (accounts.some(a => a.username.toLowerCase() === u.toLowerCase())) {
+                showToast('Cet identifiant existe déjà.', 'error');
+                return;
+            }
+            accounts.push({ id: 'acc-' + Date.now(), username: u, password: p, role: r, roles: [r], avatar: '', statusMessage: 'Disponible' });
+            saveAccounts();
+            renderAccountsList();
+            document.getElementById('create-account-form').reset();
+            showToast(`Compte ${u} créé avec le profil ${ROLE_LABELS[r]}.`, 'success');
+        }
+
+        function toggleAccountRole(id, roleKey, checked) {
+            const acc = accounts.find(a => a.id === id);
+            if (!acc) return;
+            let current = new Set(getUserRoles(acc));
+            if (checked) current.add(roleKey);
+            else if (current.size > 1) current.delete(roleKey);
+            else {
+                showToast('Au moins un rôle doit rester attribué au compte.', 'error');
+                renderAccountsList();
+                return;
+            }
+            const nextRoles = Array.from(current);
+            acc.roles = nextRoles;
+            acc.role = nextRoles[0];
+            saveAccounts();
+            if (session && session.accountId === id) {
+                session.roles = nextRoles;
+                session.role = acc.role;
+                safeSet(STORAGE_KEY_SESSION, JSON.stringify(session));
+                initAppView();
+            }
+            showToast(`Rôles mis à jour pour ${acc.username}.`, 'success');
+        }
+
+        function deleteAccount(id) {
+            accounts = accounts.filter(a => a.id !== id);
+            saveAccounts();
+            renderAccountsList();
+            showToast('Compte supprimé.', 'info');
+        }
+
+        function saveSettings() {
+            const newPass = document.getElementById('set-new-password').value.trim();
+            const newStatus = document.getElementById('set-status-message').value.trim();
+
+            const acc = accounts.find(a => a.id === session.accountId);
+            if (acc) {
+                if (newPass) acc.password = newPass;
+                acc.avatar = tempProfilePhotoBase64;
+                acc.statusMessage = newStatus;
+                saveAccounts();
+            }
+            session.avatar = tempProfilePhotoBase64;
+            session.statusMessage = newStatus;
+            safeSet(STORAGE_KEY_SESSION, JSON.stringify(session));
+            recordAgentConnected(session);
+
+            settings = {
+                daysUnprocessedAlert: Math.max(1, parseInt(document.getElementById('set-days-unprocessed').value || '14', 10)),
+                daysT1Alert: Math.max(1, parseInt(document.getElementById('set-days-t1').value || '5', 10)),
+                hoursExpirationAlert: Math.max(1, parseInt(document.getElementById('set-hours-exp').value || '72', 10)),
+                dduRate: Math.max(0, Number(document.getElementById('set-ddu-rate').value ?? 10000)),
+                dduCurrency: (document.getElementById('set-ddu-currency').value || 'FCFA').trim().toUpperCase(),
+                invoiceEmailK: (document.getElementById('set-invoice-email-k').value || 'k@geosuvitransit.tg').trim(),
+                waSender: document.getElementById('set-wa-sender').value.trim() || DEFAULT_SETTINGS.waSender,
+                waDest1: document.getElementById('set-wa-dest1').value.trim() || DEFAULT_SETTINGS.waDest1,
+                waDest2: document.getElementById('set-wa-dest2').value.trim() || DEFAULT_SETTINGS.waDest2
+            };
+            safeSet(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+
+            initAppView();
+            if (activeDetailDossierId) openDetailModal(activeDetailDossierId);
+            closeSettingsModal();
+            showToast('Profil et paramètres enregistrés.', 'success');
+        }
+
+        function resetDemoData() {
+            dossiers = getInitialDossiers();
+            saveDossiers();
+            closeSettingsModal();
+            showToast('Données de démonstration réinitialisées.', 'info');
+        }
+
+        function cleanPhone(num) {
+            return String(num || '').replace(/[^\d]/g, '');
+        }
+
+        function openWhatsAppAlertModal(customText = '') {
+            const urgentList = dossiers.filter(d => evaluateDossierStatus(d).isUrgentAlert);
+            const msg = customText || (urgentList.length
+                ? `🚨 ALERTE GEO SUIVI TRANSIT (<${settings.hoursExpirationAlert}h / Souffrance) :\n` + urgentList.map(d => `• ${d.rep} (BL ${d.bl} - ${d.client}) : ${evaluateDossierStatus(d).alertReason}`).join('\n')
+                : `ℹ️ Point GEO SUIVI TRANSIT : ${dossiers.length} dossier(s) suivi(s).`);
+
+            document.getElementById('wa-sender-display').textContent = settings.waSender;
+            document.getElementById('wa-message-preview').value = msg;
+            document.getElementById('wa-btn-label-1').textContent = settings.waDest1;
+            document.getElementById('wa-btn-label-2').textContent = settings.waDest2;
+            document.getElementById('wa-link-1').href = `https://wa.me/${cleanPhone(settings.waDest1)}?text=${encodeURIComponent(msg)}`;
+            document.getElementById('wa-link-2').href = `https://wa.me/${cleanPhone(settings.waDest2)}?text=${encodeURIComponent(msg)}`;
+            document.getElementById('whatsapp-modal').classList.remove('hidden');
+        }
+
+        function sendSingleDossierWhatsApp() {
+            const d = dossiers.find(x => x.id === activeDetailDossierId);
+            if (!d) return openWhatsAppAlertModal();
+            const st = evaluateDossierStatus(d);
+            openWhatsAppAlertModal(`🚨 ALERTE DOSSIER ${d.rep}\nBL : ${d.bl} | Client : ${d.client}\nNavire : ${d.navire} | Dest. : ${d.destination}\nStatut : ${st.label}${st.alertReason ? ' (' + st.alertReason + ')' : ''}`);
+        }
+
+        function closeWhatsAppModal() {
+            document.getElementById('whatsapp-modal').classList.add('hidden');
+        }
+
+        if (session && session.username) {
+            recordAgentConnected(session);
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            initAppView();
+        }
+    </script>
 </body>
 </html>
