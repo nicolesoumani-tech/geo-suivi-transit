@@ -239,6 +239,30 @@
       gap: 8px;
     }
 
+    .sync-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+    }
+
+    .sync-pill.online {
+      background: rgba(21, 128, 61, 0.35);
+      color: #bbf7d0;
+      border: 1px solid rgba(74, 222, 128, 0.45);
+    }
+
+    .sync-pill.local {
+      background: rgba(180, 83, 9, 0.35);
+      color: #fde68a;
+      border: 1px solid rgba(251, 191, 36, 0.45);
+    }
+
     .topbar-actions {
       display: flex;
       flex-wrap: wrap;
@@ -270,6 +294,27 @@
       max-width: 1400px;
       margin: 0 auto;
       padding: 20px;
+    }
+
+    .cloud-banner {
+      background: #fefce8;
+      border: 1px solid #fde047;
+      color: #854d0e;
+      border-radius: var(--radius);
+      padding: 11px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .cloud-banner.connected {
+      background: #f0fdf4;
+      border-color: #86efac;
+      color: #166534;
     }
 
     .alert-banner {
@@ -736,7 +781,7 @@
         <span style="font-size:24px;">🚢</span>
         <h1>GEO SUIVI TRANSIT</h1>
       </div>
-      <div class="login-sub">Suivi opérationnel, conteneurs, bordereaux &amp; facturation DDU</div>
+      <div class="login-sub">Suivi opérationnel, conteneurs, bordereaux &amp; facturation DDU — Partagé en ligne</div>
 
       <div id="loginError" class="error-box"></div>
 
@@ -752,8 +797,9 @@
         <button type="submit" id="loginSubmitBtn" class="primary" style="width:100%; padding:10px;">Se connecter</button>
       </form>
 
-      <div style="margin-top:10px; text-align:center;">
-        <button type="button" class="sm" onclick="resetStorageSession()">Réinitialiser la session / cache local</button>
+      <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+        <button type="button" class="sm" onclick="openCloudSyncModalFromLogin()">☁️ Configurer la synchro en ligne</button>
+        <button type="button" class="sm" onclick="resetStorageSession()">Réinitialiser le cache local</button>
       </div>
 
       <div class="hint-box">
@@ -774,8 +820,12 @@
           <span id="currentUserLabel">Utilisateur</span>
           <span id="currentRolesLabel" style="opacity:0.85;"></span>
         </div>
+        <div id="cloudStatusBadge" class="sync-pill local" onclick="openCloudSyncModal()" style="cursor:pointer;" title="Cliquer pour configurer ou vérifier la synchronisation partagée en ligne">
+          ● Mode Local
+        </div>
       </div>
       <div class="topbar-actions">
+        <button id="btnCloudSync" onclick="openCloudSyncModal()">☁️ Synchro En Ligne</button>
         <button id="btnDduBilling" onclick="openDduBillingModal()" class="primary" style="display:none;">🧾 Facturation DDU</button>
         <button id="btnInvoiceArchive" onclick="openInvoiceArchiveModal()" style="display:none;">🗂️ Factures &amp; Archives</button>
         <button onclick="exportBulkBordereauPdf()">📄 Bordereau PDF (Groupé)</button>
@@ -786,6 +836,7 @@
     </header>
 
     <main class="container">
+      <div id="cloudBanner" class="cloud-banner"></div>
       <div id="alertBanner" class="alert-banner" style="display:none;"></div>
       <div id="supervisorInvoiceBanner" class="sup-msg-banner" style="display:none;"></div>
       <div id="truckBanner" class="truck-banner" style="display:none;"></div>
@@ -815,6 +866,7 @@
         </div>
 
         <div class="toolbar-group">
+          <button type="button" class="sm" onclick="pullCloudNow()">↻ Actualiser en ligne</button>
           <button id="btnNewDossier" onclick="openDossierModal()" class="primary">+ Nouveau Dossier</button>
         </div>
       </div>
@@ -837,6 +889,70 @@
         </table>
       </div>
     </main>
+  </div>
+
+  <!-- MODAL SYNCHRONISATION PARTAGÉE EN LIGNE -->
+  <div id="cloudSyncModal" class="modal-backdrop">
+    <div class="modal" style="max-width:680px;">
+      <div class="modal-header">
+        <h2>☁️ Synchronisation Partagée en Ligne (Tous Comptes &amp; Tous Appareils)</h2>
+        <button onclick="closeModal('cloudSyncModal')" class="sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="section-box">
+          <h3>Pourquoi tous les comptes ne voient pas les nouveaux dossiers sur un autre appareil ?</h3>
+          <div style="font-size:13px; color:#334155; line-height:1.5;">
+            Sans espace partagé en ligne, chaque navigateur ou téléphone garde ses propres données locales. En activant un <strong>Espace Partagé (Code d'équipe / Workspace ou Endpoint Cloud)</strong>, chaque création ou modification de dossier, facture ou rôle est synchronisée et récupérée par tous les comptes connectés sur n'importe quel appareil.
+          </div>
+        </div>
+
+        <div class="section-box">
+          <h3>Configuration de l'Espace Partagé</h3>
+          <div class="grid-2">
+            <div class="field">
+              <label for="cloudEnabled">Activer la synchronisation en ligne</label>
+              <select id="cloudEnabled">
+                <option value="true">Activée (Partagée en ligne)</option>
+                <option value="false">Désactivée (Local uniquement)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="cloudWorkspaceCode">Code d'Espace Partagé (identique sur tous les appareils)</label>
+              <input type="text" id="cloudWorkspaceCode" placeholder="Ex: GEO-TRANSIT-LOME-2026" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="cloudEndpointUrl">URL du serveur / stockage partagé (optionnel — par défaut espace public JSONBucket / REST si configuré)</label>
+            <input type="text" id="cloudEndpointUrl" placeholder="Ex: https://api.jsonbin.io/v3/b/... ou votre endpoint HTTPS" />
+            <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">
+              Si vous laissez vide ou utilisez un <strong>Code d'Espace Partagé</strong>, l'application utilise un canal partagé multi-onglets + service de partage en ligne configuré, et permet aussi l'import/export JSON instantané pour tout appareil hors ligne.
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label for="cloudApiKey">Clé d'accès / Token (optionnel, si votre endpoint exige un header Authorization)</label>
+            <input type="password" id="cloudApiKey" placeholder="Optionnel" />
+          </div>
+        </div>
+
+        <div class="section-box" style="margin-bottom:0;">
+          <h3>Synchronisation immédiate &amp; Transfert JSON entre appareils</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <button type="button" class="primary sm" onclick="saveAndSyncCloudConfig()">💾 Enregistrer &amp; Synchroniser maintenant</button>
+            <button type="button" class="sm" onclick="pullCloudNow()">⬇️ Télécharger les dernières données</button>
+            <button type="button" class="sm" onclick="pushCloudNow()">⬆️ Publier mes données locales</button>
+            <button type="button" class="sm" onclick="exportStateJsonFile()">📤 Exporter sauvegarde JSON</button>
+            <label class="button sm" style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:#fff; border:1px solid var(--border); padding:5px 10px; border-radius:8px; font-size:12.5px; font-weight:500;">
+              📥 Importer JSON
+              <input type="file" accept=".json,application/json" style="display:none;" onchange="importStateJsonFile(this.files)" />
+            </label>
+          </div>
+          <div id="cloudSyncLog" style="font-size:12px; color:var(--muted);">Dernière synchronisation : jamais</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeModal('cloudSyncModal')">Fermer</button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL DOSSIER COMPLET -->
@@ -1220,7 +1336,7 @@
     </div>
   </div>
 
-  <!-- MODAL LECTEUR FACTURE PDF & PAIEMENT SUPERVISEUR (OUVERT VIA LE MESSAGE AUTOMATIQUE) -->
+  <!-- MODAL LECTEUR FACTURE PDF & PAIEMENT SUPERVISEUR -->
   <div id="supervisorInvoiceReaderModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -1239,7 +1355,7 @@
     </div>
   </div>
 
-  <!-- MODAL ARCHIVE FACTURES (RECHERCHE DANS LES FACTURES ARCHIVÉES OU PAYÉES) -->
+  <!-- MODAL ARCHIVE FACTURES -->
   <div id="invoiceArchiveModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -1350,6 +1466,99 @@
     </div>
   </div>
 
+  <!-- MODAL MODIFICATION / CORRECTION FACTURE ARCHIVÉE (ADMIN) -->
+  <div id="editInvoiceModal" class="modal-backdrop">
+    <div class="modal" style="max-width:860px;">
+      <div class="modal-header">
+        <h2 id="editInvoiceModalTitle">✏️ Modifier / Corriger une Facture Archivée</h2>
+        <button onclick="closeModal('editInvoiceModal')" class="sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editInvoiceId" />
+        <div class="section-box">
+          <h3>Informations générales &amp; Recalcul automatique</h3>
+          <div class="grid-3">
+            <div class="field">
+              <label for="editInvNumber">N° Facture</label>
+              <input type="text" id="editInvNumber" />
+            </div>
+            <div class="field">
+              <label for="editInvRecipient">Destinataire (STE GEO)</label>
+              <input type="text" id="editInvRecipient" />
+            </div>
+            <div class="field">
+              <label for="editInvStatus">Statut de paiement</label>
+              <select id="editInvStatus" onchange="handleEditInvoiceStatusChange()">
+                <option value="ENVOYEE_SUPERVISEUR">En attente de paiement Superviseur</option>
+                <option value="PAYEE">PAYÉE</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="editInvRepStart">Répertoire début</label>
+              <input type="text" id="editInvRepStart" />
+            </div>
+            <div class="field">
+              <label for="editInvRepEnd">Répertoire fin</label>
+              <input type="text" id="editInvRepEnd" />
+            </div>
+            <div class="field">
+              <label for="editInvUnitPrice">Tarif unitaire par DDU</label>
+              <input type="number" id="editInvUnitPrice" min="0" step="100" oninput="recalcEditInvoiceLines()" />
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:6px;">
+            <span id="editInvTotalSummary" style="font-weight:700; font-size:14px;">Total DDU : 0 • Montant total : 0 FCFA</span>
+            <button type="button" class="sm primary" onclick="addEditInvoiceLine()">+ Ajouter une ligne DDU</button>
+          </div>
+        </div>
+
+        <div class="section-box">
+          <h3>Lignes de la facture (modifiables — recalcul automatique)</h3>
+          <div class="table-wrap" style="box-shadow:none;">
+            <table style="min-width:680px;">
+              <thead>
+                <tr>
+                  <th>Répertoire</th>
+                  <th>N° BL</th>
+                  <th>Client</th>
+                  <th>N° Déclaration</th>
+                  <th>Poids / Qté</th>
+                  <th style="width:60px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="editInvLinesBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="paidUnlockNoticeBox" class="lock-note" style="display:none; margin-bottom:12px;">
+          🔓 <strong>Facture marquée PAYÉE déverrouillée par l'Administrateur :</strong> toute modification ou repassage en attente mettra à jour l'historique et enverra une notification automatique au Superviseur.
+        </div>
+
+        <div class="section-box">
+          <h3>Motif de la correction (obligatoire pour l'historique)</h3>
+          <div class="field" style="margin-bottom:0;">
+            <textarea id="editInvReason" rows="2" placeholder="Ex: Rectification du tarif unitaire ou ajout du répertoire GEO00005..."></textarea>
+          </div>
+          <label class="check-inline" style="margin-top:8px; font-size:12.5px;">
+            <input type="checkbox" id="editInvNotifySupervisor" checked />
+            Notifier automatiquement le Superviseur de cette correction de facture
+          </label>
+        </div>
+
+        <div class="section-box" style="margin-bottom:0;">
+          <h3>Historique des modifications de cette facture</h3>
+          <div id="editInvAuditHistory" class="evolution-list"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="danger sm" onclick="deleteArchivedInvoice()">🗑️ Supprimer la facture</button>
+        <button type="button" onclick="closeModal('editInvoiceModal')">Annuler</button>
+        <button type="button" class="success" onclick="saveEditedArchivedInvoice()">💾 Enregistrer la correction</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL PARAMÈTRES -->
   <div id="settingsModal" class="modal-backdrop">
     <div class="modal" style="max-width:520px;">
@@ -1382,7 +1591,10 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V9";
+    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V10";
+    const CLOUD_CFG_KEY = "GEO_SUIVI_TRANSIT_CLOUD_CFG_V1";
+    const BROADCAST_CHANNEL_NAME = "GEO_SUIVI_TRANSIT_SYNC_CHANNEL_V1";
+
     const AVAILABLE_ROLES = [
       "ADMIN",
       "SUPERVISEUR",
@@ -1394,7 +1606,16 @@
       "AGENT_EXPLOITATION"
     ];
 
+    const DEFAULT_CLOUD_CFG = {
+      enabled: true,
+      workspaceCode: "GEO-TRANSIT-LOME-SHARED",
+      endpointUrl: "",
+      apiKey: "",
+      lastSyncAt: ""
+    };
+
     const DEFAULT_STATE = {
+      updatedAt: 0,
       settings: {
         emailK: "k@geosuvitransit.tg",
         dduUnitPrice: 10000,
@@ -1486,7 +1707,9 @@
           evolutions: [
             { date: "23/11/2026 09:15", stage: "Arrivée navire", note: "Navire accosté au terminal à conteneurs", author: "admin" }
           ],
-          points: "- Arrivée navire à Lomé\n- BAD émis\n- Contrôle documentaire en cours"
+          points: "- Arrivée navire à Lomé
+- BAD émis
+- Contrôle documentaire en cours"
         },
         {
           id: "d2",
@@ -1527,7 +1750,8 @@
           },
           emptyReturn: { date: "", fileName: "" },
           evolutions: [],
-          points: "- Transfert CFS effectué\n- Dépotage programmé"
+          points: "- Transfert CFS effectué
+- Dépotage programmé"
         },
         {
           id: "d3",
@@ -1609,19 +1833,45 @@
       return JSON.parse(JSON.stringify(DEFAULT_STATE));
     }
 
+    function loadCloudCfg() {
+      try {
+        const raw = localStorage.getItem(CLOUD_CFG_KEY);
+        if (!raw) return { ...DEFAULT_CLOUD_CFG };
+        return { ...DEFAULT_CLOUD_CFG, ...JSON.parse(raw) };
+      } catch (e) {
+        return { ...DEFAULT_CLOUD_CFG };
+      }
+    }
+
+    let cloudCfg = loadCloudCfg();
+
+    function saveCloudCfg() {
+      try {
+        localStorage.setItem(CLOUD_CFG_KEY, JSON.stringify(cloudCfg));
+      } catch (e) {}
+    }
+
+    function normalizeLoadedState(parsed) {
+      const def = cloneDefaultState();
+      return {
+        updatedAt: Number(parsed?.updatedAt) || 0,
+        settings: { ...def.settings, ...(parsed?.settings || {}) },
+        invoicesArchive: Array.isArray(parsed?.invoicesArchive) ? parsed.invoicesArchive : [],
+        supervisorMessages: Array.isArray(parsed?.supervisorMessages) ? parsed.supervisorMessages : [],
+        users: Array.isArray(parsed?.users) && parsed.users.length ? parsed.users : def.users,
+        dossiers: Array.isArray(parsed?.dossiers) && parsed.dossiers.length ? parsed.dossiers : def.dossiers,
+        sessionUserId: parsed?.sessionUserId || null
+      };
+    }
+
     function loadState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("GEO_SUIVI_TRANSIT_STATE_V8") || localStorage.getItem("GEO_SUIVI_TRANSIT_STATE_V7");
+        const raw =
+          localStorage.getItem(STORAGE_KEY) ||
+          localStorage.getItem("GEO_SUIVI_TRANSIT_STATE_V9") ||
+          localStorage.getItem("GEO_SUIVI_TRANSIT_STATE_V8");
         if (!raw) return cloneDefaultState();
-        const parsed = JSON.parse(raw);
-        return {
-          settings: { ...DEFAULT_STATE.settings, ...(parsed.settings || {}) },
-          invoicesArchive: Array.isArray(parsed.invoicesArchive) ? parsed.invoicesArchive : [],
-          supervisorMessages: Array.isArray(parsed.supervisorMessages) ? parsed.supervisorMessages : [],
-          users: Array.isArray(parsed.users) && parsed.users.length ? parsed.users : cloneDefaultState().users,
-          dossiers: Array.isArray(parsed.dossiers) ? parsed.dossiers : cloneDefaultState().dossiers,
-          sessionUserId: parsed.sessionUserId || null
-        };
+        return normalizeLoadedState(JSON.parse(raw));
       } catch (e) {
         return cloneDefaultState();
       }
@@ -1636,6 +1886,35 @@
     let currentInvoiceNumberPreview = "";
     let activeReaderInvoiceId = null;
     let activeReaderViaSupervisorMessage = false;
+    let broadcastChan = null;
+
+    try {
+      if ("BroadcastChannel" in window) {
+        broadcastChan = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
+        broadcastChan.onmessage = function (ev) {
+          if (ev.data && ev.data.type === "STATE_UPDATED" && ev.data.payload) {
+            const incoming = normalizeLoadedState(ev.data.payload);
+            if ((incoming.updatedAt || 0) >= (state.updatedAt || 0)) {
+              const keepSession = state.sessionUserId;
+              state = { ...incoming, sessionUserId: keepSession };
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+              renderApp();
+            }
+          }
+        };
+      }
+    } catch (e) {}
+
+    window.addEventListener("storage", function (ev) {
+      if (ev.key === STORAGE_KEY && ev.newValue) {
+        try {
+          const incoming = normalizeLoadedState(JSON.parse(ev.newValue));
+          const keepSession = state.sessionUserId;
+          state = { ...incoming, sessionUserId: keepSession };
+          renderApp();
+        } catch (e) {}
+      }
+    });
 
     window.addEventListener("error", function (event) {
       const loginErr = document.getElementById("loginError");
@@ -1645,10 +1924,97 @@
       }
     });
 
+    function getSharedPayloadSnapshot() {
+      const copy = JSON.parse(JSON.stringify(state));
+      delete copy.sessionUserId;
+      return copy;
+    }
+
+    function getRemoteEndpointForWorkspace() {
+      if (cloudCfg.endpointUrl && cloudCfg.endpointUrl.trim()) {
+        return cloudCfg.endpointUrl.trim();
+      }
+      const code = encodeURIComponent((cloudCfg.workspaceCode || "GEO-TRANSIT-LOME-SHARED").trim() || "GEO-TRANSIT-LOME-SHARED");
+      return `https://kvdb.io/GEO_SUIVI_TRANSIT_SHARED_KV/${code}`;
+    }
+
+    async function pushCloudNow(silent = false) {
+      if (!cloudCfg.enabled) return;
+      const url = getRemoteEndpointForWorkspace();
+      const headers = { "Content-Type": "application/json" };
+      if (cloudCfg.apiKey && cloudCfg.apiKey.trim()) {
+        headers["Authorization"] = `Bearer ${cloudCfg.apiKey.trim()}`;
+      }
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(getSharedPayloadSnapshot())
+        });
+        if (res.ok) {
+          cloudCfg.lastSyncAt = new Date().toLocaleString("fr-FR");
+          saveCloudCfg();
+          updateCloudUi();
+          if (!silent) showToast("Données synchronisées en ligne pour tous les comptes.");
+        } else if (!silent) {
+          showToast("Synchronisation locale/inter-onglets active (serveur distant non joignable).");
+        }
+      } catch (err) {
+        if (!silent) {
+          showToast("Sauvegarde locale & inter-onglets effectuée (hors ligne ou réseau restreint).");
+        }
+      }
+    }
+
+    async function pullCloudNow(silent = false) {
+      if (!cloudCfg.enabled) return;
+      const url = getRemoteEndpointForWorkspace();
+      const headers = {};
+      if (cloudCfg.apiKey && cloudCfg.apiKey.trim()) {
+        headers["Authorization"] = `Bearer ${cloudCfg.apiKey.trim()}`;
+      }
+      try {
+        const res = await fetch(url, { method: "GET", headers });
+        if (!res.ok) {
+          if (!silent) showToast("Aucune donnée distante trouvée ou serveur distant indisponible.");
+          return;
+        }
+        const remoteData = await res.json();
+        if (remoteData && Array.isArray(remoteData.dossiers)) {
+          const normalized = normalizeLoadedState(remoteData);
+          if ((normalized.updatedAt || 0) > (state.updatedAt || 0)) {
+            const keepSession = state.sessionUserId;
+            state = { ...normalized, sessionUserId: keepSession };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            renderApp();
+            if (!silent) showToast("Nouveaux dossiers synchronisés depuis l'espace partagé !");
+          } else if (!silent) {
+            showToast("Vos données sont déjà à jour.");
+          }
+        }
+        cloudCfg.lastSyncAt = new Date().toLocaleString("fr-FR");
+        saveCloudCfg();
+        updateCloudUi();
+      } catch (err) {
+        if (!silent) {
+          showToast("Impossible de joindre le serveur partagé pour le moment.");
+        }
+      }
+    }
+
     function saveState() {
+      state.updatedAt = Date.now();
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch (e) {}
+      try {
+        if (broadcastChan) {
+          broadcastChan.postMessage({ type: "STATE_UPDATED", payload: getSharedPayloadSnapshot() });
+        }
+      } catch (e) {}
+      if (cloudCfg.enabled) {
+        pushCloudNow(true);
+      }
     }
 
     function resetStorageSession() {
@@ -1660,7 +2026,7 @@
       document.getElementById("loginError").style.display = "none";
       document.getElementById("loginUsername").value = "admin";
       document.getElementById("loginPassword").value = "admin123";
-      showToast("Session et données réinitialisées.");
+      showToast("Cache local réinitialisé.");
     }
 
     function showToast(msg) {
@@ -1680,6 +2046,109 @@
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
+    }
+
+    function updateCloudUi() {
+      const badge = document.getElementById("cloudStatusBadge");
+      const banner = document.getElementById("cloudBanner");
+      const logEl = document.getElementById("cloudSyncLog");
+      const ws = cloudCfg.workspaceCode || "GEO-TRANSIT-LOME-SHARED";
+
+      if (badge) {
+        if (cloudCfg.enabled) {
+          badge.className = "sync-pill online";
+          badge.textContent = `☁️ Partagé : ${ws}`;
+        } else {
+          badge.className = "sync-pill local";
+          badge.textContent = "● Mode Local";
+        }
+      }
+
+      if (banner) {
+        if (cloudCfg.enabled) {
+          banner.className = "cloud-banner connected";
+          banner.innerHTML = `
+            <div>
+              <strong>☁️ ESPACE PARTAGÉ ACTIF (${escapeHtml(ws)}) :</strong> Les dossiers créés ou modifiés sont synchronisés entre comptes et appareils. ${cloudCfg.lastSyncAt ? `<em>(Dernière synchro : ${escapeHtml(cloudCfg.lastSyncAt)})</em>` : ""}
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button type="button" class="sm" onclick="pullCloudNow()">↻ Actualiser</button>
+              <button type="button" class="sm" onclick="openCloudSyncModal()">Paramètres synchro</button>
+            </div>
+          `;
+        } else {
+          banner.className = "cloud-banner";
+          banner.innerHTML = `
+            <div>
+              <strong>⚠️ MODE LOCAL UNIQUEMENT :</strong> Les autres appareils ne verront pas les nouveaux dossiers tant que la synchronisation en ligne n'est pas activée ou importée.
+            </div>
+            <button type="button" class="primary sm" onclick="openCloudSyncModal()">Activer la synchro en ligne</button>
+          `;
+        }
+      }
+
+      if (logEl) {
+        logEl.textContent = `Espace : ${ws} • Dernière synchronisation : ${cloudCfg.lastSyncAt || "jamais"}`;
+      }
+    }
+
+    function openCloudSyncModalFromLogin() {
+      openCloudSyncModal();
+    }
+
+    function openCloudSyncModal() {
+      document.getElementById("cloudEnabled").value = cloudCfg.enabled ? "true" : "false";
+      document.getElementById("cloudWorkspaceCode").value = cloudCfg.workspaceCode || "GEO-TRANSIT-LOME-SHARED";
+      document.getElementById("cloudEndpointUrl").value = cloudCfg.endpointUrl || "";
+      document.getElementById("cloudApiKey").value = cloudCfg.apiKey || "";
+      updateCloudUi();
+      document.getElementById("cloudSyncModal").classList.add("open");
+    }
+
+    async function saveAndSyncCloudConfig() {
+      cloudCfg.enabled = document.getElementById("cloudEnabled").value === "true";
+      cloudCfg.workspaceCode = (document.getElementById("cloudWorkspaceCode").value || "GEO-TRANSIT-LOME-SHARED").trim();
+      cloudCfg.endpointUrl = (document.getElementById("cloudEndpointUrl").value || "").trim();
+      cloudCfg.apiKey = (document.getElementById("cloudApiKey").value || "").trim();
+      saveCloudCfg();
+      updateCloudUi();
+      if (cloudCfg.enabled) {
+        await pullCloudNow(true);
+        await pushCloudNow(false);
+      } else {
+        showToast("Synchronisation en ligne désactivée.");
+      }
+    }
+
+    function exportStateJsonFile() {
+      const dataStr = JSON.stringify(getSharedPayloadSnapshot(), null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `geo-suivi-transit-${(cloudCfg.workspaceCode || "partage").toLowerCase()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Sauvegarde JSON exportée.");
+    }
+
+    function importStateJsonFile(fileList) {
+      if (!fileList || !fileList.length) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const normalized = normalizeLoadedState(parsed);
+          const keepSession = state.sessionUserId;
+          state = { ...normalized, sessionUserId: keepSession, updatedAt: Date.now() };
+          saveState();
+          renderApp();
+          showToast("Données JSON importées et partagées avec succès !");
+        } catch (err) {
+          showToast("Fichier JSON invalide.");
+        }
+      };
+      reader.readAsText(fileList[0]);
     }
 
     function getCurrentUser() {
@@ -1781,10 +2250,14 @@
       return String(a || "").trim().toUpperCase().localeCompare(String(b || "").trim().toUpperCase(), undefined, { numeric: true });
     }
 
-    function handleLogin(event) {
+    async function handleLogin(event) {
       if (event) event.preventDefault();
       const errEl = document.getElementById("loginError");
       errEl.style.display = "none";
+
+      if (cloudCfg.enabled) {
+        await pullCloudNow(true);
+      }
 
       const usernameInput = (document.getElementById("loginUsername").value || "").trim().toLowerCase();
       const passwordInput = document.getElementById("loginPassword").value || "";
@@ -1848,6 +2321,7 @@
       document.getElementById("btnSettings").style.display = isSupervisor(user) ? "inline-block" : "none";
       document.getElementById("btnNewDossier").style.display = perms.canCreateDossier ? "inline-block" : "none";
 
+      updateCloudUi();
       renderAlertBanner();
       renderSupervisorInvoiceBanner(user);
       renderTruckBanner(user);
@@ -1869,7 +2343,6 @@
       `;
     }
 
-    /* Message automatique reçu chez le Superviseur dès qu'une facture DDU est émise */
     function renderSupervisorInvoiceBanner(user) {
       const banner = document.getElementById("supervisorInvoiceBanner");
       const pendingInvoices = (state.invoicesArchive || []).filter((inv) => inv.status !== "PAYEE");
@@ -2604,7 +3077,7 @@
       saveState();
       closeModal("dossierModal");
       renderApp();
-      showToast(`Dossier ${payload.repertoire} enregistré.`);
+      showToast(`Dossier ${payload.repertoire} enregistré et partagé.`);
     }
 
     function closeDossierBySupervisor() {
@@ -2637,7 +3110,6 @@
       showToast(`Dossier ${payload.repertoire} clôturé.`);
     }
 
-    /* Bordereau PDF détaillé (SANS FACTURATION, de l'enregistrement à la sortie camion & retour vide / sur camion) */
     function formatTruckAssignmentsForBordereau(d) {
       const list = d.passation?.truckAssignments || [];
       if (!list.length) return "Aucun camion renseigné";
@@ -2655,7 +3127,8 @@
         const isSurCamion = (d.transportMode || "SUR_CAMION") === "SUR_CAMION";
         const modeLabel = isSurCamion ? "SUR CAMION" : "DÉPOTAGE";
         const pointsLines = (d.points || "Aucun point renseigné.")
-          .split("\n")
+          .split("
+")
           .filter(Boolean)
           .map((line) => `<li>${escapeHtml(line.replace(/^[-•*]\s*/, ""))}</li>`)
           .join("");
@@ -2736,7 +3209,6 @@
       triggerPrintHtml(buildBordereauHtml(list, `BORDEREAUX DÉTAILLÉS GROUPÉS (${list.length})`));
     }
 
-    /* Facturation DDU : GE001/FA/ANNÉE, reprise auto verrouillée pour Agent DDU (modifiable uniquement par Admin), confirmation avant émission, notification Superviseur */
     function formatInvoiceNumber(counterNum, year) {
       const seq = String(counterNum || 1).padStart(3, "0");
       return `GE${seq}/FA/${year}`;
@@ -2794,7 +3266,6 @@
       const lockNotice = document.getElementById("billStartLockNotice");
       const btnMinMax = document.getElementById("btnPrefillMinMax");
 
-      // L'Agent DDU n'a pas la main pour modifier le répertoire de départ ; seul l'Administrateur peut le changer
       startInput.disabled = !adminUser;
       lockNotice.style.display = adminUser ? "none" : "block";
       btnMinMax.style.display = adminUser ? "inline-block" : "none";
@@ -2931,7 +3402,6 @@
       triggerPrintHtml(`<div style="padding:16px;">${content}</div>`);
     }
 
-    /* Étape 1 : Demande de confirmation à l'Agent DDU avant d'émettre la facture */
     function openConfirmEmitModal() {
       const user = getCurrentUser();
       if (!canAccessDduBilling(user)) {
@@ -2969,7 +3439,6 @@
       document.getElementById("confirmEmitModal").classList.add("open");
     }
 
-    /* Étape 2 : Confirmation effective -> archivage, avance auto au répertoire suivant, message auto au Superviseur & PDF */
     function confirmAndEmitInvoice() {
       const user = getCurrentUser();
       if (!canAccessDduBilling(user)) return;
@@ -3037,13 +3506,21 @@
 
       const subject = encodeURIComponent(`Facture ${invoiceRef} - DDU STE GEO (${startLabel} à ${endLabel})`);
       const body = encodeURIComponent(
-        `FACTURE N° : ${invoiceRef}\n` +
-        `Destinataire : STE GEO\n` +
-        `Plage répertoires : ${startLabel} à ${endLabel}\n` +
-        `Nombre de DDU : ${matches.length}\n` +
-        `Tarif unitaire : ${unitPrice.toLocaleString("fr-FR")} ${currency}\n` +
-        `Montant total : ${totalAmount.toLocaleString("fr-FR")} ${currency}\n` +
-        `Détails : ${matches.map((m) => `${m.repertoire} (BL ${m.bl || "-"}, ${m.client || "-"})`).join(" | ") || "Aucun"}\n\n` +
+        `FACTURE N° : ${invoiceRef}
+` +
+        `Destinataire : STE GEO
+` +
+        `Plage répertoires : ${startLabel} à ${endLabel}
+` +
+        `Nombre de DDU : ${matches.length}
+` +
+        `Tarif unitaire : ${unitPrice.toLocaleString("fr-FR")} ${currency}
+` +
+        `Montant total : ${totalAmount.toLocaleString("fr-FR")} ${currency}
+` +
+        `Détails : ${matches.map((m) => `${m.repertoire} (BL ${m.bl || "-"}, ${m.client || "-"})`).join(" | ") || "Aucun"}
+
+` +
         `Facture DDU émise — demande de paiement transmise au Superviseur.`
       );
 
@@ -3053,7 +3530,6 @@
       }, 300);
     }
 
-    /* Ouverture de la facture PDF par le Superviseur en cliquant sur le message automatique */
     function openSupervisorInvoiceFromMessage(invoiceId) {
       const user = getCurrentUser();
       if (!isSupervisor(user)) {
@@ -3178,6 +3654,7 @@
             <div class="row-actions">
               <button type="button" class="sm" onclick="openArchivedInvoicePdfViewer('${inv.id}')">👁️ Voir PDF</button>
               <button type="button" class="sm" onclick="printArchivedInvoicePdf('${inv.id}')">🖨️ Imprimer PDF</button>
+              ${isAdmin(getCurrentUser()) ? `<button type="button" class="sm primary" onclick="openEditArchivedInvoiceModal('${inv.id}')">✏️ Modifier / Corriger</button>` : ""}
             </div>
           </div>
         `;
@@ -3190,7 +3667,6 @@
       triggerPrintHtml(`<div style="padding:16px;">${renderInvoiceDocumentHtml(inv)}</div>`);
     }
 
-    /* Administration */
     function openAdminModal() {
       const user = getCurrentUser();
       if (!isAdmin(user)) {
@@ -3300,7 +3776,6 @@
       showToast(`Agent ${username} ajouté avec ses rôles.`);
     }
 
-    /* Paramètres */
     function openSettingsModal() {
       if (!isSupervisor(getCurrentUser())) {
         showToast("Accès réservé au Superviseur et à l'Administrateur.");
@@ -3322,6 +3797,214 @@
       showToast("Paramètres enregistrés.");
     }
 
+
+
+    function handleEditInvoiceStatusChange() {
+      const statusVal = document.getElementById("editInvStatus")?.value;
+      const unlockBox = document.getElementById("paidUnlockNoticeBox");
+      if (unlockBox && statusVal === "PAYEE") {
+        unlockBox.style.display = "block";
+      }
+    }
+
+    let workingEditInvoiceLines = [];
+
+    function openEditArchivedInvoiceModal(invoiceId) {
+      const user = getCurrentUser();
+      if (!isAdmin(user)) {
+        showToast("Seul l'Administrateur peut modifier ou corriger une facture archivée.");
+        return;
+      }
+      const inv = (state.invoicesArchive || []).find((item) => item.id === invoiceId);
+      if (!inv) return;
+
+      document.getElementById("editInvoiceId").value = inv.id;
+      document.getElementById("editInvoiceModalTitle").textContent = `✏️ Corriger la Facture ${inv.invoiceNumber}`;
+      document.getElementById("editInvNumber").value = inv.invoiceNumber || "";
+      document.getElementById("editInvRecipient").value = inv.recipient || "";
+      document.getElementById("editInvStatus").value = inv.status === "PAYEE" ? "PAYEE" : "ENVOYEE_SUPERVISEUR";
+      document.getElementById("editInvRepStart").value = inv.repStart || "";
+      document.getElementById("editInvRepEnd").value = inv.repEnd || "";
+      document.getElementById("editInvUnitPrice").value = Number(inv.unitPrice ?? state.settings.dduUnitPrice ?? 10000);
+      document.getElementById("editInvReason").value = "";
+      document.getElementById("editInvNotifySupervisor").checked = true;
+      const unlockBox = document.getElementById("paidUnlockNoticeBox");
+      if (unlockBox) {
+        unlockBox.style.display = inv.status === "PAYEE" ? "block" : "none";
+      }
+
+      workingEditInvoiceLines = JSON.parse(JSON.stringify(inv.lines || []));
+      if (!workingEditInvoiceLines.length) {
+        workingEditInvoiceLines.push({ repertoire: "", bl: "", client: "", declarationNum: "-", poidsQuantite: "-" });
+      }
+
+      renderEditInvoiceLines();
+      recalcEditInvoiceLines();
+      renderEditInvoiceAuditHistory(inv.editHistory || []);
+      document.getElementById("editInvoiceModal").classList.add("open");
+    }
+
+    function renderEditInvoiceLines() {
+      const tbody = document.getElementById("editInvLinesBody");
+      if (!tbody) return;
+      tbody.innerHTML = workingEditInvoiceLines.map((line, idx) => `
+        <tr>
+          <td><input type="text" value="${escapeHtml(line.repertoire || "")}" placeholder="GEO00001" oninput="workingEditInvoiceLines[${idx}].repertoire = this.value.trim().toUpperCase()" /></td>
+          <td><input type="text" value="${escapeHtml(line.bl || "")}" placeholder="N° BL" oninput="workingEditInvoiceLines[${idx}].bl = this.value.trim().toUpperCase()" /></td>
+          <td><input type="text" value="${escapeHtml(line.client || "")}" placeholder="Client" oninput="workingEditInvoiceLines[${idx}].client = this.value" /></td>
+          <td><input type="text" value="${escapeHtml(line.declarationNum || "")}" placeholder="Déclaration" oninput="workingEditInvoiceLines[${idx}].declarationNum = this.value.trim().toUpperCase()" /></td>
+          <td><input type="text" value="${escapeHtml(line.poidsQuantite || "")}" placeholder="Poids / Qté" oninput="workingEditInvoiceLines[${idx}].poidsQuantite = this.value" /></td>
+          <td><button type="button" class="sm danger" onclick="removeEditInvoiceLine(${idx})">✕</button></td>
+        </tr>
+      `).join("");
+    }
+
+    function addEditInvoiceLine() {
+      workingEditInvoiceLines.push({ repertoire: "", bl: "", client: "", declarationNum: "-", poidsQuantite: "-" });
+      renderEditInvoiceLines();
+      recalcEditInvoiceLines();
+    }
+
+    function removeEditInvoiceLine(idx) {
+      workingEditInvoiceLines.splice(idx, 1);
+      renderEditInvoiceLines();
+      recalcEditInvoiceLines();
+    }
+
+    function recalcEditInvoiceLines() {
+      const unitPrice = Number(document.getElementById("editInvUnitPrice")?.value) || 0;
+      const currency = state.settings.currency || "FCFA";
+      const validLines = workingEditInvoiceLines.filter((l) =>
+        [l.repertoire, l.bl, l.client].some((v) => String(v || "").trim() !== "")
+      );
+      const count = validLines.length;
+      const totalAmount = count * unitPrice;
+      const summaryEl = document.getElementById("editInvTotalSummary");
+      if (summaryEl) {
+        summaryEl.textContent = `Total DDU : ${count} • Montant total recalculé : ${totalAmount.toLocaleString("fr-FR")} ${currency}`;
+      }
+      return { validLines, count, totalAmount, unitPrice, currency };
+    }
+
+    function renderEditInvoiceAuditHistory(historyList) {
+      const box = document.getElementById("editInvAuditHistory");
+      if (!box) return;
+      if (!Array.isArray(historyList) || !historyList.length) {
+        box.innerHTML = `<div style="font-size:12.5px; color:var(--muted);">Aucune correction enregistrée sur cette facture.</div>`;
+        return;
+      }
+      box.innerHTML = historyList.map((h) => `
+        <div class="evolution-item">
+          <div class="evolution-meta">
+            <strong>${escapeHtml(h.reason || "Correction facture")}</strong>
+            <span>${escapeHtml(h.date || "")} • ${escapeHtml(h.author || "admin")}</span>
+          </div>
+          <div>${escapeHtml(h.summary || "")}</div>
+        </div>
+      `).join("");
+    }
+
+    function saveEditedArchivedInvoice() {
+      const user = getCurrentUser();
+      if (!isAdmin(user)) {
+        showToast("Accès réservé à l'Administrateur.");
+        return;
+      }
+      const id = document.getElementById("editInvoiceId").value;
+      const inv = (state.invoicesArchive || []).find((item) => item.id === id);
+      if (!inv) return;
+
+      const reason = (document.getElementById("editInvReason").value || "").trim();
+      if (!reason) {
+        showToast("Veuillez indiquer le motif de la correction pour l'historique.");
+        return;
+      }
+
+      const newNumber = (document.getElementById("editInvNumber").value || inv.invoiceNumber).trim().toUpperCase();
+      const newRecipient = (document.getElementById("editInvRecipient").value || "").trim();
+      const newStatus = document.getElementById("editInvStatus").value === "PAYEE" ? "PAYEE" : "ENVOYEE_SUPERVISEUR";
+      const newStart = (document.getElementById("editInvRepStart").value || "").trim().toUpperCase();
+      const newEnd = (document.getElementById("editInvRepEnd").value || "").trim().toUpperCase();
+      const { validLines, count, totalAmount, unitPrice, currency } = recalcEditInvoiceLines();
+
+      const prevTotal = Number(inv.totalAmount || 0);
+      const prevCount = Number(inv.count || 0);
+
+      inv.invoiceNumber = newNumber;
+      inv.recipient = newRecipient;
+      inv.repStart = newStart;
+      inv.repEnd = newEnd;
+      inv.unitPrice = unitPrice;
+      inv.currency = currency;
+      inv.lines = validLines;
+      inv.count = count;
+      inv.totalAmount = totalAmount;
+      inv.status = newStatus;
+      if (newStatus === "PAYEE" && !inv.paidAt) {
+        inv.paidAt = new Date().toLocaleString("fr-FR");
+        inv.paidBy = user.name || user.username;
+      } else if (newStatus !== "PAYEE") {
+        inv.paidAt = "";
+        inv.paidBy = "";
+      }
+
+      const nowStr = new Date().toLocaleString("fr-FR");
+      const wasPaid = inv.status === "PAYEE";
+      inv.editHistory = Array.isArray(inv.editHistory) ? inv.editHistory : [];
+      inv.editHistory.unshift({
+        date: nowStr,
+        author: user.username || "admin",
+        reason: (wasPaid ? "[FACTURE PAYÉE DÉVERROUILLÉE] " : "") + reason,
+        summary: `DDU : ${prevCount} → ${count} | Montant : ${prevTotal.toLocaleString("fr-FR")} → ${totalAmount.toLocaleString("fr-FR")} ${currency} | Statut : ${newStatus}`
+      });
+
+      const notifySup = !!document.getElementById("editInvNotifySupervisor")?.checked;
+      state.supervisorMessages = Array.isArray(state.supervisorMessages) ? state.supervisorMessages : [];
+      state.supervisorMessages.forEach((m) => {
+        if (m.invoiceId === inv.id) {
+          m.invoiceNumber = newNumber;
+          if (newStatus === "PAYEE") m.read = true;
+          else if (notifySup) m.read = false;
+        }
+      });
+
+      if (notifySup) {
+        state.supervisorMessages.unshift({
+          id: "msg_edit_" + Date.now(),
+          invoiceId: inv.id,
+          invoiceNumber: newNumber,
+          title: `Correction facture ${newNumber}${wasPaid ? " (ex-PAYÉE)" : ""} — ${reason}`,
+          createdAt: nowStr,
+          from: user.name || user.username || "Administrateur",
+          read: false
+        });
+      }
+
+      saveState();
+      closeModal("editInvoiceModal");
+      renderApp();
+      renderInvoiceArchiveList();
+      showToast(`Facture ${inv.invoiceNumber} mise à jour${notifySup ? " et Superviseur notifié" : ""}.`);
+    }
+
+    function deleteArchivedInvoice() {
+      const user = getCurrentUser();
+      if (!isAdmin(user)) return;
+      const id = document.getElementById("editInvoiceId").value;
+      const idx = (state.invoicesArchive || []).findIndex((item) => item.id === id);
+      if (idx < 0) return;
+
+      const removedNum = state.invoicesArchive[idx].invoiceNumber;
+      state.invoicesArchive.splice(idx, 1);
+      state.supervisorMessages = (state.supervisorMessages || []).filter((m) => m.invoiceId !== id);
+
+      saveState();
+      closeModal("editInvoiceModal");
+      renderApp();
+      renderInvoiceArchiveList();
+      showToast(`Facture archivée ${removedNum} supprimée.`);
+    }
+
     function closeModal(id) {
       document.getElementById(id).classList.remove("open");
     }
@@ -3329,7 +4012,16 @@
     document.addEventListener("DOMContentLoaded", function () {
       const form = document.getElementById("loginForm");
       if (form) form.addEventListener("submit", handleLogin);
+      updateCloudUi();
       renderApp();
+      if (cloudCfg.enabled) {
+        pullCloudNow(true);
+      }
+      setInterval(function () {
+        if (cloudCfg.enabled && getCurrentUser()) {
+          pullCloudNow(true);
+        }
+      }, 15000);
     });
   </script>
 </body>
