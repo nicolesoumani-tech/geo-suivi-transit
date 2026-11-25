@@ -57,9 +57,10 @@
     }
 
     button:disabled, input:disabled, select:disabled, textarea:disabled {
-      opacity: 0.65;
+      opacity: 0.72;
       cursor: not-allowed;
-      background: #f1f5f9;
+      background: #e2e8f0;
+      color: #334155;
     }
 
     button.primary {
@@ -299,6 +300,38 @@
       align-items: center;
       gap: 10px;
       font-size: 13px;
+    }
+
+    .sup-msg-banner {
+      background: #eff6ff;
+      border: 1.5px solid #3b82f6;
+      color: #1e3a8a;
+      border-radius: var(--radius);
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .sup-msg-item {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .sup-msg-item:hover {
+      background: #dbeafe;
+      border-color: #2563eb;
     }
 
     .kpis {
@@ -649,6 +682,16 @@
       gap: 10px;
     }
 
+    .lock-note {
+      font-size: 11.5px;
+      color: #b45309;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 6px 10px;
+      border-radius: 7px;
+      margin-top: 6px;
+    }
+
     .toast {
       position: fixed;
       bottom: 20px;
@@ -744,7 +787,7 @@
 
     <main class="container">
       <div id="alertBanner" class="alert-banner" style="display:none;"></div>
-      <div id="supervisorInvoiceBanner" class="truck-banner" style="display:none; background:#eff6ff; border-color:#bfdbfe; color:#1e3a8a;"></div>
+      <div id="supervisorInvoiceBanner" class="sup-msg-banner" style="display:none;"></div>
       <div id="truckBanner" class="truck-banner" style="display:none;"></div>
 
       <div class="kpis" id="kpiContainer"></div>
@@ -1117,11 +1160,14 @@
       </div>
       <div class="modal-body">
         <div class="section-box">
-          <h3>Filtrage par numéro de répertoire (Reprise auto après la dernière facture)</h3>
+          <h3>Filtrage par numéro de répertoire (Reprise automatique verrouillée pour l'Agent DDU)</h3>
           <div class="grid-2">
             <div class="field">
               <label>Répertoire de début (auto-positionné sur le suivant)</label>
               <input type="text" id="billRepStart" placeholder="Ex: GEO00001" oninput="computeDduInvoice()" />
+              <div id="billStartLockNotice" class="lock-note" style="display:none;">
+                🔒 Verrouillé automatiquement sur le répertoire suivant la dernière facture émise. En cas de souci, contactez l'<strong>Administrateur</strong> pour qu'il le modifie pour vous.
+              </div>
             </div>
             <div class="field">
               <label>Répertoire de fin (X)</label>
@@ -1137,8 +1183,8 @@
             </div>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button type="button" class="sm" onclick="applyNextUnbilledStart()">Reprendre au répertoire suivant</button>
-            <button type="button" class="sm" onclick="prefillRangeFromDossiers()">Remplir min → max dossiers</button>
+            <button type="button" id="btnResetNextStart" class="sm" onclick="applyNextUnbilledStart()">Reprendre au répertoire suivant</button>
+            <button type="button" id="btnPrefillMinMax" class="sm" onclick="prefillRangeFromDossiers()">Remplir min → max dossiers (Admin)</button>
             <button type="button" class="sm" onclick="computeDduInvoice()">Calculer la facture</button>
           </div>
         </div>
@@ -1147,13 +1193,53 @@
       </div>
       <div class="modal-footer">
         <button onclick="printInvoicePdf()">🖨️ Générer / Imprimer Facture PDF</button>
-        <button onclick="sendInvoiceToGeo()" class="success">✉️ Émettre &amp; Envoyer Facture PDF au Superviseur / STE GEO</button>
+        <button onclick="openConfirmEmitModal()" class="success">✉️ Émettre la Facture DDU</button>
         <button onclick="closeModal('billingModal')">Fermer</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL ARCHIVE & PAIEMENT FACTURES (SUPERVISEUR & RECHERCHE) -->
+  <!-- MODAL CONFIRMATION D'ÉMISSION FACTURE DDU -->
+  <div id="confirmEmitModal" class="modal-backdrop">
+    <div class="modal" style="max-width:520px;">
+      <div class="modal-header">
+        <h2>⚠️ Confirmation d'émission de la Facture DDU</h2>
+        <button onclick="closeModal('confirmEmitModal')" class="sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-top:0;">Voulez-vous confirmer définitivement l'émission de cette facture DDU ?</p>
+        <div id="confirmEmitSummary" class="section-box" style="margin-bottom:10px;"></div>
+        <div style="font-size:12.5px; color:var(--muted);">
+          Après confirmation, la facture sera générée en PDF, archivée, le prochain départ sera automatiquement avancé au répertoire suivant, et un <strong>message automatique de demande de paiement</strong> sera envoyé immédiatement au <strong>Superviseur</strong>.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="closeModal('confirmEmitModal')">Annuler</button>
+        <button type="button" onclick="confirmAndEmitInvoice()" class="success">✓ Confirmer l'émission</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LECTEUR FACTURE PDF & PAIEMENT SUPERVISEUR (OUVERT VIA LE MESSAGE AUTOMATIQUE) -->
+  <div id="supervisorInvoiceReaderModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="readerInvoiceTitle">📄 Facture DDU PDF — Demande de paiement</h2>
+        <button onclick="closeModal('supervisorInvoiceReaderModal')" class="sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="readerInvoiceMessageBanner" class="truck-banner" style="background:#eff6ff; border-color:#93c5fd; color:#1e3a8a; margin-bottom:12px;"></div>
+        <div id="readerInvoiceContent" class="invoice-preview"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="printReaderInvoicePdf()">🖨️ Imprimer / Télécharger PDF</button>
+        <button type="button" id="btnPayFromSupervisorMessage" onclick="payInvoiceFromReader()" class="success" style="display:none;">💳 Payer la facture</button>
+        <button type="button" onclick="closeModal('supervisorInvoiceReaderModal')">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ARCHIVE FACTURES (RECHERCHE DANS LES FACTURES ARCHIVÉES OU PAYÉES) -->
   <div id="invoiceArchiveModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -1191,10 +1277,27 @@
   <div id="adminModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
-        <h2>🛡️ Administration — Agents Connectés &amp; Attribution des Rôles</h2>
+        <h2>🛡️ Administration — Agents Connectés, Rôles &amp; Déblocage Répertoire DDU</h2>
         <button onclick="closeModal('adminModal')" class="sm">✕</button>
       </div>
       <div class="modal-body">
+        <div class="section-box">
+          <h3>🔧 Correction Administrateur — Répertoire de départ Facturation DDU</h3>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">
+            L'Agent DDU reprend automatiquement au répertoire suivant la dernière facture émise et ne peut pas le modifier. En cas de souci, modifiez ici le dernier répertoire facturé (laisser vide pour repartir du tout premier dossier).
+          </div>
+          <div class="grid-2" style="align-items:end;">
+            <div class="field" style="margin-bottom:0;">
+              <label for="adminLastBilledRepInput">Dernier répertoire clôturé / facturé (le suivant sera pris automatiquement)</label>
+              <input type="text" id="adminLastBilledRepInput" placeholder="Ex: GEO00002 (ou vide pour début)" />
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" class="primary sm" onclick="saveAdminLastBilledRep()">Enregistrer le réglage répertoire</button>
+              <button type="button" class="sm" onclick="resetAdminLastBilledRep()">Réinitialiser au début</button>
+            </div>
+          </div>
+        </div>
+
         <div class="section-box">
           <h3>Agents &amp; Sessions actives</h3>
           <div class="table-wrap" style="box-shadow:none;">
@@ -1279,7 +1382,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V8";
+    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V9";
     const AVAILABLE_ROLES = [
       "ADMIN",
       "SUPERVISEUR",
@@ -1300,6 +1403,7 @@
         lastBilledRep: ""
       },
       invoicesArchive: [],
+      supervisorMessages: [],
       users: [
         {
           id: "u_admin",
@@ -1507,12 +1611,13 @@
 
     function loadState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("GEO_SUIVI_TRANSIT_STATE_V7");
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("GEO_SUIVI_TRANSIT_STATE_V8") || localStorage.getItem("GEO_SUIVI_TRANSIT_STATE_V7");
         if (!raw) return cloneDefaultState();
         const parsed = JSON.parse(raw);
         return {
           settings: { ...DEFAULT_STATE.settings, ...(parsed.settings || {}) },
           invoicesArchive: Array.isArray(parsed.invoicesArchive) ? parsed.invoicesArchive : [],
+          supervisorMessages: Array.isArray(parsed.supervisorMessages) ? parsed.supervisorMessages : [],
           users: Array.isArray(parsed.users) && parsed.users.length ? parsed.users : cloneDefaultState().users,
           dossiers: Array.isArray(parsed.dossiers) ? parsed.dossiers : cloneDefaultState().dossiers,
           sessionUserId: parsed.sessionUserId || null
@@ -1529,6 +1634,8 @@
     let workingEmptyReturnFile = "";
     let workingTruckAssignments = [];
     let currentInvoiceNumberPreview = "";
+    let activeReaderInvoiceId = null;
+    let activeReaderViaSupervisorMessage = false;
 
     window.addEventListener("error", function (event) {
       const loginErr = document.getElementById("loginError");
@@ -1564,7 +1671,7 @@
       clearTimeout(window.__toastTimer);
       window.__toastTimer = setTimeout(() => {
         el.style.display = "none";
-      }, 3500);
+      }, 3600);
     }
 
     function escapeHtml(str) {
@@ -1762,6 +1869,7 @@
       `;
     }
 
+    /* Message automatique reçu chez le Superviseur dès qu'une facture DDU est émise */
     function renderSupervisorInvoiceBanner(user) {
       const banner = document.getElementById("supervisorInvoiceBanner");
       const pendingInvoices = (state.invoicesArchive || []).filter((inv) => inv.status !== "PAYEE");
@@ -1769,10 +1877,21 @@
         banner.style.display = "none";
         return;
       }
-      banner.style.display = "flex";
+      banner.style.display = "block";
       banner.innerHTML = `
-        <div><strong>🧾 SUPERVISEUR — ${pendingInvoices.length} FACTURE(S) DDU EN ATTENTE DE PAIEMENT :</strong> ${pendingInvoices.map((inv) => `${escapeHtml(inv.invoiceNumber)} (${escapeHtml(inv.repStart)} → ${escapeHtml(inv.repEnd)})`).join(" • ")}</div>
-        <button type="button" class="sm primary" onclick="openInvoiceArchiveModal()">Voir &amp; Payer</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+          <strong>📩 MESSAGE AUTOMATIQUE SUPERVISEUR — FACTURE DDU ÉMISE (DEMANDE DE PAIEMENT)</strong>
+          <span class="pill bleu">${pendingInvoices.length} demande(s)</span>
+        </div>
+        ${pendingInvoices.map((inv) => `
+          <div class="sup-msg-item" onclick="openSupervisorInvoiceFromMessage('${inv.id}')">
+            <div>
+              <strong>Facture DDU émise — demande de paiement : ${escapeHtml(inv.invoiceNumber)}</strong>
+              <span style="color:var(--muted); margin-left:6px;">(${escapeHtml(inv.repStart)} → ${escapeHtml(inv.repEnd)} • ${inv.count} DDU • ${Number(inv.totalAmount || 0).toLocaleString("fr-FR")} ${escapeHtml(inv.currency || "FCFA")})</span>
+            </div>
+            <span class="pill bleu">Cliquer pour ouvrir la facture PDF &amp; Payer →</span>
+          </div>
+        `).join("")}
       `;
     }
 
@@ -2617,7 +2736,7 @@
       triggerPrintHtml(buildBordereauHtml(list, `BORDEREAUX DÉTAILLÉS GROUPÉS (${list.length})`));
     }
 
-    /* Facturation DDU : GE001/FA/ANNÉE, reprise au répertoire suivant, paiement Superviseur (vert), archive & recherche */
+    /* Facturation DDU : GE001/FA/ANNÉE, reprise auto verrouillée pour Agent DDU (modifiable uniquement par Admin), confirmation avant émission, notification Superviseur */
     function formatInvoiceNumber(counterNum, year) {
       const seq = String(counterNum || 1).padStart(3, "0");
       return `GE${seq}/FA/${year}`;
@@ -2669,12 +2788,27 @@
       currentInvoiceNumberPreview = formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
       document.getElementById("billUnitPrice").value = state.settings.dduUnitPrice ?? 10000;
       document.getElementById("billRecipientEmail").value = state.settings.emailK || "k@geosuvitransit.tg";
+
+      const adminUser = isAdmin(user);
+      const startInput = document.getElementById("billRepStart");
+      const lockNotice = document.getElementById("billStartLockNotice");
+      const btnMinMax = document.getElementById("btnPrefillMinMax");
+
+      // L'Agent DDU n'a pas la main pour modifier le répertoire de départ ; seul l'Administrateur peut le changer
+      startInput.disabled = !adminUser;
+      lockNotice.style.display = adminUser ? "none" : "block";
+      btnMinMax.style.display = adminUser ? "inline-block" : "none";
+
       applyNextUnbilledStart();
       computeDduInvoice();
       document.getElementById("billingModal").classList.add("open");
     }
 
     function prefillRangeFromDossiers() {
+      if (!isAdmin(getCurrentUser())) {
+        showToast("Seul l'Administrateur peut réinitialiser le répertoire de départ.");
+        return;
+      }
       const sortedReps = getSortedDossiersByRep().map((d) => d.repertoire.trim().toUpperCase());
       if (sortedReps.length) {
         document.getElementById("billRepStart").value = sortedReps[0];
@@ -2715,7 +2849,7 @@
 
       const statusBadge = invoiceObj.status === "PAYEE"
         ? `<div class="paid-stamp">PAYÉE${invoiceObj.paidAt ? " • " + escapeHtml(invoiceObj.paidAt) : ""}</div>`
-        : `<span class="pill jaune">ENVOYÉE AU SUPERVISEUR — EN ATTENTE DE PAIEMENT</span>`;
+        : `<span class="pill jaune">FACTURE DDU ÉMISE — DEMANDE DE PAIEMENT SUPERVISEUR</span>`;
 
       return `
         <div class="invoice-banner">
@@ -2797,7 +2931,8 @@
       triggerPrintHtml(`<div style="padding:16px;">${content}</div>`);
     }
 
-    function sendInvoiceToGeo() {
+    /* Étape 1 : Demande de confirmation à l'Agent DDU avant d'émettre la facture */
+    function openConfirmEmitModal() {
       const user = getCurrentUser();
       if (!canAccessDduBilling(user)) {
         showToast("Accès réservé à l'Agent DDU, l'Administrateur et le Superviseur.");
@@ -2817,11 +2952,43 @@
         showToast("Veuillez renseigner l'adresse e-mail de destination STE GEO (k).");
         return;
       }
+      if (!matches.length) {
+        showToast("Aucun répertoire trouvé dans cette plage pour émettre la facture.");
+        return;
+      }
+
+      document.getElementById("confirmEmitSummary").innerHTML = `
+        <div style="font-size:13px; line-height:1.6;">
+          <div><strong>N° Facture :</strong> ${escapeHtml(invoiceRef)}</div>
+          <div><strong>Plage répertoires :</strong> ${escapeHtml(startLabel)} → ${escapeHtml(endLabel)}</div>
+          <div><strong>Nombre de DDU :</strong> ${matches.length}</div>
+          <div><strong>Montant total :</strong> ${totalAmount.toLocaleString("fr-FR")} ${escapeHtml(currency)}</div>
+          <div><strong>Destinataire :</strong> ${escapeHtml(recipient)}</div>
+        </div>
+      `;
+      document.getElementById("confirmEmitModal").classList.add("open");
+    }
+
+    /* Étape 2 : Confirmation effective -> archivage, avance auto au répertoire suivant, message auto au Superviseur & PDF */
+    function confirmAndEmitInvoice() {
+      const user = getCurrentUser();
+      if (!canAccessDduBilling(user)) return;
+
+      const recipient = (document.getElementById("billRecipientEmail").value || state.settings.emailK || "").trim();
+      const unitPrice = Number(document.getElementById("billUnitPrice").value) || 0;
+      const currency = state.settings.currency || "FCFA";
+      const matches = getDduRangeMatches();
+      const totalAmount = matches.length * unitPrice;
+      const startLabel = document.getElementById("billRepStart").value.trim().toUpperCase() || "A";
+      const endLabel = document.getElementById("billRepEnd").value.trim().toUpperCase() || "X";
+      const year = new Date().getFullYear();
+      const invoiceRef = currentInvoiceNumberPreview || formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
+      const nowStr = new Date().toLocaleString("fr-FR");
 
       const archivedInvoice = {
         id: "inv_" + Date.now(),
         invoiceNumber: invoiceRef,
-        createdAt: new Date().toLocaleString("fr-FR"),
+        createdAt: nowStr,
         createdBy: user?.username || "agent_ddu",
         recipient,
         repStart: startLabel,
@@ -2843,6 +3010,16 @@
       };
 
       state.invoicesArchive.unshift(archivedInvoice);
+      state.supervisorMessages.unshift({
+        id: "msg_" + Date.now(),
+        invoiceId: archivedInvoice.id,
+        invoiceNumber: invoiceRef,
+        title: "Facture DDU émise — demande de paiement",
+        createdAt: nowStr,
+        from: user?.name || user?.username || "Agent DDU",
+        read: false
+      });
+
       state.settings.invoiceCounter = (Number(state.settings.invoiceCounter) || 1) + 1;
       if (matches.length) {
         const maxRep = matches[matches.length - 1].repertoire;
@@ -2850,10 +3027,13 @@
           state.settings.lastBilledRep = maxRep;
         }
       }
+
       saveState();
+      closeModal("confirmEmitModal");
+      closeModal("billingModal");
       renderApp();
 
-      printInvoicePdf();
+      triggerPrintHtml(`<div style="padding:16px;">${renderInvoiceDocumentHtml(archivedInvoice)}</div>`);
 
       const subject = encodeURIComponent(`Facture ${invoiceRef} - DDU STE GEO (${startLabel} à ${endLabel})`);
       const body = encodeURIComponent(
@@ -2864,13 +3044,87 @@
         `Tarif unitaire : ${unitPrice.toLocaleString("fr-FR")} ${currency}\n` +
         `Montant total : ${totalAmount.toLocaleString("fr-FR")} ${currency}\n` +
         `Détails : ${matches.map((m) => `${m.repertoire} (BL ${m.bl || "-"}, ${m.client || "-"})`).join(" | ") || "Aucun"}\n\n` +
-        `La facture PDF (${invoiceRef}) a été générée, archivée et transmise au Superviseur.`
+        `Facture DDU émise — demande de paiement transmise au Superviseur.`
       );
 
-      showToast(`Facture ${invoiceRef} générée en PDF, archivée et envoyée au Superviseur.`);
+      showToast(`Facture ${invoiceRef} confirmée, générée en PDF et envoyée au Superviseur.`);
       setTimeout(() => {
         window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${subject}&body=${body}`;
       }, 300);
+    }
+
+    /* Ouverture de la facture PDF par le Superviseur en cliquant sur le message automatique */
+    function openSupervisorInvoiceFromMessage(invoiceId) {
+      const user = getCurrentUser();
+      if (!isSupervisor(user)) {
+        showToast("Accès réservé au Superviseur.");
+        return;
+      }
+      const inv = (state.invoicesArchive || []).find((item) => item.id === invoiceId);
+      if (!inv) return;
+
+      activeReaderInvoiceId = invoiceId;
+      activeReaderViaSupervisorMessage = true;
+
+      document.getElementById("readerInvoiceTitle").textContent = `📄 Facture PDF ${inv.invoiceNumber} — Demande de paiement`;
+      document.getElementById("readerInvoiceMessageBanner").innerHTML = `
+        <div><strong>📩 Message automatique :</strong> Facture DDU émise — demande de paiement (émise le ${escapeHtml(inv.createdAt)} par ${escapeHtml(inv.createdBy || "Agent DDU")}).</div>
+      `;
+      document.getElementById("readerInvoiceContent").innerHTML = renderInvoiceDocumentHtml(inv);
+
+      const btnPay = document.getElementById("btnPayFromSupervisorMessage");
+      btnPay.style.display = inv.status !== "PAYEE" ? "inline-block" : "none";
+
+      document.getElementById("supervisorInvoiceReaderModal").classList.add("open");
+    }
+
+    function openArchivedInvoicePdfViewer(invoiceId) {
+      const inv = (state.invoicesArchive || []).find((item) => item.id === invoiceId);
+      if (!inv) return;
+
+      activeReaderInvoiceId = invoiceId;
+      activeReaderViaSupervisorMessage = false;
+
+      document.getElementById("readerInvoiceTitle").textContent = `📄 Facture Archivée PDF ${inv.invoiceNumber}`;
+      document.getElementById("readerInvoiceMessageBanner").innerHTML = inv.status === "PAYEE"
+        ? `<div><strong>✅ Facture archivée et PAYÉE</strong> le ${escapeHtml(inv.paidAt || "-")} par ${escapeHtml(inv.paidBy || "Superviseur")}.</div>`
+        : `<div><strong>ℹ️ Facture en attente :</strong> Pour régler cette facture, le Superviseur doit l'ouvrir depuis le <strong>message automatique de demande de paiement</strong> sur l'accueil.</div>`;
+      document.getElementById("readerInvoiceContent").innerHTML = renderInvoiceDocumentHtml(inv);
+      document.getElementById("btnPayFromSupervisorMessage").style.display = "none";
+
+      document.getElementById("supervisorInvoiceReaderModal").classList.add("open");
+    }
+
+    function payInvoiceFromReader() {
+      const user = getCurrentUser();
+      if (!isSupervisor(user) || !activeReaderViaSupervisorMessage || !activeReaderInvoiceId) {
+        showToast("Seul le Superviseur peut payer en ouvrant le message automatique de demande de paiement.");
+        return;
+      }
+      const inv = (state.invoicesArchive || []).find((item) => item.id === activeReaderInvoiceId);
+      if (!inv) return;
+
+      inv.status = "PAYEE";
+      inv.paidAt = new Date().toLocaleString("fr-FR");
+      inv.paidBy = user.name || user.username;
+
+      (state.supervisorMessages || []).forEach((m) => {
+        if (m.invoiceId === inv.id) m.read = true;
+      });
+
+      saveState();
+      document.getElementById("readerInvoiceContent").innerHTML = renderInvoiceDocumentHtml(inv);
+      document.getElementById("btnPayFromSupervisorMessage").style.display = "none";
+      renderApp();
+      if (document.getElementById("invoiceArchiveModal").classList.contains("open")) {
+        renderInvoiceArchiveList();
+      }
+      showToast(`Facture ${inv.invoiceNumber} enregistrée avec la mention PAYÉE (en vert).`);
+    }
+
+    function printReaderInvoicePdf() {
+      const content = document.getElementById("readerInvoiceContent").innerHTML;
+      triggerPrintHtml(`<div style="padding:16px;">${content}</div>`);
     }
 
     function openInvoiceArchiveModal() {
@@ -2886,8 +3140,6 @@
       const container = document.getElementById("invoiceArchiveListContainer");
       const q = (document.getElementById("invoiceSearchInput")?.value || "").trim().toLowerCase();
       const statusFilter = document.getElementById("invoiceStatusFilter")?.value || "TOUTES";
-      const user = getCurrentUser();
-      const supAllowed = isSupervisor(user);
 
       const list = (state.invoicesArchive || []).filter((inv) => {
         if (statusFilter === "PAYEE" && inv.status !== "PAYEE") return false;
@@ -2909,10 +3161,6 @@
           ? `<span class="paid-stamp">PAYÉE${inv.paidAt ? " • " + escapeHtml(inv.paidAt) : ""}</span>`
           : `<span class="pill jaune">En attente de paiement</span>`;
 
-        const payBtnHtml = (!isPaid && supAllowed)
-          ? `<button type="button" class="sm success" onclick="payInvoiceBySupervisor('${inv.id}')">💳 Payer</button>`
-          : "";
-
         return `
           <div class="archive-card">
             <div>
@@ -2928,31 +3176,12 @@
               </div>
             </div>
             <div class="row-actions">
-              ${payBtnHtml}
-              <button type="button" class="sm" onclick="printArchivedInvoicePdf('${inv.id}')">📄 PDF / Imprimer</button>
+              <button type="button" class="sm" onclick="openArchivedInvoicePdfViewer('${inv.id}')">👁️ Voir PDF</button>
+              <button type="button" class="sm" onclick="printArchivedInvoicePdf('${inv.id}')">🖨️ Imprimer PDF</button>
             </div>
           </div>
         `;
       }).join("");
-    }
-
-    function payInvoiceBySupervisor(invoiceId) {
-      const user = getCurrentUser();
-      if (!isSupervisor(user)) {
-        showToast("Seul le Superviseur (ou l'Admin) peut payer la facture.");
-        return;
-      }
-      const inv = (state.invoicesArchive || []).find((item) => item.id === invoiceId);
-      if (!inv) return;
-
-      inv.status = "PAYEE";
-      inv.paidAt = new Date().toLocaleString("fr-FR");
-      inv.paidBy = user.name || user.username;
-
-      saveState();
-      renderApp();
-      renderInvoiceArchiveList();
-      showToast(`Facture ${inv.invoiceNumber} enregistrée avec la mention PAYÉE.`);
     }
 
     function printArchivedInvoicePdf(invoiceId) {
@@ -2968,6 +3197,8 @@
         showToast("Accès réservé à l'Administrateur.");
         return;
       }
+
+      document.getElementById("adminLastBilledRepInput").value = state.settings.lastBilledRep || "";
 
       document.getElementById("adminSessionsBody").innerHTML = state.users.map((u) => `
         <tr>
@@ -3005,6 +3236,22 @@
       `).join("");
 
       document.getElementById("adminModal").classList.add("open");
+    }
+
+    function saveAdminLastBilledRep() {
+      if (!isAdmin(getCurrentUser())) return;
+      state.settings.lastBilledRep = (document.getElementById("adminLastBilledRepInput").value || "").trim().toUpperCase();
+      saveState();
+      const nextRep = getNextUnbilledRepValue();
+      showToast(`Répertoire mis à jour. La prochaine facture DDU démarrera sur : ${nextRep || "le début"}.`);
+    }
+
+    function resetAdminLastBilledRep() {
+      if (!isAdmin(getCurrentUser())) return;
+      state.settings.lastBilledRep = "";
+      document.getElementById("adminLastBilledRepInput").value = "";
+      saveState();
+      showToast("Répertoire DDU réinitialisé au tout premier dossier.");
     }
 
     function toggleUserRole(userId, role, enabled) {
