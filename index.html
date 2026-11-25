@@ -3,1367 +3,2195 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GEO SUIVI TRANSIT — Lomé</title>
+  <title>GEO SUIVI TRANSIT — Gestion Transit &amp; Douane Afrique de l'Ouest</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #f1f5f9;
-      --surface: #ffffff;
-      --surface-alt: #f8fafc;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --primary: #0f766e;
-      --primary-hover: #115e59;
-      --accent: #1d4ed8;
-      --success: #15803d;
-      --success-bg: #dcfce7;
-      --warning: #b45309;
-      --warning-bg: #fef3c7;
-      --danger: #b91c1c;
-      --danger-bg: #fee2e2;
-      --info: #0369a1;
-      --info-bg: #e0f2fe;
-      --radius: 10px;
-      --shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+      --bg-app: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-soft: #e2e8f0;
+      --accent-navy: #0f172a;
+      --accent-blue: #1d4ed8;
+      --accent-blue-hover: #1e40af;
+      --accent-amber: #d97706;
+      --accent-emerald: #059669;
+      --accent-rose: #dc2626;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.45;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      line-height: 1.5;
+      overflow-x: hidden;
     }
 
-    button, input, select, textarea {
-      font-family: inherit;
-      font-size: 14px;
-    }
-
-    button {
-      cursor: pointer;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      padding: 8px 13px;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: background 0.15s ease, border-color 0.15s ease;
-    }
-
-    button:hover:not(:disabled) {
-      background: var(--surface-alt);
-      border-color: #cbd5e1;
-    }
-
-    button:disabled, input:disabled, select:disabled, textarea:disabled {
-      opacity: 0.72;
-      cursor: not-allowed;
-      background: #e2e8f0;
-      color: #334155;
-    }
-
-    button.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
-    button.primary:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--primary-hover); }
-    button.success { background: var(--success); border-color: var(--success); color: #fff; }
-    button.warning { background: var(--warning); border-color: var(--warning); color: #fff; }
-    button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
-    button.sm { padding: 5px 10px; font-size: 12.5px; }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #fff;
-      color: var(--text);
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
-    }
-
-    #loginScreen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: linear-gradient(135deg, #0f172a 0%, #115e59 100%);
-    }
-
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-      background: var(--surface);
+    .card-surface {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
       border-radius: 14px;
-      padding: 30px 28px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
     }
 
-    .login-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-    .login-brand h1 { margin: 0; font-size: 20px; letter-spacing: 0.4px; }
-    .login-sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
-
-    .field { margin-bottom: 14px; }
-    .field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 5px; color: #334155; }
-
-    .error-box {
-      background: var(--danger-bg);
-      color: var(--danger);
-      border: 1px solid #fca5a5;
-      padding: 9px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      margin-bottom: 14px;
-      display: none;
+    .badge-alert-pulse {
+      animation: pulseAlert 2s infinite;
     }
 
-    #appScreen { display: none; min-height: 100vh; }
-
-    header.topbar {
-      background: #0f172a;
-      color: #fff;
-      padding: 12px 20px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      position: sticky;
-      top: 0;
-      z-index: 20;
+    @keyframes pulseAlert {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.25); }
+      50% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
     }
-
-    .topbar-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .brand-title { font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
-
-    .user-badge {
-      background: rgba(255, 255, 255, 0.12);
-      padding: 4px 10px 4px 6px;
-      border-radius: 999px;
-      font-size: 12.5px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .avatar-sm {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: #14b8a6;
-      color: #0f172a;
-      font-weight: 700;
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .avatar-lg {
-      width: 76px;
-      height: 76px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: #e2e8f0;
-      color: #0f172a;
-      font-weight: 700;
-      font-size: 24px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--primary);
-      flex-shrink: 0;
-    }
-
-    .topbar-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .topbar-actions button {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.2);
-      color: #fff;
-    }
-    .topbar-actions button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.18); }
-    .topbar-actions button.primary { background: #0d9488; border-color: #0d9488; }
-    .topbar-actions button.danger { background: #dc2626; border-color: #dc2626; }
-
-    main.container { max-width: 1420px; margin: 0 auto; padding: 20px; }
-
-    .kpis {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      box-shadow: var(--shadow);
-    }
-
-    .kpi-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-    .kpi-value { font-size: 24px; font-weight: 700; margin-top: 4px; }
-    .kpi-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-
-    .toolbar {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .toolbar-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .toolbar-group input, .toolbar-group select { width: auto; min-width: 170px; }
-
-    .table-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow-x: auto;
-    }
-
-    table { width: 100%; border-collapse: collapse; min-width: 960px; }
-    th, td { padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: left; font-size: 13.5px; vertical-align: middle; }
-    th { background: var(--surface-alt); font-size: 12px; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-    tr:hover td { background: #f8fafc; }
-
-    .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
-    .pill.rouge { background: var(--danger-bg); color: var(--danger); }
-    .pill.vert { background: var(--success-bg); color: var(--success); }
-    .pill.bleu { background: var(--info-bg); color: var(--info); }
-    .pill.jaune { background: var(--warning-bg); color: var(--warning); }
-    .pill.cloture { background: #e2e8f0; color: #334155; }
-
-    .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.55);
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(2px);
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 16px;
-      z-index: 50;
+      padding: 14px;
+      z-index: 60;
     }
 
-    .modal-backdrop.open { display: flex; }
+    .modal-backdrop.open {
+      display: flex;
+    }
 
-    .modal {
-      background: var(--surface);
-      border-radius: 12px;
+    .modal-panel {
+      background: var(--bg-surface);
+      border-radius: 16px;
       width: 100%;
-      max-width: 920px;
+      max-width: 1020px;
       max-height: 92vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.32);
       overflow: hidden;
     }
 
-    .modal-header {
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .modal-header h2 { margin: 0; font-size: 17px; }
-    .modal-body { padding: 18px 20px; overflow-y: auto; }
-
-    .modal-footer {
-      padding: 12px 20px;
-      border-top: 1px solid var(--border);
-      background: var(--surface-alt);
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-
-    .section-box {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 14px;
-      background: var(--surface-alt);
-    }
-
-    .section-box.locked-section { opacity: 0.72; background: #f1f5f9; }
-    .section-box h3 {
-      margin: 0 0 10px 0;
-      font-size: 14px;
-      color: #1e293b;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .role-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-    .role-chip {
+    .step-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: #fff;
-      border: 1px solid var(--border);
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 13px;
-      width: auto;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      border: 1px solid transparent;
     }
-    .role-chip input { width: auto; margin: 0; }
 
-    .toast {
+    .step-done {
+      background: #dcfce7;
+      color: #15803d;
+      border-color: #86efac;
+    }
+
+    .step-pending {
+      background: #f1f5f9;
+      color: #475569;
+      border-color: #cbd5e1;
+    }
+
+    .step-alert {
+      background: #fee2e2;
+      color: #b91c1c;
+      border-color: #fca5a5;
+    }
+
+    .toast-banner {
       position: fixed;
       bottom: 20px;
       right: 20px;
       background: #0f172a;
-      color: #fff;
-      padding: 11px 16px;
-      border-radius: 9px;
-      font-size: 13px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-      z-index: 100;
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 500;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.3);
+      z-index: 120;
+      display: none;
+      max-width: 92vw;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+      }
+      body > *:not(#printZone) {
+        display: none !important;
+      }
+      #printZone {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    #printZone {
       display: none;
     }
   </style>
 </head>
-<body>
+<body class="min-h-screen">
 
-  <!-- CONNEXION SÉCURISÉE -->
-  <div id="loginScreen">
-    <div class="login-card">
-      <div class="login-brand">
-        <span style="font-size:24px;">⚓</span>
-        <h1>GEO SUIVI TRANSIT</h1>
+  <!-- EN-TÊTE & SÉLECTEUR RAPIDE DE RÔLE / CONNEXION -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 border-b border-slate-800 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-xl font-extrabold shadow">
+            ⚓
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-base sm:text-lg font-extrabold tracking-wide">GEO SUIVI TRANSIT</span>
+              <span class="text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 font-semibold">
+                Afrique de l'Ouest • Lomé / Corridor
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 m-0">
+              Transit maritime, dédouanement, alertes &lt; 72h, bordereaux &amp; facturation DDU
+            </p>
+          </div>
+        </div>
       </div>
-      <div class="login-sub">Accès sécurisé — Suivi des opérations de transit</div>
 
-      <div id="loginError" class="error-box"></div>
+      <!-- Barre de rôles / Connexion rapide -->
+      <div class="flex flex-wrap items-center gap-2">
+        <label for="roleSwitcherSelect" class="text-xs text-slate-300 font-semibold">Rôle actif :</label>
+        <select
+          id="roleSwitcherSelect"
+          onchange="switchActiveRole(this.value)"
+          class="bg-slate-800 text-white border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+        ></select>
+        <button
+          type="button"
+          onclick="openLoginModal()"
+          class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition"
+        >
+          🔐 Connexion / Profil
+        </button>
+        <button
+          type="button"
+          onclick="openDduBillingModal()"
+          class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow transition"
+        >
+          🧾 Facturation DDU
+        </button>
+        <button
+          type="button"
+          onclick="resetDemoData()"
+          class="px-2.5 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/35 border border-rose-500/40 text-xs font-semibold text-rose-200 transition"
+          title="Réinitialiser les dossiers de démonstration"
+        >
+          ↺ Démo
+        </button>
+      </div>
+    </div>
 
-      <form id="loginForm">
-        <div class="field">
-          <label for="loginUsername">Identifiant</label>
-          <input type="text" id="loginUsername" autocomplete="username" placeholder="Votre identifiant" required />
+    <!-- Bandeau d'utilisateur courant et permissions -->
+    <div class="bg-slate-950/80 border-t border-slate-800/80 px-4 sm:px-6 py-2">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>Connecté en tant que : <strong id="activeUserDisplay" class="text-white"></strong></span>
+          <span id="activeRoleBadge" class="px-2 py-0.5 rounded-md bg-blue-900/70 text-blue-200 border border-blue-700/60 font-semibold"></span>
         </div>
-        <div class="field">
-          <label for="loginPassword">Mot de passe</label>
-          <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" required />
+        <div id="activeRoleScopeNote" class="text-slate-400"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+
+    <!-- CENTRE D'ALERTES D'EXPIRATION < 72H -->
+    <section id="alertCenterSection" class="hidden card-surface p-4 border-rose-300 bg-rose-50/90 badge-alert-pulse">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold uppercase bg-rose-600 text-white">
+              Alerte &lt; 72h
+            </span>
+            <h2 class="text-sm sm:text-base font-bold text-rose-950 m-0">
+              Documents (BAD / T1) expirant dans moins de 72 heures ou déjà expirés
+            </h2>
+          </div>
+          <div id="alertCenterItems" class="text-xs sm:text-sm text-rose-900 space-y-1 pt-1"></div>
         </div>
-        <button type="submit" class="primary" style="width:100%; padding:10px; margin-top:4px;">Se connecter</button>
+        <div class="flex items-center gap-2 flex-wrap shrink-0">
+          <button
+            type="button"
+            onclick="toggleAlertsFilter()"
+            id="btnFilterAlertsOnly"
+            class="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow transition"
+          >
+            Filtrer dossiers en alerte
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- INDICATEURS CLÉS (KPI) -->
+    <section id="kpiGrid" class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4"></section>
+
+    <!-- BARRE DE RECHERCHE, FILTRES & CRÉATION -->
+    <section class="card-surface p-4">
+      <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 flex-1">
+          <input
+            type="text"
+            id="searchInput"
+            oninput="renderDossiersList()"
+            placeholder="Répertoire, BL, client, navire, TC..."
+            class="px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <select
+            id="transportModeFilter"
+            onchange="renderDossiersList()"
+            class="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="TOUS">Tous modes transport</option>
+            <option value="SUR_CAMION">Sur Camion</option>
+            <option value="DEPOTAGE">Dépotage</option>
+          </select>
+          <select
+            id="regimeFilter"
+            onchange="renderDossiersList()"
+            class="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="TOUS">Tous régimes / étapes</option>
+            <option value="DDU">DDU</option>
+            <option value="T1">T1</option>
+            <option value="BAD">BAD</option>
+            <option value="BACT">BACT</option>
+            <option value="PIA">PIA</option>
+            <option value="LCT">LCT</option>
+            <option value="DFU">DFU</option>
+            <option value="CFS">CFS</option>
+            <option value="HINTERLAND">HINTERLAND</option>
+          </select>
+          <select
+            id="statusFilter"
+            onchange="renderDossiersList()"
+            class="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="TOUS">Tous états dossiers</option>
+            <option value="OUVERT">En cours (Ouverts)</option>
+            <option value="ALERTE_72H">Alerte &lt; 72h / Expirés</option>
+            <option value="RETOUR_VIDE_ATTENTE">Retour vide en attente (Sur Camion)</option>
+            <option value="CLOTURE">Clôturés par Superviseur</option>
+          </select>
+          <button
+            type="button"
+            onclick="clearAllFilters()"
+            class="px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition"
+          >
+            Réinitialiser filtres
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+          <button
+            type="button"
+            id="btnCreateDossier"
+            onclick="openDossierModal(null)"
+            class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow transition"
+          >
+            + Nouveau Dossier (GEO...)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LISTE / TABLEAU DES DOSSIERS -->
+    <section class="card-surface overflow-hidden">
+      <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-sm font-bold uppercase tracking-wide text-slate-700 m-0">
+          Suivi Opérationnel des Dossiers de Transit
+        </h2>
+        <span id="dossiersCountBadge" class="text-xs font-semibold text-slate-500"></span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[960px]">
+          <thead>
+            <tr class="bg-slate-100/80 border-b border-slate-200 text-[11.5px] uppercase tracking-wider text-slate-600 font-bold">
+              <th class="py-3 px-3.5">Répertoire</th>
+              <th class="py-3 px-3.5">Client / Chargeur</th>
+              <th class="py-3 px-3.5">BL / Navire / Arrivée</th>
+              <th class="py-3 px-3.5">Mode &amp; Régimes</th>
+              <th class="py-3 px-3.5">Conteneurs &amp; Camions</th>
+              <th class="py-3 px-3.5">Échéances &amp; Alertes</th>
+              <th class="py-3 px-3.5">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="dossiersTableBody" class="divide-y divide-slate-200 text-sm"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL CONNEXION / PROFIL -->
+  <div id="loginModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'loginModal')">
+    <div class="modal-panel max-w-md" onclick="event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900 m-0">🔐 Connexion &amp; Changement de Rôle</h3>
+        <button type="button" onclick="closeModal('loginModal')" class="text-slate-500 hover:text-slate-800 font-bold px-2 py-1">✕</button>
+      </div>
+      <form id="loginModalForm" onsubmit="submitLoginModal(event)" class="p-5 space-y-3.5">
+        <div>
+          <label for="loginRoleSelect" class="block text-xs font-bold text-slate-700 mb-1">Profil / Rôle à activer</label>
+          <select id="loginRoleSelect" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"></select>
+        </div>
+        <div>
+          <label for="loginAgentName" class="block text-xs font-bold text-slate-700 mb-1">Nom de l'opérateur</label>
+          <input type="text" id="loginAgentName" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+        </div>
+        <div>
+          <label for="loginCodeInput" class="block text-xs font-bold text-slate-700 mb-1">Code d'accès (optionnel en mode démo)</label>
+          <input type="password" id="loginCodeInput" placeholder="Ex: 1234" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('loginModal')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-semibold">Annuler</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold">Valider le profil</button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- APPLICATION -->
-  <div id="appScreen">
-    <header class="topbar">
-      <div class="topbar-left">
-        <div class="brand-title">⚓ GEO SUIVI TRANSIT</div>
-        <div class="user-badge">
-          <span id="topbarAvatar"></span>
-          <span id="currentUserLabel">Utilisateur</span>
-          <span id="currentRolesLabel" style="opacity:0.85;"></span>
+  <!-- MODAL CRÉATION / ÉDITION / WORKFLOW DOSSIER -->
+  <div id="dossierModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'dossierModal')">
+    <div class="modal-panel" onclick="event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h3 id="dossierModalTitle" class="text-base sm:text-lg font-extrabold text-slate-900 m-0">Nouveau Dossier</h3>
+          <p id="dossierModalSubtitle" class="text-xs text-slate-500 m-0 mt-0.5"></p>
         </div>
-      </div>
-      <div class="topbar-actions">
-        <button onclick="openProfileModal()">👤 Mon Profil</button>
-        <button id="btnAdminPanel" onclick="openAdminModal()" style="display:none;">🛡️ Administration</button>
-        <button onclick="logout()" class="danger sm">Déconnexion</button>
-      </div>
-    </header>
-
-    <main class="container">
-      <div class="kpis" id="kpiContainer"></div>
-
-      <div class="toolbar">
-        <div class="toolbar-group">
-          <input type="text" id="searchInput" placeholder="Rechercher dossier, BL, client, statut..." oninput="renderDossiers()" />
-          <select id="circuitFilter" onchange="renderDossiers()">
-            <option value="TOUS">Tous circuits</option>
-            <option value="VERT">Vert</option>
-            <option value="ROUGE">Rouge</option>
-            <option value="BLEU">Bleu</option>
-            <option value="JAUNE">Jaune</option>
-          </select>
-        </div>
-
-        <div class="toolbar-group">
-          <button id="btnNewDossier" onclick="openDossierModal()" class="primary" style="display:none;">+ Nouveau Dossier</button>
+        <div class="flex items-center gap-2">
+          <span id="dossierClosureBadge" class="hidden px-2.5 py-1 rounded-full text-xs font-bold bg-slate-800 text-white">
+            DOSSIER CLÔTURÉ
+          </span>
+          <button type="button" onclick="closeModal('dossierModal')" class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-bold text-slate-700">
+            ✕
+          </button>
         </div>
       </div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Répertoire</th>
-              <th>N° BL</th>
-              <th>Client</th>
-              <th>Circuit &amp; Statut</th>
-              <th>Créé par</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="dossiersTableBody"></tbody>
-        </table>
-      </div>
-    </main>
-  </div>
-
-  <!-- MODAL PROFIL AGENT (PHOTO + MOT DE PASSE) -->
-  <div id="profileModal" class="modal-backdrop">
-    <div class="modal" style="max-width:540px;">
-      <div class="modal-header">
-        <h2>👤 Mon Profil — Photo &amp; Mot de passe</h2>
-        <button onclick="closeModal('profileModal')" class="sm">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="section-box">
-          <h3>Photo de profil</h3>
-          <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-            <div id="profileAvatarPreview"></div>
-            <div style="flex:1; min-width:200px;">
-              <input type="file" id="profilePhotoInput" accept="image/*" onchange="handleProfilePhotoChange(this.files)" />
-              <div style="font-size:12px; color:var(--muted); margin-top:6px;">Formats image acceptés (max ~1,5 Mo).</div>
-              <button type="button" class="sm" style="margin-top:6px;" onclick="clearProfilePhoto()">Supprimer la photo</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-box" style="margin-bottom:0;">
-          <h3>Modifier mon mot de passe</h3>
-          <div class="field">
-            <label for="currentPasswordInput">Mot de passe actuel</label>
-            <input type="password" id="currentPasswordInput" placeholder="Entrez votre mot de passe actuel" />
-          </div>
-          <div class="grid-2">
-            <div class="field" style="margin-bottom:0;">
-              <label for="newPasswordInput">Nouveau mot de passe</label>
-              <input type="password" id="newPasswordInput" placeholder="Au moins 4 caractères" />
-            </div>
-            <div class="field" style="margin-bottom:0;">
-              <label for="confirmPasswordInput">Confirmer le mot de passe</label>
-              <input type="password" id="confirmPasswordInput" placeholder="Répétez le nouveau mot de passe" />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button onclick="closeModal('profileModal')">Fermer</button>
-        <button onclick="saveProfileChanges()" class="primary">Enregistrer mon profil</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL RÉINITIALISATION MOT DE PASSE PAR L'ADMIN -->
-  <div id="resetPasswordModal" class="modal-backdrop">
-    <div class="modal" style="max-width:460px;">
-      <div class="modal-header">
-        <h2>🔑 Réinitialiser le mot de passe</h2>
-        <button onclick="closeModal('resetPasswordModal')" class="sm">✕</button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="resetTargetUserId" />
-        <p id="resetTargetUserLabel" style="margin-top:0; font-size:14px; color:#334155;"></p>
-        <div class="field" style="margin-bottom:0;">
-          <label for="adminResetPasswordInput">Nouveau mot de passe pour cet agent</label>
-          <input type="text" id="adminResetPasswordInput" placeholder="Entrez le nouveau mot de passe (min. 4 caractères)" />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button onclick="closeModal('resetPasswordModal')">Annuler</button>
-        <button type="button" onclick="confirmAdminPasswordReset()" class="warning">Valider la réinitialisation</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL DOSSIER -->
-  <div id="dossierModal" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 id="dossierModalTitle">Dossier — GEO SUIVI TRANSIT</h2>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <button type="button" id="btnCloseDossier" class="success sm" style="display:none;" onclick="closeDossier()">✓ Clôturer</button>
-          <button type="button" id="btnDeleteDossier" class="danger sm" style="display:none;" onclick="deleteCurrentDossier()">🗑️ Supprimer</button>
-          <button onclick="closeModal('dossierModal')" class="sm">✕</button>
-        </div>
-      </div>
-      <div class="modal-body">
+      <form id="dossierForm" onsubmit="saveDossierForm(event)" class="p-5 overflow-y-auto space-y-5">
         <input type="hidden" id="editDossierId" />
-        <div id="secGeneral" class="section-box">
-          <h3>
-            <span>Informations du dossier</span>
-            <span id="badgeDossierAccess" class="pill bleu"></span>
-          </h3>
-          <div class="grid-3">
-            <div class="field">
-              <label for="fRepertoire">N° Répertoire</label>
-              <input type="text" id="fRepertoire" placeholder="Ex: GEO00001" />
+
+        <!-- Bloc 1 : Informations générales & BL/Navire -->
+        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-sm font-bold text-slate-800 m-0">1. Identification Dossier, Client, BL &amp; Navire</h4>
+            <span class="text-xs text-slate-500">Numérotation séquentielle automatique (GEO00001...)</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+              <label for="fRepertoire" class="block text-xs font-bold text-slate-700 mb-1">N° Répertoire</label>
+              <input
+                type="text"
+                id="fRepertoire"
+                readonly
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-slate-100 text-sm font-extrabold text-blue-900"
+              />
             </div>
-            <div class="field">
-              <label for="fBl">N° BL</label>
-              <input type="text" id="fBl" placeholder="Ex: MSCU1234567" />
+            <div>
+              <label for="fClient" class="block text-xs font-bold text-slate-700 mb-1">Client / Importateur *</label>
+              <input
+                type="text"
+                id="fClient"
+                required
+                placeholder="Ex: STE SAHEL LOGISTIQUE"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
             </div>
-            <div class="field">
-              <label for="fClient">Client</label>
-              <input type="text" id="fClient" placeholder="Nom du client" />
+            <div>
+              <label for="fShipper" class="block text-xs font-bold text-slate-700 mb-1">Chargeur / Expéditeur</label>
+              <input
+                type="text"
+                id="fShipper"
+                placeholder="Ex: SHENZHEN CARGO LTD"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
             </div>
-            <div class="field">
-              <label for="fCircuit">Circuit</label>
-              <select id="fCircuit">
-                <option value="VERT">VERT</option>
-                <option value="ROUGE">ROUGE</option>
-                <option value="BLEU">BLEU</option>
-                <option value="JAUNE">JAUNE</option>
+            <div>
+              <label for="fClientContact" class="block text-xs font-bold text-slate-700 mb-1">Contact / Destination finale</label>
+              <input
+                type="text"
+                id="fClientContact"
+                placeholder="Ex: Ouagadougou / +226..."
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+              <label for="fBl" class="block text-xs font-bold text-slate-700 mb-1">N° Bill of Lading (BL) *</label>
+              <input
+                type="text"
+                id="fBl"
+                required
+                placeholder="Ex: MSCULM882104"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm uppercase"
+              />
+            </div>
+            <div>
+              <label for="fVessel" class="block text-xs font-bold text-slate-700 mb-1">Navire (Vessel) *</label>
+              <input
+                type="text"
+                id="fVessel"
+                required
+                placeholder="Ex: MSC LOME V"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm uppercase"
+              />
+            </div>
+            <div>
+              <label for="fArrivalDate" class="block text-xs font-bold text-slate-700 mb-1">Date d'arrivée / ETA</label>
+              <input
+                type="date"
+                id="fArrivalDate"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
+            </div>
+            <div>
+              <label for="fTransportMode" class="block text-xs font-bold text-slate-700 mb-1">Mode de transport *</label>
+              <select
+                id="fTransportMode"
+                onchange="syncTransportModeUI()"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold"
+              >
+                <option value="SUR_CAMION">Sur Camion (TC / Direct)</option>
+                <option value="DEPOTAGE">Dépotage (CFS / Groupage)</option>
               </select>
             </div>
-            <div class="field" style="grid-column: span 2;">
-              <label for="fStatut">Statut / Étape</label>
-              <input type="text" id="fStatut" placeholder="Ex: BAD en cours / Déclaration / Enlèvement" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label for="fMarchandise" class="block text-xs font-bold text-slate-700 mb-1">Nature marchandise</label>
+              <input
+                type="text"
+                id="fMarchandise"
+                placeholder="Ex: Pièces détachées, équipements..."
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
+            </div>
+            <div>
+              <label for="fPoids" class="block text-xs font-bold text-slate-700 mb-1">Poids brut (kg)</label>
+              <input
+                type="text"
+                id="fPoids"
+                placeholder="Ex: 24 800 kg"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
+            </div>
+            <div>
+              <label for="fQuantite" class="block text-xs font-bold text-slate-700 mb-1">Quantité / Colis</label>
+              <input
+                type="text"
+                id="fQuantite"
+                placeholder="Ex: 145 colis"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
             </div>
           </div>
-          <div class="field" style="margin-bottom:0;">
-            <label for="fNotes">Observations / Points de suivi</label>
-            <textarea id="fNotes" rows="3" placeholder="Détails de suivi du dossier..."></textarea>
+        </div>
+
+        <!-- Bloc 2 : Régimes Douaniers, Étapes & Dates d'expiration (BAD / T1) -->
+        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-sm font-bold text-slate-800 m-0">2. Régimes Douaniers &amp; Étapes (BAD, DDU, T1, BACT, PIA, LCT, DFU, CFS, HINTERLAND)</h4>
+            <span class="text-xs text-slate-500">Alerte automatique si BAD ou T1 &lt; 72h</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+              <label for="fBadExpiry" class="block text-xs font-bold text-slate-700 mb-1">Expiration BAD (Bon à Délivrer)</label>
+              <input
+                type="datetime-local"
+                id="fBadExpiry"
+                oninput="refreshModalExpirationPreview()"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
+              <div id="badExpiryStatus" class="text-[11.5px] font-semibold mt-1"></div>
+            </div>
+            <div>
+              <label for="fT1Expiry" class="block text-xs font-bold text-slate-700 mb-1">Expiration T1 (Transit Douanier)</label>
+              <input
+                type="datetime-local"
+                id="fT1Expiry"
+                oninput="refreshModalExpirationPreview()"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
+              <div id="t1ExpiryStatus" class="text-[11.5px] font-semibold mt-1"></div>
+            </div>
+            <div>
+              <label for="fDeclarationNum" class="block text-xs font-bold text-slate-700 mb-1">N° Déclaration / T1</label>
+              <input
+                type="text"
+                id="fDeclarationNum"
+                placeholder="Ex: DEC-2026-4410"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm uppercase"
+              />
+            </div>
+            <div>
+              <label for="fCorridorNote" class="block text-xs font-bold text-slate-700 mb-1">Observation transit / corridor</label>
+              <input
+                type="text"
+                id="fCorridorNote"
+                placeholder="Ex: Escorte / Cindao / CFS..."
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
+            </div>
+          </div>
+
+          <!-- Cases des régimes & étapes avec validation par rôle -->
+          <div id="regimesChecklistGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 pt-1"></div>
+        </div>
+
+        <!-- Bloc 3 : Collage intelligent multi-conteneurs & lignes de conteneurs -->
+        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-sm font-bold text-slate-800 m-0">3. Conteneurs &amp; Collage Intelligent Multi-Conteneurs</h4>
+            <button
+              type="button"
+              onclick="addContainerRow('')"
+              class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold"
+            >
+              + Ajouter un conteneur
+            </button>
+          </div>
+
+          <div>
+            <label for="batchContainersPasteInput" class="block text-xs font-bold text-blue-900 mb-1">
+              Collage rapide / Parsing intelligent (virgules, espaces, retours à la ligne)
+            </label>
+            <textarea
+              id="batchContainersPasteInput"
+              rows="2"
+              oninput="handleBatchContainersParse(this.value)"
+              onpaste="handleBatchContainersPasteEvent(event)"
+              placeholder="Collez ici plusieurs N° de conteneurs séparés par virgule, espace ou ligne (ex: MSCU1234567, CMAU7654321  MSKU9988776)..."
+              class="w-full px-3 py-2 rounded-lg border border-blue-300 bg-blue-50/50 text-xs sm:text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
+            ></textarea>
+          </div>
+
+          <div id="containerRowsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+        </div>
+
+        <!-- Bloc 4 : Affectation Camions, Retour Vide & Clôture Superviseur -->
+        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-sm font-bold text-slate-800 m-0">4. Affectation Camions, Retour Vide &amp; Validation Opérationnelle</h4>
+            <button
+              type="button"
+              onclick="addTruckRow('', '')"
+              class="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold"
+            >
+              + Affecter un camion
+            </button>
+          </div>
+
+          <div id="truckRowsList" class="space-y-2"></div>
+
+          <!-- Section Retour Vide (spécifique Sur Camion ou suivi général) -->
+          <div id="emptyReturnPanel" class="mt-3 pt-3 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div>
+              <label for="fEmptyReturnStatus" class="block text-xs font-bold text-slate-700 mb-1">Statut Retour Vide (TC vide)</label>
+              <select
+                id="fEmptyReturnStatus"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              >
+                <option value="NON_APPLICABLE">Non applicable (Dépotage)</option>
+                <option value="EN_ATTENTE">En attente de retour vide</option>
+                <option value="RETOURNE">Retour vide effectué</option>
+              </select>
+            </div>
+            <div>
+              <label for="fEmptyReturnDate" class="block text-xs font-bold text-slate-700 mb-1">Date du retour vide</label>
+              <input
+                type="date"
+                id="fEmptyReturnDate"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
+            </div>
+            <div>
+              <label for="fEmptyReturnDepot" class="block text-xs font-bold text-slate-700 mb-1">Parc / Dépôt de retour vide</label>
+              <input
+                type="text"
+                id="fEmptyReturnDepot"
+                placeholder="Ex: Parc TC Lomé / Depot MSC"
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+              />
+            </div>
+          </div>
+
+          <!-- Validation & Clôture Superviseur -->
+          <div class="mt-3 pt-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <label id="supervisorClosureLabel" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-800 cursor-pointer">
+              <input
+                type="checkbox"
+                id="fClosedBySupervisor"
+                class="w-4 h-4 rounded border-slate-400 text-blue-600"
+              />
+              <span>Validation &amp; Clôture définitive du dossier (Autorité Superviseur)</span>
+            </label>
+            <span id="supervisorClosureHelp" class="text-xs text-slate-500"></span>
           </div>
         </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200">
+          <button
+            type="button"
+            onclick="closeModal('dossierModal')"
+            class="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs sm:text-sm font-semibold text-slate-700"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold shadow transition"
+          >
+            Enregistrer le dossier
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL FACTURATION DDU AUTOMATISÉE (10 000 FCFA / DDU — GE001/FA/ANNÉE — ste GEO) -->
+  <div id="dduBillingModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'dduBillingModal')">
+    <div class="modal-panel max-w-4xl" onclick="event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between gap-3">
+        <div>
+          <h3 class="text-base sm:text-lg font-extrabold m-0">🧾 Module Facturation DDU Automatisée</h3>
+          <p class="text-xs text-slate-300 m-0 mt-0.5">
+            Tarif fixe : <strong>10 000 FCFA</strong> par dossier DDU • Format : <strong>GE001/FA/ANNÉE</strong> • Facturé à : <strong>ste GEO</strong>
+          </p>
+        </div>
+        <button type="button" onclick="closeModal('dduBillingModal')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold">
+          ✕
+        </button>
       </div>
-      <div class="modal-footer">
-        <button onclick="closeModal('dossierModal')">Annuler</button>
-        <button id="btnSaveDossier" onclick="saveDossier()" class="primary">Enregistrer</button>
+
+      <div class="p-5 overflow-y-auto space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div>
+            <label for="invoiceYearInput" class="block text-xs font-bold text-slate-700 mb-1">Année de facturation</label>
+            <input
+              type="number"
+              id="invoiceYearInput"
+              value="2026"
+              min="2020"
+              max="2099"
+              oninput="refreshDduBillingPreview()"
+              class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold"
+            />
+          </div>
+          <div>
+            <label for="invoiceRecipientEmail" class="block text-xs font-bold text-slate-700 mb-1">Destinataire e-mail (ste GEO)</label>
+            <input
+              type="email"
+              id="invoiceRecipientEmail"
+              value="k@ste-geo.com"
+              oninput="refreshDduBillingPreview()"
+              class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-medium"
+            />
+          </div>
+          <div class="flex flex-col justify-end">
+            <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer pb-2">
+              <input
+                type="checkbox"
+                id="invoiceOnlyUnbilledCheckbox"
+                checked
+                onchange="refreshDduBillingPreview()"
+                class="w-4 h-4 rounded border-slate-400"
+              />
+              <span>Uniquement les DDU non encore facturés</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Aperçu Facture -->
+        <div id="dduInvoicePreviewCard" class="rounded-xl border border-slate-300 bg-white p-5 space-y-4"></div>
+
+        <!-- Historique des factures émises -->
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600 m-0 mb-2">
+            Factures DDU enregistrées dans cette session
+          </h4>
+          <div id="issuedInvoicesList" class="space-y-2 text-xs"></div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
+        <button
+          type="button"
+          onclick="openEmailComposerForInvoice()"
+          class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-bold shadow transition"
+        >
+          ✉️ Préparer / Envoyer E-mail (k@ste-geo.com)
+        </button>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onclick="printCurrentDduInvoice()"
+            class="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-xs sm:text-sm font-bold text-slate-800 transition"
+          >
+            🖨️ Imprimer / PDF Facture
+          </button>
+          <button
+            type="button"
+            onclick="issueAndArchiveDduInvoice()"
+            class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow transition"
+          >
+            ✓ Émettre &amp; Archiver Facture
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL ADMINISTRATION -->
-  <div id="adminModal" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>🛡️ Administration — Comptes, Rôles, Mots de passe &amp; Suppression</h2>
-        <button onclick="closeModal('adminModal')" class="sm">✕</button>
+  <!-- MODAL COMPOSITEUR E-MAIL VERS ste GEO -->
+  <div id="emailComposerModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'emailComposerModal')">
+    <div class="modal-panel max-w-xl" onclick="event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900 m-0">✉️ Envoi Facture DDU à ste GEO</h3>
+        <button type="button" onclick="closeModal('emailComposerModal')" class="text-slate-500 hover:text-slate-800 font-bold px-2 py-1">✕</button>
       </div>
-      <div class="modal-body">
-        <div class="section-box">
-          <h3>Créer un nouveau compte agent</h3>
-          <div class="grid-3">
-            <div class="field">
-              <label for="newAgentName">Nom complet</label>
-              <input type="text" id="newAgentName" placeholder="Ex: Ama Koffi" />
-            </div>
-            <div class="field">
-              <label for="newAgentUser">Identifiant</label>
-              <input type="text" id="newAgentUser" placeholder="Ex: ama" />
-            </div>
-            <div class="field">
-              <label for="newAgentPass">Mot de passe</label>
-              <input type="text" id="newAgentPass" placeholder="Ex: ama123" />
-            </div>
-          </div>
-          <div class="field">
-            <label>Fonctions / Rôles (Seuls AGENT_ECHANGE, AGENT_TRANSIT et SUPERVISEUR peuvent créer un dossier)</label>
-            <div class="role-grid" id="newAgentRoles"></div>
-          </div>
-          <button type="button" onclick="createNewAgent()" class="primary sm">+ Créer le compte</button>
+      <div class="p-5 space-y-3">
+        <div>
+          <label for="emailToField" class="block text-xs font-bold text-slate-700 mb-1">À (Destinataire)</label>
+          <input type="email" id="emailToField" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm font-medium" />
         </div>
-
-        <div class="section-box" style="margin-bottom:0;">
-          <h3>Comptes existants — Rôles, réinitialisation mot de passe &amp; suppression</h3>
-          <div id="adminUsersList"></div>
+        <div>
+          <label for="emailSubjectField" class="block text-xs font-bold text-slate-700 mb-1">Objet</label>
+          <input type="text" id="emailSubjectField" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm font-medium" />
+        </div>
+        <div>
+          <label for="emailBodyField" class="block text-xs font-bold text-slate-700 mb-1">Corps du message</label>
+          <textarea id="emailBodyField" rows="7" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm font-mono"></textarea>
         </div>
       </div>
-      <div class="modal-footer">
-        <button onclick="closeModal('adminModal')">Fermer</button>
+      <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50 flex flex-wrap justify-end gap-2">
+        <button type="button" onclick="copyEmailDraftText()" class="px-3.5 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-xs font-bold">
+          📋 Copier le texte
+        </button>
+        <a
+          id="mailtoDirectLink"
+          href="#"
+          class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold inline-flex items-center"
+        >
+          Ouvrir client mail (mailto)
+        </a>
       </div>
     </div>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <!-- ZONE D'IMPRESSION / EXPORT BORDEREAU DÉTAILLÉ & FACTURE -->
+  <div id="printZone"></div>
+
+  <!-- TOAST DE NOTIFICATION -->
+  <div id="toastBanner" class="toast-banner"></div>
 
   <script>
-    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V2";
-    const CHANNEL_NAME = "GEO_SUIVI_TRANSIT_SYNC_V2";
+    /**
+     * GEO SUIVI TRANSIT — Application complète de gestion de transit, douane,
+     * suivi cargaison, alertes 72h, bordereaux détaillés et facturation DDU.
+     */
+    (function () {
+      "use strict";
 
-    const AVAILABLE_ROLES = [
-      "ADMIN",
-      "SUPERVISEUR",
-      "AGENT_TRANSIT",
-      "AGENT_ECHANGE",
-      "AGENT_DDU_T1",
-      "AGENT_EXPLOITATION"
-    ];
+      const STORAGE_KEY = "GEO_SUIVI_TRANSIT_DATA_V1";
+      const DDU_UNIT_PRICE = 10000; // 10,000 FCFA par DDU
+      const DEFAULT_YEAR = 2026;
+      const DEFAULT_RECIPIENT_EMAIL = "k@ste-geo.com";
 
-    function encodePass(plain) {
-      return btoa(unescape(encodeURIComponent(String(plain || ""))));
-    }
-
-    const DEFAULT_STATE = {
-      updatedAt: Date.now(),
-      users: [
+      const ROLES = [
         {
-          id: "u_admin",
-          name: "Administrateur",
-          username: "admin",
-          passwordHash: encodePass("admin123"),
-          roles: ["ADMIN"],
-          photoDataUrl: "",
-          online: false,
-          lastSeen: "Jamais"
+          id: "SUPERVISEUR",
+          label: "Superviseur (Supervision complète & Clôture)",
+          userName: "Mme soumani Queen",
+          scope: "Accès total : création, modification, affectation camions, retour vide, clôture officielle & facturation DDU."
         },
         {
-          id: "u_sup",
-          name: "Superviseur Transit",
-          username: "superviseur",
-          passwordHash: encodePass("sup123"),
-          roles: ["SUPERVISEUR"],
-          photoDataUrl: "",
-          online: false,
-          lastSeen: "Jamais"
+          id: "AGENT_DOUANE_DDU_T1",
+          label: "Agent Douane / DDU / T1",
+          userName: "Kossi Mensah (Douane)",
+          scope: "Gestion des régimes DDU, T1, déclarations, BACT, DFU et dates d'expiration T1."
         },
         {
-          id: "u_transit",
-          name: "Agent de Transit",
-          username: "transit",
-          passwordHash: encodePass("trans123"),
-          roles: ["AGENT_TRANSIT"],
-          photoDataUrl: "",
-          online: false,
-          lastSeen: "Jamais"
+          id: "AGENT_ECHANGE_BAD",
+          label: "Agent Échange / BAD / Consignation",
+          userName: "Afiwa Lawson (Échange)",
+          scope: "Gestion du Bon à Délivrer (BAD), échéance BAD (< 72h), BL/navire et conteneurs."
         },
         {
-          id: "u_echange",
-          name: "Agent d'Échange",
-          username: "echange",
-          passwordHash: encodePass("ech123"),
-          roles: ["AGENT_ECHANGE"],
-          photoDataUrl: "",
-          online: false,
-          lastSeen: "Jamais"
+          id: "AGENT_EXPLOITATION_CAMION",
+          label: "Agent Exploitation / Camions / CFS / Retour Vide",
+          userName: "Kodjo Agbeko (Exploitation)",
+          scope: "Modes Sur Camion & Dépotage (CFS / HINTERLAND / PIA / LCT), camions et retour vide."
         }
-      ],
-      dossiers: [
-        {
-          id: "d_1",
-          repertoire: "GEO00001",
-          bl: "MAEU7845120",
-          client: "SOCIÉTÉ LOMÉ IMPORT",
-          circuit: "VERT",
-          statut: "BAD validé / Enlèvement en cours",
-          notes: "Dossier initial prêt pour enlèvement.",
-          createdBy: "transit",
-          closed: false
-        }
-      ],
-      sessionUserId: null
-    };
+      ];
 
-    function cloneDefaultState() {
-      return JSON.parse(JSON.stringify(DEFAULT_STATE));
-    }
+      const WORKFLOW_STEPS = [
+        { key: "BAD", label: "BAD" },
+        { key: "DDU", label: "DDU" },
+        { key: "T1", label: "T1" },
+        { key: "BACT", label: "BACT" },
+        { key: "PIA", label: "PIA" },
+        { key: "LCT", label: "LCT" },
+        { key: "DFU", label: "DFU" },
+        { key: "CFS", label: "CFS" },
+        { key: "HINTERLAND", label: "HINTERLAND" }
+      ];
 
-    function normalizeState(raw) {
-      const def = cloneDefaultState();
-      if (!raw || typeof raw !== "object") return def;
-      return {
-        updatedAt: Number(raw.updatedAt) || 0,
-        users: Array.isArray(raw.users) ? raw.users.map((u) => ({
-          id: u.id || ("u_" + Math.random().toString(36).slice(2, 8)),
-          name: String(u.name || "").trim(),
-          username: String(u.username || "").trim().toLowerCase(),
-          passwordHash: String(u.passwordHash || ""),
-          roles: Array.isArray(u.roles) ? Array.from(new Set(u.roles)) : [],
-          photoDataUrl: typeof u.photoDataUrl === "string" ? u.photoDataUrl : "",
-          online: !!u.online,
-          lastSeen: u.lastSeen || "Jamais"
-        })) : def.users,
-        dossiers: Array.isArray(raw.dossiers) ? raw.dossiers : def.dossiers,
-        sessionUserId: raw.sessionUserId || null
-      };
-    }
-
-    function loadState() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return cloneDefaultState();
-        return normalizeState(JSON.parse(saved));
-      } catch (e) {
-        return cloneDefaultState();
+      function hoursFromNowISO(hoursOffset) {
+        return new Date(Date.now() + hoursOffset * 3600 * 1000).toISOString().slice(0, 16);
       }
-    }
 
-    let state = loadState();
-    let pendingProfilePhoto = "";
-    let channel = null;
-
-    try {
-      if ("BroadcastChannel" in window) {
-        channel = new BroadcastChannel(CHANNEL_NAME);
-        channel.onmessage = function (ev) {
-          if (ev.data && ev.data.type === "SYNC_STATE" && ev.data.payload) {
-            applyRemoteOrPeerState(ev.data.payload);
-          }
+      function createInitialState() {
+        return {
+          activeRoleId: "SUPERVISEUR",
+          activeOperatorName: "Mme soumani Queen",
+          lastSeqNumber: 4,
+          invoiceCounter: 1,
+          invoices: [],
+          dossiers: [
+            {
+              id: "dos_1",
+              repertoire: "GEO00001",
+              client: "STE SAHEL LOGISTIQUE",
+              shipper: "SHENZHEN CARGO LTD",
+              clientContact: "Ouagadougou • +226 70 11 22 33",
+              bl: "MSCULM882104",
+              vessel: "MSC LOME V",
+              arrivalDate: "2026-11-22",
+              marchandise: "Équipements industriels & pièces",
+              poids: "26 400 kg",
+              quantite: "180 colis",
+              transportMode: "SUR_CAMION",
+              declarationNum: "DEC-2026-1041",
+              corridorNote: "Corridor Lomé — Cinkassé — Ouagadougou",
+              badExpiry: hoursFromNowISO(38), // < 72h (Alerte active)
+              t1Expiry: hoursFromNowISO(120),
+              steps: {
+                BAD: true,
+                DDU: true,
+                T1: true,
+                BACT: true,
+                PIA: true,
+                LCT: false,
+                DFU: true,
+                CFS: false,
+                HINTERLAND: true
+              },
+              containers: ["MSCU4512091", "MSCU8841203"],
+              trucks: [
+                { truck: "TG-4512-MD", assignment: "MSCU4512091 & MSCU8841203" }
+              ],
+              emptyReturn: {
+                status: "EN_ATTENTE",
+                date: "",
+                depot: "Parc TC Port Lomé"
+              },
+              closed: false,
+              billedInvoiceNumber: null
+            },
+            {
+              id: "dos_2",
+              repertoire: "GEO00002",
+              client: "FASO IMPORT SARL",
+              shipper: "DUBAI GENERAL TRADING",
+              clientContact: "Niamey • +227 90 45 12 88",
+              bl: "CMAU7749201",
+              vessel: "CMA CGM AFRICA ONE",
+              arrivalDate: "2026-11-20",
+              marchandise: "Produits alimentaires secs & emballages",
+              poids: "18 900 kg",
+              quantite: "420 sacs",
+              transportMode: "DEPOTAGE",
+              declarationNum: "DEC-2026-1042",
+              corridorNote: "Dépotage CFS Lomé",
+              badExpiry: hoursFromNowISO(140),
+              t1Expiry: hoursFromNowISO(54), // < 72h (Alerte active)
+              steps: {
+                BAD: true,
+                DDU: true,
+                T1: true,
+                BACT: true,
+                PIA: false,
+                LCT: true,
+                DFU: true,
+                CFS: true,
+                HINTERLAND: false
+              },
+              containers: ["CMAU3019942"],
+              trucks: [
+                { truck: "TG-8821-AP", assignment: "Dépotage 18 900 kg / 420 sacs" }
+              ],
+              emptyReturn: {
+                status: "NON_APPLICABLE",
+                date: "",
+                depot: ""
+              },
+              closed: false,
+              billedInvoiceNumber: null
+            },
+            {
+              id: "dos_3",
+              repertoire: "GEO00003",
+              client: "TRANSIT SAHL INTERNATIONAL",
+              shipper: "ISTANBUL EXPORT AS",
+              clientContact: "Bamako • +223 76 30 90 10",
+              bl: "MAEU6019283",
+              vessel: "MAERSK KENSINGTON",
+              arrivalDate: "2026-11-18",
+              marchandise: "Matériaux de construction",
+              poids: "24 100 kg",
+              quantite: "2 conteneurs 20'",
+              transportMode: "SUR_CAMION",
+              declarationNum: "DEC-2026-1043",
+              corridorNote: "Convoi sécurisé",
+              badExpiry: hoursFromNowISO(200),
+              t1Expiry: hoursFromNowISO(190),
+              steps: {
+                BAD: true,
+                DDU: true,
+                T1: true,
+                BACT: true,
+                PIA: true,
+                LCT: true,
+                DFU: true,
+                CFS: false,
+                HINTERLAND: true
+              },
+              containers: ["MRKU7721004", "MRKU5540192"],
+              trucks: [
+                { truck: "TG-2290-MD", assignment: "MRKU7721004" },
+                { truck: "TG-2291-MD", assignment: "MRKU5540192" }
+              ],
+              emptyReturn: {
+                status: "RETOURNE",
+                date: "2026-11-24",
+                depot: "Dépôt Maersk Lomé"
+              },
+              closed: true,
+              billedInvoiceNumber: null
+            },
+            {
+              id: "dos_4",
+              repertoire: "GEO00004",
+              client: "APECME MOTO BF",
+              shipper: "MUMBAI TWO-WHEELERS",
+              clientContact: "Ouagadougou • +226 78 90 44 11",
+              bl: "MEDU4987822",
+              vessel: "MSC BETTINA",
+              arrivalDate: "2026-11-24",
+              marchandise: "Motos & accessoires",
+              poids: "22 500 kg",
+              quantite: "65 motos",
+              transportMode: "SUR_CAMION",
+              declarationNum: "DEC-2026-1044",
+              corridorNote: "En cours d'enlèvement",
+              badExpiry: hoursFromNowISO(-4), // Expiré (< 72h)
+              t1Expiry: hoursFromNowISO(96),
+              steps: {
+                BAD: true,
+                DDU: true,
+                T1: false,
+                BACT: false,
+                PIA: false,
+                LCT: false,
+                DFU: true,
+                CFS: false,
+                HINTERLAND: false
+              },
+              containers: ["MSCU1190442"],
+              trucks: [],
+              emptyReturn: {
+                status: "EN_ATTENTE",
+                date: "",
+                depot: ""
+              },
+              closed: false,
+              billedInvoiceNumber: null
+            }
+          ]
         };
       }
-    } catch (e) {}
 
-    window.addEventListener("storage", function (ev) {
-      if (ev.key === STORAGE_KEY && ev.newValue) {
+      let appState = loadState();
+      let filterAlertsOnly = false;
+      let workingContainers = [];
+      let workingTrucks = [];
+
+      function loadState() {
         try {
-          applyRemoteOrPeerState(JSON.parse(ev.newValue));
-        } catch (e) {}
-      }
-    });
-
-    function getSharedSnapshot() {
-      const copy = JSON.parse(JSON.stringify(state));
-      delete copy.sessionUserId;
-      return copy;
-    }
-
-    function applyRemoteOrPeerState(incomingRaw) {
-      const incoming = normalizeState(incomingRaw);
-      if ((incoming.updatedAt || 0) >= (state.updatedAt || 0)) {
-        const currentSession = state.sessionUserId;
-        state = { ...incoming, sessionUserId: currentSession };
-        if (state.sessionUserId && !state.users.some((u) => u.id === state.sessionUserId)) {
-          state.sessionUserId = null;
-          showToast("Votre compte a été retiré par l'administrateur.");
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return createInitialState();
+          const parsed = JSON.parse(raw);
+          const def = createInitialState();
+          return {
+            activeRoleId: parsed.activeRoleId || def.activeRoleId,
+            activeOperatorName: parsed.activeOperatorName || def.activeOperatorName,
+            lastSeqNumber: Number(parsed.lastSeqNumber) || def.dossiers.length,
+            invoiceCounter: Number(parsed.invoiceCounter) || 1,
+            invoices: Array.isArray(parsed.invoices) ? parsed.invoices : [],
+            dossiers: Array.isArray(parsed.dossiers) ? parsed.dossiers : def.dossiers
+          };
+        } catch (err) {
+          return createInitialState();
         }
+      }
+
+      function saveState() {
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        } catch (e) {}
-        renderApp();
-      }
-    }
-
-    function saveState() {
-      state.updatedAt = Date.now();
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (e) {}
-      try {
-        if (channel) {
-          channel.postMessage({ type: "SYNC_STATE", payload: getSharedSnapshot() });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        } catch (err) {
+          showToast("Impossible d'enregistrer dans le stockage local.");
         }
-      } catch (e) {}
-    }
-
-    function showToast(msg) {
-      const el = document.getElementById("toast");
-      el.textContent = msg;
-      el.style.display = "block";
-      clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => {
-        el.style.display = "none";
-      }, 3400);
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    function getCurrentUser() {
-      if (!state.sessionUserId) return null;
-      return state.users.find((u) => u.id === state.sessionUserId) || null;
-    }
-
-    function hasRole(user, role) {
-      return !!(user && Array.isArray(user.roles) && user.roles.includes(role));
-    }
-
-    function isAdmin(user) {
-      return hasRole(user, "ADMIN");
-    }
-
-    function isSupervisor(user) {
-      return hasRole(user, "SUPERVISEUR") || isAdmin(user);
-    }
-
-    function canCreateDossier(user) {
-      if (!user) return false;
-      return (
-        isAdmin(user) ||
-        hasRole(user, "SUPERVISEUR") ||
-        hasRole(user, "AGENT_TRANSIT") ||
-        hasRole(user, "AGENT_ECHANGE")
-      );
-    }
-
-    function canEditDossier(user, dossier) {
-      if (!user) return false;
-      if (isAdmin(user) || hasRole(user, "SUPERVISEUR")) return true;
-      if (dossier && dossier.closed) return false;
-      return (
-        hasRole(user, "AGENT_TRANSIT") ||
-        hasRole(user, "AGENT_ECHANGE") ||
-        hasRole(user, "AGENT_DDU_T1") ||
-        hasRole(user, "AGENT_EXPLOITATION")
-      );
-    }
-
-    function renderAvatarHtml(user, sizeClass = "avatar-sm") {
-      const initial = (user?.name || user?.username || "?").trim().charAt(0).toUpperCase() || "?";
-      if (user && user.photoDataUrl) {
-        return `<img src="${user.photoDataUrl}" alt="${escapeHtml(user.name)}" class="${sizeClass}" />`;
-      }
-      return `<span class="${sizeClass}">${escapeHtml(initial)}</span>`;
-    }
-
-    function handleLogin(ev) {
-      if (ev) ev.preventDefault();
-      const errBox = document.getElementById("loginError");
-      errBox.style.display = "none";
-
-      const latest = loadState();
-      if ((latest.updatedAt || 0) > (state.updatedAt || 0)) {
-        state = latest;
       }
 
-      const username = (document.getElementById("loginUsername").value || "").trim().toLowerCase();
-      const password = document.getElementById("loginPassword").value || "";
-      const hash = encodePass(password);
-
-      const user = state.users.find(
-        (u) => String(u.username || "").trim().toLowerCase() === username && u.passwordHash === hash
-      );
-
-      if (!user) {
-        errBox.textContent = "Identifiant ou mot de passe incorrect.";
-        errBox.style.display = "block";
-        return;
+      function showToast(message) {
+        const el = document.getElementById("toastBanner");
+        if (!el) return;
+        el.textContent = message;
+        el.style.display = "block";
+        clearTimeout(window.__toastTimeout);
+        window.__toastTimeout = setTimeout(() => {
+          el.style.display = "none";
+        }, 3400);
       }
 
-      user.online = true;
-      user.lastSeen = new Date().toLocaleString("fr-FR");
-      state.sessionUserId = user.id;
-      saveState();
-      renderApp();
-      showToast("Connecté en tant que " + user.name);
-    }
-
-    function logout() {
-      const user = getCurrentUser();
-      if (user) {
-        user.online = false;
-        user.lastSeen = new Date().toLocaleString("fr-FR");
-      }
-      state.sessionUserId = null;
-      saveState();
-      document.getElementById("appScreen").style.display = "none";
-      document.getElementById("loginScreen").style.display = "flex";
-      document.getElementById("loginPassword").value = "";
-    }
-
-    function renderApp() {
-      const user = getCurrentUser();
-      if (!user) {
-        document.getElementById("appScreen").style.display = "none";
-        document.getElementById("loginScreen").style.display = "flex";
-        return;
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
       }
 
-      document.getElementById("loginScreen").style.display = "none";
-      document.getElementById("appScreen").style.display = "block";
-
-      document.getElementById("topbarAvatar").innerHTML = renderAvatarHtml(user, "avatar-sm");
-      document.getElementById("currentUserLabel").textContent = `${user.name} (${user.username})`;
-      document.getElementById("currentRolesLabel").textContent = `[${user.roles.join(", ") || "AUCUN RÔLE"}]`;
-
-      document.getElementById("btnAdminPanel").style.display = isAdmin(user) ? "inline-block" : "none";
-      document.getElementById("btnNewDossier").style.display = canCreateDossier(user) ? "inline-block" : "none";
-
-      renderKpis();
-      renderDossiers();
-    }
-
-    function renderKpis() {
-      const total = state.dossiers.length;
-      const open = state.dossiers.filter((d) => !d.closed).length;
-      const closed = total - open;
-      const agentsCount = state.users.length;
-
-      document.getElementById("kpiContainer").innerHTML = `
-        <div class="kpi-card">
-          <div class="kpi-label">Total Dossiers</div>
-          <div class="kpi-value">${total}</div>
-          <div class="kpi-sub">En cours : ${open} • Clôturés : ${closed}</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Dossiers Ouverts</div>
-          <div class="kpi-value" style="color:var(--primary);">${open}</div>
-          <div class="kpi-sub">Suivi actif</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Comptes Agents</div>
-          <div class="kpi-value">${agentsCount}</div>
-          <div class="kpi-sub">Utilisateurs actifs</div>
-        </div>
-      `;
-    }
-
-    function getFilteredDossiers() {
-      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
-      const circuit = document.getElementById("circuitFilter").value;
-      return state.dossiers.filter((d) => {
-        if (circuit !== "TOUS" && d.circuit !== circuit) return false;
-        if (!q) return true;
-        const hay = `${d.repertoire} ${d.bl} ${d.client} ${d.statut} ${d.createdBy || ""}`.toLowerCase();
-        return hay.includes(q);
-      });
-    }
-
-    function renderDossiers() {
-      const user = getCurrentUser();
-      const rows = getFilteredDossiers();
-      const tbody = document.getElementById("dossiersTableBody");
-
-      if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--muted);">Aucun dossier trouvé.</td></tr>`;
-        return;
+      function formatRepertoire(num) {
+        return "GEO" + String(Math.max(1, Number(num) || 1)).padStart(5, "0");
       }
 
-      tbody.innerHTML = rows.map((d) => {
-        const cls = (d.circuit || "VERT").toLowerCase();
-        const editable = canEditDossier(user, d);
-        return `
-          <tr>
-            <td>
-              <strong>${escapeHtml(d.repertoire)}</strong>
-              ${d.closed ? '<span class="pill cloture" style="margin-left:6px;">Clôturé</span>' : ""}
-            </td>
-            <td>${escapeHtml(d.bl || "-")}</td>
-            <td>${escapeHtml(d.client || "-")}</td>
-            <td><span class="pill ${cls}">${escapeHtml(d.circuit)}</span> ${escapeHtml(d.statut || "-")}</td>
-            <td>${escapeHtml(d.createdBy || "-")}</td>
-            <td>
-              <div class="row-actions">
-                <button class="sm" onclick="openDossierModal('${d.id}')">${editable ? "Modifier / Ouvrir" : "Consulter"}</button>
-                ${isAdmin(user) ? `<button class="sm danger" onclick="deleteDossierById('${d.id}')">Supprimer</button>` : ""}
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join("");
-    }
-
-    function openDossierModal(id = null) {
-      const user = getCurrentUser();
-      if (!id && !canCreateDossier(user)) {
-        showToast("Seuls les agents d'échange, agents de transit et superviseurs peuvent créer un dossier.");
-        return;
+      function getRoleInfo(roleId) {
+        return ROLES.find((r) => r.id === roleId) || ROLES[0];
       }
 
-      const modal = document.getElementById("dossierModal");
-      if (!id) {
-        const nextNum = String(state.dossiers.length + 1).padStart(5, "0");
-        document.getElementById("dossierModalTitle").textContent = "Nouveau Dossier — GEO SUIVI TRANSIT";
-        document.getElementById("editDossierId").value = "";
-        document.getElementById("fRepertoire").value = `GEO${nextNum}`;
-        document.getElementById("fBl").value = "";
-        document.getElementById("fClient").value = "";
-        document.getElementById("fCircuit").value = "VERT";
-        document.getElementById("fStatut").value = "Nouveau dossier";
-        document.getElementById("fNotes").value = "";
-        document.getElementById("btnCloseDossier").style.display = "none";
-        document.getElementById("btnDeleteDossier").style.display = "none";
-        setDossierInputsDisabled(false);
-        document.getElementById("badgeDossierAccess").textContent = "Création autorisée";
-      } else {
-        const d = state.dossiers.find((item) => item.id === id);
-        if (!d) return;
-        const canEdit = canEditDossier(user, d);
-        document.getElementById("dossierModalTitle").textContent = `Dossier ${d.repertoire}`;
-        document.getElementById("editDossierId").value = d.id;
-        document.getElementById("fRepertoire").value = d.repertoire || "";
-        document.getElementById("fBl").value = d.bl || "";
-        document.getElementById("fClient").value = d.client || "";
-        document.getElementById("fCircuit").value = d.circuit || "VERT";
-        document.getElementById("fStatut").value = d.statut || "";
-        document.getElementById("fNotes").value = d.notes || "";
-
-        document.getElementById("btnCloseDossier").style.display = isSupervisor(user) && !d.closed ? "inline-block" : "none";
-        document.getElementById("btnDeleteDossier").style.display = isAdmin(user) ? "inline-block" : "none";
-        setDossierInputsDisabled(!canEdit);
-        document.getElementById("badgeDossierAccess").textContent = canEdit ? "Modification autorisée" : "Lecture seule";
+      function getPermissions() {
+        const role = appState.activeRoleId;
+        const isSup = role === "SUPERVISEUR";
+        return {
+          isSup,
+          canCreate: isSup || role === "AGENT_ECHANGE_BAD" || role === "AGENT_DOUANE_DDU_T1",
+          canEditGeneral: isSup || role === "AGENT_ECHANGE_BAD" || role === "AGENT_DOUANE_DDU_T1",
+          canEditBad: isSup || role === "AGENT_ECHANGE_BAD",
+          canEditCustoms: isSup || role === "AGENT_DOUANE_DDU_T1",
+          canEditExploitation: isSup || role === "AGENT_EXPLOITATION_CAMION",
+          canCloseDossier: isSup,
+          allowedSteps: isSup
+            ? WORKFLOW_STEPS.map((s) => s.key)
+            : role === "AGENT_DOUANE_DDU_T1"
+            ? ["DDU", "T1", "BACT", "DFU"]
+            : role === "AGENT_ECHANGE_BAD"
+            ? ["BAD"]
+            : ["PIA", "LCT", "CFS", "HINTERLAND"]
+        };
       }
 
-      modal.classList.add("open");
-    }
+      /**
+       * Calcule les alertes d'expiration (< 72h ou déjà expirées) pour un dossier
+       */
+      function evaluateDossierAlerts(dossier) {
+        if (!dossier || dossier.closed) return [];
+        const alerts = [];
+        const now = Date.now();
+        const thresholdMs = 72 * 3600 * 1000;
 
-    function setDossierInputsDisabled(disabled) {
-      ["fRepertoire", "fBl", "fClient", "fCircuit", "fStatut", "fNotes", "btnSaveDossier"].forEach((elId) => {
-        const el = document.getElementById(elId);
-        if (el) el.disabled = disabled;
-      });
-    }
+        const checks = [
+          { label: "BAD", iso: dossier.badExpiry },
+          { label: "T1", iso: dossier.t1Expiry }
+        ];
 
-    function saveDossier() {
-      const user = getCurrentUser();
-      const id = document.getElementById("editDossierId").value;
-      const existing = id ? state.dossiers.find((d) => d.id === id) : null;
+        checks.forEach((chk) => {
+          if (!chk.iso) return;
+          const targetTs = new Date(chk.iso).getTime();
+          if (Number.isNaN(targetTs)) return;
+          const diffMs = targetTs - now;
+          if (diffMs <= thresholdMs) {
+            const hoursLeft = Math.round(diffMs / (3600 * 1000));
+            if (diffMs < 0) {
+              alerts.push({
+                doc: chk.label,
+                expired: true,
+                hoursLeft,
+                text: `${chk.label} EXPIRÉ (depuis ${Math.abs(hoursLeft)}h)`
+              });
+            } else {
+              alerts.push({
+                doc: chk.label,
+                expired: false,
+                hoursLeft,
+                text: `${chk.label} expire dans ${hoursLeft}h (< 72h)`
+              });
+            }
+          }
+        });
 
-      if (!existing && !canCreateDossier(user)) {
-        showToast("Accès refusé pour la création de dossier.");
-        return;
+        return alerts;
       }
-      if (existing && !canEditDossier(user, existing)) {
-        showToast("Vous n'avez pas la permission de modifier ce dossier.");
-        return;
+
+      function renderRoleControls() {
+        const select = document.getElementById("roleSwitcherSelect");
+        const loginSelect = document.getElementById("loginRoleSelect");
+        const roleInfo = getRoleInfo(appState.activeRoleId);
+
+        const optionsHtml = ROLES.map(
+          (r) => `<option value="${r.id}" ${r.id === appState.activeRoleId ? "selected" : ""}>${escapeHtml(r.label)}</option>`
+        ).join("");
+
+        select.innerHTML = optionsHtml;
+        loginSelect.innerHTML = optionsHtml;
+
+        document.getElementById("activeUserDisplay").textContent = appState.activeOperatorName || roleInfo.userName;
+        document.getElementById("activeRoleBadge").textContent = roleInfo.label;
+        document.getElementById("activeRoleScopeNote").textContent = roleInfo.scope;
+
+        const perms = getPermissions();
+        const createBtn = document.getElementById("btnCreateDossier");
+        createBtn.disabled = !perms.canCreate;
+        createBtn.classList.toggle("opacity-50", !perms.canCreate);
+        createBtn.classList.toggle("cursor-not-allowed", !perms.canCreate);
       }
 
-      const repertoire = (document.getElementById("fRepertoire").value || "").trim().toUpperCase();
-      if (!repertoire) {
-        showToast("Le numéro de répertoire est obligatoire.");
-        return;
-      }
-
-      const payload = {
-        id: existing ? existing.id : "d_" + Date.now(),
-        repertoire,
-        bl: (document.getElementById("fBl").value || "").trim().toUpperCase(),
-        client: (document.getElementById("fClient").value || "").trim(),
-        circuit: document.getElementById("fCircuit").value,
-        statut: (document.getElementById("fStatut").value || "").trim(),
-        notes: (document.getElementById("fNotes").value || "").trim(),
-        createdBy: existing ? existing.createdBy : (user?.username || "agent"),
-        closed: existing ? !!existing.closed : false
+      window.switchActiveRole = function (roleId) {
+        const info = getRoleInfo(roleId);
+        appState.activeRoleId = info.id;
+        appState.activeOperatorName = info.userName;
+        saveState();
+        renderAll();
+        showToast("Rôle actif : " + info.label);
       };
 
-      if (existing) {
-        const idx = state.dossiers.findIndex((d) => d.id === id);
-        if (idx >= 0) state.dossiers[idx] = payload;
-      } else {
-        state.dossiers.unshift(payload);
-      }
-
-      saveState();
-      closeModal("dossierModal");
-      renderApp();
-      showToast(`Dossier ${payload.repertoire} enregistré.`);
-    }
-
-    function closeDossier() {
-      const user = getCurrentUser();
-      if (!isSupervisor(user)) {
-        showToast("Action réservée au Superviseur ou à l'Administrateur.");
-        return;
-      }
-      const id = document.getElementById("editDossierId").value;
-      const d = state.dossiers.find((item) => item.id === id);
-      if (!d) return;
-      d.closed = true;
-      d.statut = d.statut || "Clôturé";
-      saveState();
-      closeModal("dossierModal");
-      renderApp();
-      showToast(`Dossier ${d.repertoire} clôturé.`);
-    }
-
-    function deleteDossierById(id) {
-      if (!isAdmin(getCurrentUser())) {
-        showToast("Seul l'Administrateur peut supprimer un dossier.");
-        return;
-      }
-      const d = state.dossiers.find((item) => item.id === id);
-      if (!d) return;
-      if (!confirm(`Supprimer définitivement le dossier ${d.repertoire} ?`)) return;
-      state.dossiers = state.dossiers.filter((item) => item.id !== id);
-      saveState();
-      renderApp();
-      showToast(`Dossier ${d.repertoire} supprimé.`);
-    }
-
-    function deleteCurrentDossier() {
-      const id = document.getElementById("editDossierId").value;
-      if (!id) return;
-      if (!isAdmin(getCurrentUser())) {
-        showToast("Seul l'Administrateur peut supprimer un dossier.");
-        return;
-      }
-      const d = state.dossiers.find((item) => item.id === id);
-      if (!d) return;
-      if (!confirm(`Supprimer définitivement le dossier ${d.repertoire} ?`)) return;
-      state.dossiers = state.dossiers.filter((item) => item.id !== id);
-      saveState();
-      closeModal("dossierModal");
-      renderApp();
-      showToast(`Dossier ${d.repertoire} supprimé.`);
-    }
-
-    function openProfileModal() {
-      const user = getCurrentUser();
-      if (!user) return;
-      pendingProfilePhoto = user.photoDataUrl || "";
-      document.getElementById("profilePhotoInput").value = "";
-      document.getElementById("currentPasswordInput").value = "";
-      document.getElementById("newPasswordInput").value = "";
-      document.getElementById("confirmPasswordInput").value = "";
-      renderProfileAvatarPreview(user, pendingProfilePhoto);
-      document.getElementById("profileModal").classList.add("open");
-    }
-
-    function renderProfileAvatarPreview(user, photoUrl) {
-      const tempUser = { ...user, photoDataUrl: photoUrl };
-      document.getElementById("profileAvatarPreview").innerHTML = renderAvatarHtml(tempUser, "avatar-lg");
-    }
-
-    function handleProfilePhotoChange(files) {
-      const user = getCurrentUser();
-      if (!user || !files || !files.length) return;
-      const file = files[0];
-      if (!file.type.startsWith("image/")) {
-        showToast("Veuillez sélectionner un fichier image.");
-        return;
-      }
-      if (file.size > 1500000) {
-        showToast("Image trop volumineuse (maximum 1,5 Mo).");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function (ev) {
-        pendingProfilePhoto = String(ev.target.result || "");
-        renderProfileAvatarPreview(user, pendingProfilePhoto);
-        showToast("Aperçu de la photo mis à jour.");
+      window.openLoginModal = function () {
+        document.getElementById("loginRoleSelect").value = appState.activeRoleId;
+        document.getElementById("loginAgentName").value = appState.activeOperatorName || "";
+        document.getElementById("loginCodeInput").value = "";
+        document.getElementById("loginModal").classList.add("open");
       };
-      reader.readAsDataURL(file);
-    }
 
-    function clearProfilePhoto() {
-      const user = getCurrentUser();
-      if (!user) return;
-      pendingProfilePhoto = "";
-      document.getElementById("profilePhotoInput").value = "";
-      renderProfileAvatarPreview(user, "");
-    }
+      window.submitLoginModal = function (event) {
+        event.preventDefault();
+        const roleId = document.getElementById("loginRoleSelect").value;
+        const opName = document.getElementById("loginAgentName").value.trim();
+        const info = getRoleInfo(roleId);
+        appState.activeRoleId = info.id;
+        appState.activeOperatorName = opName || info.userName;
+        saveState();
+        closeModal("loginModal");
+        renderAll();
+        showToast("Profil connecté : " + appState.activeOperatorName);
+      };
 
-    function saveProfileChanges() {
-      const user = getCurrentUser();
-      if (!user) return;
+      window.resetDemoData = function () {
+        appState = createInitialState();
+        filterAlertsOnly = false;
+        saveState();
+        renderAll();
+        showToast("Données de démonstration réinitialisées (GEO00001 à GEO00004).");
+      };
 
-      const currentPass = document.getElementById("currentPasswordInput").value || "";
-      const newPass = document.getElementById("newPasswordInput").value || "";
-      const confirmPass = document.getElementById("confirmPasswordInput").value || "";
+      function renderAlertCenter() {
+        const section = document.getElementById("alertCenterSection");
+        const itemsContainer = document.getElementById("alertCenterItems");
+        const filterBtn = document.getElementById("btnFilterAlertsOnly");
 
-      if (currentPass || newPass || confirmPass) {
-        if (encodePass(currentPass) !== user.passwordHash) {
-          showToast("Le mot de passe actuel est incorrect.");
+        const alertEntries = [];
+        appState.dossiers.forEach((d) => {
+          const dAlerts = evaluateDossierAlerts(d);
+          dAlerts.forEach((a) => {
+            alertEntries.push({ dossier: d, alert: a });
+          });
+        });
+
+        if (!alertEntries.length) {
+          section.classList.add("hidden");
+          filterAlertsOnly = false;
           return;
         }
-        if (newPass.length < 4) {
-          showToast("Le nouveau mot de passe doit contenir au moins 4 caractères.");
+
+        section.classList.remove("hidden");
+        itemsContainer.innerHTML = alertEntries
+          .map(
+            (entry) => `
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 border border-rose-200 rounded-lg px-3 py-1.5">
+            <span>
+              <strong>${escapeHtml(entry.dossier.repertoire)}</strong> — ${escapeHtml(entry.dossier.client)} (BL ${escapeHtml(entry.dossier.bl)}) :
+              <strong class="text-rose-700">${escapeHtml(entry.alert.text)}</strong>
+            </span>
+            <button
+              type="button"
+              onclick="openDossierModal('${entry.dossier.id}')"
+              class="text-xs font-bold text-rose-700 underline hover:text-rose-900"
+            >
+              Ouvrir le dossier →
+            </button>
+          </div>
+        `
+          )
+          .join("");
+
+        filterBtn.textContent = filterAlertsOnly ? "Afficher tous les dossiers" : "Filtrer dossiers en alerte";
+      }
+
+      window.toggleAlertsFilter = function () {
+        filterAlertsOnly = !filterAlertsOnly;
+        renderAlertCenter();
+        renderDossiersList();
+      };
+
+      function renderKpis() {
+        const total = appState.dossiers.length;
+        const openCount = appState.dossiers.filter((d) => !d.closed).length;
+        const closedCount = appState.dossiers.filter((d) => d.closed).length;
+        const alertCount = appState.dossiers.filter((d) => evaluateDossierAlerts(d).length > 0).length;
+        const dduCount = appState.dossiers.filter((d) => !!(d.steps && d.steps.DDU)).length;
+
+        const kpis = [
+          { title: "Total Dossiers", value: total, sub: `${openCount} actifs • ${closedCount} clôturés`, tone: "text-slate-900" },
+          { title: "Alertes < 72h", value: alertCount, sub: "BAD & T1 critiques", tone: alertCount > 0 ? "text-rose-600" : "text-emerald-600" },
+          { title: "Dossiers DDU", value: dduCount, sub: `${(dduCount * DDU_UNIT_PRICE).toLocaleString("fr-FR")} FCFA brut`, tone: "text-blue-700" },
+          { title: "Retour Vide Attente", value: appState.dossiers.filter((d) => !d.closed && d.transportMode === "SUR_CAMION" && d.emptyReturn?.status === "EN_ATTENTE").length, sub: "Mode Sur Camion", tone: "text-amber-600" },
+          { title: "Factures Émises", value: appState.invoices.length, sub: `Prochaine : GE${String(appState.invoiceCounter).padStart(3, "0")}/FA/${DEFAULT_YEAR}`, tone: "text-emerald-700" }
+        ];
+
+        document.getElementById("kpiGrid").innerHTML = kpis
+          .map(
+            (k) => `
+          <div class="card-surface p-3.5 sm:p-4">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">${escapeHtml(k.title)}</div>
+            <div class="text-2xl font-extrabold mt-1 ${k.tone}">${escapeHtml(k.value)}</div>
+            <div class="text-xs text-slate-500 mt-0.5">${escapeHtml(k.sub)}</div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      window.clearAllFilters = function () {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("transportModeFilter").value = "TOUS";
+        document.getElementById("regimeFilter").value = "TOUS";
+        document.getElementById("statusFilter").value = "TOUS";
+        filterAlertsOnly = false;
+        renderAlertCenter();
+        renderDossiersList();
+      };
+
+      function getFilteredDossiers() {
+        const query = (document.getElementById("searchInput")?.value || "").trim().toLowerCase();
+        const mode = document.getElementById("transportModeFilter")?.value || "TOUS";
+        const regime = document.getElementById("regimeFilter")?.value || "TOUS";
+        const status = document.getElementById("statusFilter")?.value || "TOUS";
+
+        return appState.dossiers.filter((d) => {
+          const alerts = evaluateDossierAlerts(d);
+          if (filterAlertsOnly && alerts.length === 0) return false;
+          if (mode !== "TOUS" && d.transportMode !== mode) return false;
+          if (regime !== "TOUS" && !(d.steps && d.steps[regime])) return false;
+
+          if (status === "OUVERT" && d.closed) return false;
+          if (status === "CLOTURE" && !d.closed) return false;
+          if (status === "ALERTE_72H" && alerts.length === 0) return false;
+          if (
+            status === "RETOUR_VIDE_ATTENTE" &&
+            !(d.transportMode === "SUR_CAMION" && d.emptyReturn?.status === "EN_ATTENTE")
+          ) {
+            return false;
+          }
+
+          if (!query) return true;
+          const searchable = [
+            d.repertoire,
+            d.client,
+            d.shipper,
+            d.bl,
+            d.vessel,
+            d.declarationNum,
+            d.marchandise,
+            ...(d.containers || []),
+            ...(d.trucks || []).map((t) => `${t.truck} ${t.assignment}`)
+          ]
+            .join(" ")
+            .toLowerCase();
+          return searchable.includes(query);
+        });
+      }
+
+      function renderDossiersList() {
+        const list = getFilteredDossiers();
+        const tbody = document.getElementById("dossiersTableBody");
+        document.getElementById("dossiersCountBadge").textContent = `${list.length} dossier(s) affiché(s)`;
+
+        if (!list.length) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="py-10 px-4 text-center text-slate-500 text-sm">
+                Aucun dossier ne correspond aux critères sélectionnés.
+              </td>
+            </tr>
+          `;
           return;
         }
-        if (newPass !== confirmPass) {
-          showToast("La confirmation du mot de passe ne correspond pas.");
+
+        tbody.innerHTML = list
+          .map((d) => {
+            const alerts = evaluateDossierAlerts(d);
+            const activeSteps = WORKFLOW_STEPS.filter((s) => d.steps && d.steps[s.key]).map((s) => s.label);
+            const modeBadge =
+              d.transportMode === "SUR_CAMION"
+                ? `<span class="step-pill bg-blue-100 text-blue-800 border-blue-200">🚛 Sur Camion</span>`
+                : `<span class="step-pill bg-amber-100 text-amber-800 border-amber-200">📦 Dépotage</span>`;
+
+            const closureBadge = d.closed
+              ? `<span class="step-pill bg-slate-800 text-white ml-1">Clôturé</span>`
+              : `<span class="step-pill step-done ml-1">Actif</span>`;
+
+            const containerSummary =
+              d.containers && d.containers.length
+                ? `<div class="font-mono text-xs font-semibold text-slate-800">${escapeHtml(d.containers.join(", "))}</div>`
+                : `<div class="text-xs text-slate-400">Aucun TC</div>`;
+
+            const truckSummary =
+              d.trucks && d.trucks.length
+                ? `<div class="text-xs text-slate-600 mt-0.5">Camion : <strong>${escapeHtml(d.trucks.map((t) => t.truck).filter(Boolean).join(", ") || "-")}</strong></div>`
+                : `<div class="text-xs text-slate-400 mt-0.5">Camion non affecté</div>`;
+
+            let returnVideText = "";
+            if (d.transportMode === "SUR_CAMION") {
+              if (d.emptyReturn?.status === "RETOURNE") {
+                returnVideText = `<div class="text-[11.5px] text-emerald-700 font-semibold mt-0.5">Retour vide : ${escapeHtml(d.emptyReturn.date || "OK")}</div>`;
+              } else {
+                returnVideText = `<div class="text-[11.5px] text-amber-700 font-semibold mt-0.5">Retour vide : En attente</div>`;
+              }
+            }
+
+            const alertHtml = alerts.length
+              ? alerts
+                  .map(
+                    (a) =>
+                      `<span class="step-pill step-alert badge-alert-pulse mt-1 inline-flex">${escapeHtml(a.text)}</span>`
+                  )
+                  .join(" ")
+              : `<span class="text-xs text-emerald-700 font-medium">Échéances OK</span>`;
+
+            return `
+              <tr class="hover:bg-slate-50/90 transition">
+                <td class="py-3 px-3.5 align-top">
+                  <div class="font-extrabold text-blue-900">${escapeHtml(d.repertoire)}</div>
+                  <div class="mt-1">${closureBadge}</div>
+                </td>
+                <td class="py-3 px-3.5 align-top">
+                  <div class="font-bold text-slate-900">${escapeHtml(d.client)}</div>
+                  <div class="text-xs text-slate-500">${escapeHtml(d.shipper || d.marchandise || "-")}</div>
+                </td>
+                <td class="py-3 px-3.5 align-top">
+                  <div class="font-mono text-xs font-bold text-slate-800">BL: ${escapeHtml(d.bl)}</div>
+                  <div class="text-xs text-slate-600">Navire: ${escapeHtml(d.vessel)}</div>
+                  <div class="text-[11.5px] text-slate-400">Arrivée: ${escapeHtml(d.arrivalDate || "-")}</div>
+                </td>
+                <td class="py-3 px-3.5 align-top space-y-1.5">
+                  <div>${modeBadge}</div>
+                  <div class="flex flex-wrap gap-1">
+                    ${
+                      activeSteps.length
+                        ? activeSteps
+                            .map((st) => `<span class="step-pill step-done text-[10.5px] py-0.5 px-2">${escapeHtml(st)}</span>`)
+                            .join("")
+                        : `<span class="text-xs text-slate-400">Aucune étape validée</span>`
+                    }
+                  </div>
+                </td>
+                <td class="py-3 px-3.5 align-top">
+                  ${containerSummary}
+                  ${truckSummary}
+                  ${returnVideText}
+                </td>
+                <td class="py-3 px-3.5 align-top">
+                  ${alertHtml}
+                </td>
+                <td class="py-3 px-3.5 align-top">
+                  <div class="flex flex-col sm:flex-row gap-1.5">
+                    <button
+                      type="button"
+                      onclick="openDossierModal('${d.id}')"
+                      class="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition"
+                    >
+                      Suivi / Éditer
+                    </button>
+                    <button
+                      type="button"
+                      onclick="printBordereauDetaille('${d.id}')"
+                      class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold transition"
+                    >
+                      Bordereau
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          })
+          .join("");
+      }
+
+      /**
+       * Parsing intelligent multi-conteneurs (virgules, espaces, points-virgules, retours à la ligne)
+       */
+      function parseBatchContainersText(rawText) {
+        if (!rawText) return [];
+        const tokens = String(rawText)
+          .toUpperCase()
+          .split(/[\s,;|\n\r\t]+/)
+          .map((t) => t.replace(/[^A-Z0-9-]/g, "").trim())
+          .filter(Boolean);
+        return Array.from(new Set(tokens));
+      }
+
+      window.handleBatchContainersParse = function (rawText) {
+        const parsed = parseBatchContainersText(rawText);
+        if (!parsed.length) return;
+        workingContainers = parsed;
+        renderContainerRows();
+      };
+
+      window.handleBatchContainersPasteEvent = function (event) {
+        const clipboard = event.clipboardData || window.clipboardData;
+        if (!clipboard) return;
+        const pasted = clipboard.getData("text") || "";
+        const parsed = parseBatchContainersText(pasted);
+        if (parsed.length > 0) {
+          event.preventDefault();
+          document.getElementById("batchContainersPasteInput").value = parsed.join(", ");
+          workingContainers = parsed;
+          renderContainerRows();
+          showToast(`${parsed.length} conteneur(s) réparti(s) automatiquement.`);
+        }
+      };
+
+      window.addContainerRow = function (value = "") {
+        workingContainers.push(String(value || "").toUpperCase());
+        renderContainerRows();
+      };
+
+      window.removeContainerRow = function (index) {
+        workingContainers.splice(index, 1);
+        renderContainerRows();
+      };
+
+      function renderContainerRows() {
+        const listEl = document.getElementById("containerRowsList");
+        if (!workingContainers.length) {
+          workingContainers = [""];
+        }
+        listEl.innerHTML = workingContainers
+          .map(
+            (tc, idx) => `
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-bold text-slate-500 w-7">TC${idx + 1}</span>
+            <input
+              type="text"
+              value="${escapeHtml(tc)}"
+              oninput="workingContainers[${idx}] = this.value.toUpperCase()"
+              placeholder="Ex: MSCU1234567"
+              class="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs sm:text-sm font-mono uppercase"
+            />
+            <button
+              type="button"
+              onclick="removeContainerRow(${idx})"
+              class="px-2 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold"
+              title="Supprimer ce conteneur"
+            >
+              ✕
+            </button>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      window.addTruckRow = function (truck = "", assignment = "") {
+        workingTrucks.push({ truck: String(truck || "").toUpperCase(), assignment: String(assignment || "") });
+        renderTruckRows();
+      };
+
+      window.removeTruckRow = function (index) {
+        workingTrucks.splice(index, 1);
+        renderTruckRows();
+      };
+
+      function renderTruckRows() {
+        const container = document.getElementById("truckRowsList");
+        if (!workingTrucks.length) {
+          container.innerHTML = `<div class="text-xs text-slate-400 italic">Aucun camion affecté pour le moment.</div>`;
           return;
         }
-        user.passwordHash = encodePass(newPass);
+        container.innerHTML = workingTrucks
+          .map(
+            (item, idx) => `
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2.5 rounded-lg border border-slate-200">
+            <div class="sm:col-span-4">
+              <input
+                type="text"
+                value="${escapeHtml(item.truck)}"
+                oninput="workingTrucks[${idx}].truck = this.value.toUpperCase()"
+                placeholder="Immatriculation camion (ex: TG-4512-MD)"
+                class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm font-mono uppercase"
+              />
+            </div>
+            <div class="sm:col-span-7">
+              <input
+                type="text"
+                value="${escapeHtml(item.assignment)}"
+                oninput="workingTrucks[${idx}].assignment = this.value"
+                placeholder="Affectation (TC concernés ou poids/colis en dépotage)"
+                class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm"
+              />
+            </div>
+            <div class="sm:col-span-1 flex justify-end">
+              <button
+                type="button"
+                onclick="removeTruckRow(${idx})"
+                class="px-2 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        `
+          )
+          .join("");
       }
 
-      user.photoDataUrl = pendingProfilePhoto;
-      saveState();
-      closeModal("profileModal");
-      renderApp();
-      showToast("Profil mis à jour.");
-    }
+      window.syncTransportModeUI = function () {
+        const mode = document.getElementById("fTransportMode").value;
+        const returnSelect = document.getElementById("fEmptyReturnStatus");
+        if (mode === "DEPOTAGE") {
+          returnSelect.value = "NON_APPLICABLE";
+          returnSelect.disabled = true;
+        } else {
+          returnSelect.disabled = false;
+          if (returnSelect.value === "NON_APPLICABLE") {
+            returnSelect.value = "EN_ATTENTE";
+          }
+        }
+      };
 
-    // RÉINITIALISATION DIRECTE DU MOT DE PASSE D'UN AGENT PAR L'ADMIN
-    function openResetPasswordModal(userId) {
-      if (!isAdmin(getCurrentUser())) {
-        showToast("Action réservée à l'Administrateur.");
-        return;
-      }
-      const target = state.users.find((u) => u.id === userId);
-      if (!target) return;
-
-      document.getElementById("resetTargetUserId").value = target.id;
-      document.getElementById("resetTargetUserLabel").innerHTML =
-        `Agent concerné : <strong>${escapeHtml(target.name)}</strong> (<code>${escapeHtml(target.username)}</code>)`;
-      document.getElementById("adminResetPasswordInput").value = "";
-      document.getElementById("resetPasswordModal").classList.add("open");
-      setTimeout(() => document.getElementById("adminResetPasswordInput").focus(), 60);
-    }
-
-    function confirmAdminPasswordReset() {
-      if (!isAdmin(getCurrentUser())) {
-        showToast("Action réservée à l'Administrateur.");
-        return;
-      }
-      const targetId = document.getElementById("resetTargetUserId").value;
-      const newPass = document.getElementById("adminResetPasswordInput").value || "";
-
-      if (newPass.length < 4) {
-        showToast("Le nouveau mot de passe doit contenir au moins 4 caractères.");
-        return;
+      function formatSingleExpiryHint(isoValue, label) {
+        if (!isoValue) return `<span class="text-slate-400">Aucune échéance renseignée</span>`;
+        const ts = new Date(isoValue).getTime();
+        if (Number.isNaN(ts)) return "";
+        const hoursLeft = Math.round((ts - Date.now()) / (3600 * 1000));
+        if (hoursLeft < 0) {
+          return `<span class="text-rose-700 font-bold">⚠️ ${label} expiré (${Math.abs(hoursLeft)}h)</span>`;
+        }
+        if (hoursLeft <= 72) {
+          return `<span class="text-rose-600 font-bold">⚠️ Alerte &lt; 72h : reste ${hoursLeft}h</span>`;
+        }
+        return `<span class="text-emerald-700">✓ Reste ${hoursLeft}h (&gt; 72h)</span>`;
       }
 
-      const target = state.users.find((u) => u.id === targetId);
-      if (!target) return;
+      window.refreshModalExpirationPreview = function () {
+        document.getElementById("badExpiryStatus").innerHTML = formatSingleExpiryHint(
+          document.getElementById("fBadExpiry").value,
+          "BAD"
+        );
+        document.getElementById("t1ExpiryStatus").innerHTML = formatSingleExpiryHint(
+          document.getElementById("fT1Expiry").value,
+          "T1"
+        );
+      };
 
-      target.passwordHash = encodePass(newPass);
-      saveState();
-      closeModal("resetPasswordModal");
-      showToast(`Mot de passe réinitialisé pour ${target.username}.`);
-    }
-
-    function openAdminModal() {
-      const user = getCurrentUser();
-      if (!isAdmin(user)) {
-        showToast("Accès réservé à l'Administrateur.");
-        return;
-      }
-
-      document.getElementById("newAgentRoles").innerHTML = AVAILABLE_ROLES.map((role) => `
-        <label class="role-chip">
-          <input type="checkbox" class="new-agent-role-cb" value="${role}" ${role === "AGENT_TRANSIT" ? "checked" : ""} />
-          ${role}
-        </label>
-      `).join("");
-
-      document.getElementById("adminUsersList").innerHTML = state.users.map((u) => {
-        const isSelf = u.id === user.id;
-        const roleBoxes = AVAILABLE_ROLES.map((r) => {
-          const checked = u.roles.includes(r) ? "checked" : "";
+      function renderRegimesChecklist(currentSteps = {}) {
+        const perms = getPermissions();
+        const grid = document.getElementById("regimesChecklistGrid");
+        grid.innerHTML = WORKFLOW_STEPS.map((step) => {
+          const checked = !!(currentSteps && currentSteps[step.key]);
+          const canToggle = perms.allowedSteps.includes(step.key);
           return `
-            <label class="role-chip">
-              <input type="checkbox" ${checked} onchange="toggleUserRole('${u.id}', '${r}', this.checked)" />
-              ${r}
+            <label class="flex items-center gap-2 p-2.5 rounded-lg border ${
+              canToggle ? "bg-white border-slate-300 cursor-pointer" : "bg-slate-100 border-slate-200 opacity-60 cursor-not-allowed"
+            } text-xs font-bold text-slate-800">
+              <input
+                type="checkbox"
+                data-step-key="${step.key}"
+                ${checked ? "checked" : ""}
+                ${canToggle ? "" : "disabled"}
+                class="w-4 h-4 rounded border-slate-400 text-blue-600"
+              />
+              <span>${escapeHtml(step.label)}</span>
             </label>
           `;
         }).join("");
+      }
 
-        return `
-          <div style="padding:12px 0; border-bottom:1px solid var(--border);">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
-              <div style="display:flex; align-items:center; gap:10px;">
-                ${renderAvatarHtml(u, "avatar-sm")}
-                <div>
-                  <strong>${escapeHtml(u.name)}</strong> <span style="color:var(--muted);">(${escapeHtml(u.username)})</span>
-                </div>
+      window.openDossierModal = function (dossierId) {
+        const perms = getPermissions();
+        const isEditing = !!dossierId;
+
+        if (!isEditing && !perms.canCreate) {
+          showToast("Votre rôle actuel ne permet pas de créer un nouveau dossier.");
+          return;
+        }
+
+        const existing = isEditing ? appState.dossiers.find((d) => d.id === dossierId) : null;
+        if (isEditing && !existing) return;
+
+        const nextSeq = (Number(appState.lastSeqNumber) || appState.dossiers.length) + 1;
+        const repValue = existing ? existing.repertoire : formatRepertoire(nextSeq);
+
+        document.getElementById("editDossierId").value = existing ? existing.id : "";
+        document.getElementById("dossierModalTitle").textContent = existing
+          ? `Suivi Dossier — ${existing.repertoire}`
+          : `Nouveau Dossier — ${repValue}`;
+        document.getElementById("dossierModalSubtitle").textContent = existing
+          ? `Client : ${existing.client} • BL : ${existing.bl} • Navire : ${existing.vessel}`
+          : `Attribution automatique du numéro séquentiel ${repValue}`;
+
+        document.getElementById("dossierClosureBadge").classList.toggle("hidden", !(existing && existing.closed));
+
+        document.getElementById("fRepertoire").value = repValue;
+        document.getElementById("fClient").value = existing ? existing.client || "" : "";
+        document.getElementById("fShipper").value = existing ? existing.shipper || "" : "";
+        document.getElementById("fClientContact").value = existing ? existing.clientContact || "" : "";
+        document.getElementById("fBl").value = existing ? existing.bl || "" : "";
+        document.getElementById("fVessel").value = existing ? existing.vessel || "" : "";
+        document.getElementById("fArrivalDate").value = existing ? existing.arrivalDate || "" : new Date().toISOString().slice(0, 10);
+        document.getElementById("fTransportMode").value = existing ? existing.transportMode || "SUR_CAMION" : "SUR_CAMION";
+        document.getElementById("fMarchandise").value = existing ? existing.marchandise || "" : "";
+        document.getElementById("fPoids").value = existing ? existing.poids || "" : "";
+        document.getElementById("fQuantite").value = existing ? existing.quantite || "" : "";
+
+        document.getElementById("fBadExpiry").value = existing ? existing.badExpiry || "" : "";
+        document.getElementById("fT1Expiry").value = existing ? existing.t1Expiry || "" : "";
+        document.getElementById("fDeclarationNum").value = existing ? existing.declarationNum || "" : "";
+        document.getElementById("fCorridorNote").value = existing ? existing.corridorNote || "" : "";
+
+        document.getElementById("batchContainersPasteInput").value = "";
+        workingContainers = existing && Array.isArray(existing.containers) && existing.containers.length
+          ? [...existing.containers]
+          : [""];
+        renderContainerRows();
+
+        workingTrucks = existing && Array.isArray(existing.trucks)
+          ? existing.trucks.map((t) => ({ truck: t.truck || "", assignment: t.assignment || "" }))
+          : [];
+        renderTruckRows();
+
+        document.getElementById("fEmptyReturnStatus").value = existing?.emptyReturn?.status || "EN_ATTENTE";
+        document.getElementById("fEmptyReturnDate").value = existing?.emptyReturn?.date || "";
+        document.getElementById("fEmptyReturnDepot").value = existing?.emptyReturn?.depot || "";
+
+        const closedCheckbox = document.getElementById("fClosedBySupervisor");
+        closedCheckbox.checked = !!(existing && existing.closed);
+        closedCheckbox.disabled = !perms.canCloseDossier;
+        document.getElementById("supervisorClosureHelp").textContent = perms.canCloseDossier
+          ? "Vous pouvez clôturer ce dossier après contrôle."
+          : "Réservé au Superviseur.";
+
+        document.getElementById("fBadExpiry").disabled = !perms.canEditBad;
+        document.getElementById("fT1Expiry").disabled = !perms.canEditCustoms;
+        document.getElementById("fDeclarationNum").disabled = !perms.canEditCustoms;
+
+        renderRegimesChecklist(existing?.steps || {});
+        syncTransportModeUI();
+        refreshModalExpirationPreview();
+
+        document.getElementById("dossierModal").classList.add("open");
+      };
+
+      window.saveDossierForm = function (event) {
+        event.preventDefault();
+        const perms = getPermissions();
+        const editId = document.getElementById("editDossierId").value;
+        const existingIndex = editId ? appState.dossiers.findIndex((d) => d.id === editId) : -1;
+        const existing = existingIndex >= 0 ? appState.dossiers[existingIndex] : null;
+
+        const stepsPayload = { ...(existing?.steps || {}) };
+        document.querySelectorAll("#regimesChecklistGrid input[type='checkbox'][data-step-key]").forEach((cb) => {
+          if (!cb.disabled) {
+            stepsPayload[cb.getAttribute("data-step-key")] = cb.checked;
+          }
+        });
+
+        const cleanContainers = Array.from(
+          new Set(workingContainers.map((c) => String(c || "").trim().toUpperCase()).filter(Boolean))
+        );
+        const cleanTrucks = workingTrucks
+          .map((t) => ({
+            truck: String(t.truck || "").trim().toUpperCase(),
+            assignment: String(t.assignment || "").trim()
+          }))
+          .filter((t) => t.truck || t.assignment);
+
+        const transportMode = document.getElementById("fTransportMode").value;
+        const emptyReturnStatus =
+          transportMode === "DEPOTAGE"
+            ? "NON_APPLICABLE"
+            : document.getElementById("fEmptyReturnStatus").value;
+
+        let nextSeq = Number(appState.lastSeqNumber) || appState.dossiers.length;
+        let repertoire = existing ? existing.repertoire : document.getElementById("fRepertoire").value.trim().toUpperCase();
+
+        if (!existing) {
+          nextSeq += 1;
+          repertoire = formatRepertoire(nextSeq);
+          appState.lastSeqNumber = Math.max(nextSeq, Number(appState.lastSeqNumber) || 0);
+        }
+
+        const record = {
+          id: existing ? existing.id : "dos_" + Date.now(),
+          repertoire,
+          client: document.getElementById("fClient").value.trim(),
+          shipper: document.getElementById("fShipper").value.trim(),
+          clientContact: document.getElementById("fClientContact").value.trim(),
+          bl: document.getElementById("fBl").value.trim().toUpperCase(),
+          vessel: document.getElementById("fVessel").value.trim().toUpperCase(),
+          arrivalDate: document.getElementById("fArrivalDate").value,
+          marchandise: document.getElementById("fMarchandise").value.trim(),
+          poids: document.getElementById("fPoids").value.trim(),
+          quantite: document.getElementById("fQuantite").value.trim(),
+          transportMode,
+          declarationNum: document.getElementById("fDeclarationNum").value.trim().toUpperCase(),
+          corridorNote: document.getElementById("fCorridorNote").value.trim(),
+          badExpiry: document.getElementById("fBadExpiry").value,
+          t1Expiry: document.getElementById("fT1Expiry").value,
+          steps: stepsPayload,
+          containers: cleanContainers,
+          trucks: cleanTrucks,
+          emptyReturn: {
+            status: emptyReturnStatus,
+            date: transportMode === "DEPOTAGE" ? "" : document.getElementById("fEmptyReturnDate").value,
+            depot: transportMode === "DEPOTAGE" ? "" : document.getElementById("fEmptyReturnDepot").value.trim()
+          },
+          closed: perms.canCloseDossier
+            ? document.getElementById("fClosedBySupervisor").checked
+            : !!(existing && existing.closed),
+          billedInvoiceNumber: existing ? existing.billedInvoiceNumber || null : null
+        };
+
+        if (existingIndex >= 0) {
+          appState.dossiers[existingIndex] = record;
+        } else {
+          appState.dossiers.unshift(record);
+        }
+
+        saveState();
+        closeModal("dossierModal");
+        renderAll();
+        showToast(`Dossier ${record.repertoire} enregistré.`);
+      };
+
+      /**
+       * Bordereau détaillé : STRICTEMENT AUCUNE mention de facturation, tarif ou facture.
+       */
+      window.printBordereauDetaille = function (dossierId) {
+        const d = appState.dossiers.find((item) => item.id === dossierId);
+        if (!d) return;
+
+        const stepsList = WORKFLOW_STEPS.map((s) => {
+          const ok = !!(d.steps && d.steps[s.key]);
+          return `<span style="display:inline-block;padding:3px 8px;margin:2px;border-radius:6px;border:1px solid ${
+            ok ? "#16a34a" : "#cbd5e1"
+          };background:${ok ? "#dcfce7" : "#f8fafc"};color:${
+            ok ? "#166534" : "#64748b"
+          };font-size:11px;font-weight:700;">${escapeHtml(s.label)} : ${ok ? "VALIDÉ" : "EN ATTENTE"}</span>`;
+        }).join("");
+
+        const containersText =
+          d.containers && d.containers.length ? d.containers.join(", ") : "Non renseigné";
+
+        const trucksHtml =
+          d.trucks && d.trucks.length
+            ? `<ul style="margin:6px 0 0 18px;padding:0;">${d.trucks
+                .map(
+                  (t) =>
+                    `<li style="margin-bottom:3px;"><strong>Camion ${escapeHtml(t.truck || "-")}</strong> — ${escapeHtml(
+                      t.assignment || "Affectation en cours"
+                    )}</li>`
+                )
+                .join("")}</ul>`
+            : `<p style="margin:6px 0 0 0;color:#64748b;">Aucun camion affecté.</p>`;
+
+        const returnVideBlock =
+          d.transportMode === "SUR_CAMION"
+            ? `<p style="margin:4px 0;"><strong>Retour vide :</strong> ${
+                d.emptyReturn?.status === "RETOURNE"
+                  ? `Effectué le ${escapeHtml(d.emptyReturn.date || "-")} (${escapeHtml(d.emptyReturn.depot || "Parc TC")})`
+                  : `En attente (${escapeHtml(d.emptyReturn?.depot || "Parc TC")})`
+              }</p>`
+            : `<p style="margin:4px 0;"><strong>Mode d'exploitation :</strong> Dépotage (CFS / Sans retour de conteneur vide)</p>`;
+
+        const html = `
+          <div style="font-family:'Inter',sans-serif;color:#0f172a;padding:24px;max-width:860px;margin:0 auto;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0f172a;padding-bottom:12px;margin-bottom:18px;">
+              <div>
+                <h1 style="margin:0;font-size:22px;font-weight:800;letter-spacing:0.5px;">GEO SUIVI TRANSIT</h1>
+                <div style="font-size:13px;font-weight:700;color:#1d4ed8;margin-top:2px;">BORDEREAU DÉTAILLÉ DE SUIVI CARGAISON &amp; TRANSIT</div>
               </div>
-              <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                <button type="button" class="sm warning" onclick="openResetPasswordModal('${u.id}')">
-                  🔑 Réinitialiser mot de passe
-                </button>
-                <button type="button" class="sm danger" ${isSelf ? "disabled title='Impossible de supprimer votre propre compte actif'" : `onclick="deleteUserAccount('${u.id}')"`}>
-                  🗑️ Supprimer le compte
-                </button>
+              <div style="text-align:right;font-size:12px;">
+                <div><strong>Répertoire :</strong> ${escapeHtml(d.repertoire)}</div>
+                <div><strong>Date d'édition :</strong> ${escapeHtml(new Date().toLocaleDateString("fr-FR"))}</div>
+                <div><strong>État :</strong> ${d.closed ? "CLÔTURÉ" : "EN COURS"}</div>
               </div>
             </div>
-            <div class="role-grid">${roleBoxes}</div>
+
+            <table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12.5px;">
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;width:22%;"><strong>Client / Importateur</strong></td>
+                <td style="border:1px solid #cbd5e1;padding:8px;width:28%;">${escapeHtml(d.client || "-")}</td>
+                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;width:22%;"><strong>N° Bill of Lading (BL)</strong></td>
+                <td style="border:1px solid #cbd5e1;padding:8px;width:28%;font-family:monospace;font-weight:700;">${escapeHtml(d.bl || "-")}</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Chargeur</strong></td>
+                <td style="border:1px solid #cbd5e1;padding:8px;">${escapeHtml(d.shipper || "-")}</td>
+                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Navire / Arrivée</strong></td>
+                <td style="border:1px solid #cbd5e1;padding:8px;">${escapeHtml(d.vessel || "-")} (${escapeHtml(d.arrivalDate || "-")})</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Marchandise</strong></td>
+                <td style="border:1px solid #cbd5e1;padding:8px;">${escapeHtml(d.marchandise || "-")}</td>
+                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Poids / Quantité</strong></td>
+                <td style="border:1px solid #cbd5e1;padding:8px;">${escapeHtml(d.poids || "-")} • ${escapeHtml(d.quantite || "-")}</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Mode Transport</strong></td>
+                <td style="border:1px solid #cbd5e1;padding:8px;font-weight:700;">${
+                  d.transportMode === "SUR_CAMION" ? "Sur Camion" : "Dépotage"
+                }</td>
+                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>N° Déclaration / T1</strong></td>
+                <td style="border:1px solid #cbd5e1;padding:8px;font-family:monospace;">${escapeHtml(d.declarationNum || "-")}</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Conteneurs</strong></td>
+                <td colspan="3" style="border:1px solid #cbd5e1;padding:8px;font-family:monospace;font-weight:700;">${escapeHtml(containersText)}</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Échéances BAD / T1</strong></td>
+                <td colspan="3" style="border:1px solid #cbd5e1;padding:8px;">
+                  BAD : ${escapeHtml(d.badExpiry ? new Date(d.badExpiry).toLocaleString("fr-FR") : "Non défini")} &nbsp;|&nbsp;
+                  T1 : ${escapeHtml(d.t1Expiry ? new Date(d.t1Expiry).toLocaleString("fr-FR") : "Non défini")}
+                </td>
+              </tr>
+            </table>
+
+            <div style="border:1px solid #cbd5e1;border-radius:8px;padding:12px;margin-bottom:14px;">
+              <div style="font-size:12px;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Régimes &amp; Étapes Opérationnelles</div>
+              <div>${stepsList}</div>
+            </div>
+
+            <div style="border:1px solid #cbd5e1;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12.5px;">
+              <div style="font-size:12px;font-weight:800;text-transform:uppercase;margin-bottom:6px;">Affectation Camions &amp; Retour Vide</div>
+              ${trucksHtml}
+              <div style="margin-top:8px;">${returnVideBlock}</div>
+              ${
+                d.corridorNote
+                  ? `<p style="margin:6px 0 0 0;"><strong>Observation transit :</strong> ${escapeHtml(d.corridorNote)}</p>`
+                  : ""
+              }
+            </div>
+
+            <div style="display:flex;justify-content:space-between;margin-top:28px;font-size:12px;">
+              <div style="width:45%;border-top:1px solid #64748b;padding-top:6px;">Visa Exploitation / Transit</div>
+              <div style="width:45%;border-top:1px solid #64748b;padding-top:6px;text-align:right;">Visa Supervision GEO SUIVI TRANSIT</div>
+            </div>
           </div>
         `;
-      }).join("");
 
-      document.getElementById("adminModal").classList.add("open");
-    }
+        const zone = document.getElementById("printZone");
+        zone.innerHTML = html;
+        window.print();
+      };
 
-    function createNewAgent() {
-      if (!isAdmin(getCurrentUser())) return;
-
-      const name = (document.getElementById("newAgentName").value || "").trim();
-      const username = (document.getElementById("newAgentUser").value || "").trim().toLowerCase();
-      const password = document.getElementById("newAgentPass").value || "";
-      const roles = Array.from(document.querySelectorAll(".new-agent-role-cb:checked")).map((cb) => cb.value);
-
-      if (!name || !username || !password) {
-        showToast("Veuillez renseigner le nom, l'identifiant et le mot de passe.");
-        return;
+      /**
+       * Module Facturation DDU automatisée : 10 000 FCFA / DDU, GE001/FA/ANNÉE, ste GEO, e-mail k@ste-geo.com
+       */
+      function getBillableDduDossiers() {
+        const onlyUnbilled = !!document.getElementById("invoiceOnlyUnbilledCheckbox")?.checked;
+        return appState.dossiers.filter((d) => {
+          const isDdu = !!(d.steps && d.steps.DDU);
+          if (!isDdu) return false;
+          if (onlyUnbilled && d.billedInvoiceNumber) return false;
+          return true;
+        });
       }
 
-      if (state.users.some((u) => String(u.username || "").trim().toLowerCase() === username)) {
-        showToast("Cet identifiant existe déjà.");
-        return;
+      function buildCurrentInvoiceObject() {
+        const yearInput = Number(document.getElementById("invoiceYearInput")?.value);
+        const year = yearInput >= 2020 && yearInput <= 2099 ? yearInput : DEFAULT_YEAR;
+        const seqStr = String(Math.max(1, Number(appState.invoiceCounter) || 1)).padStart(3, "0");
+        const invoiceNumber = `GE${seqStr}/FA/${year}`;
+        const recipientEmail = (document.getElementById("invoiceRecipientEmail")?.value || DEFAULT_RECIPIENT_EMAIL).trim() || DEFAULT_RECIPIENT_EMAIL;
+        const dduList = getBillableDduDossiers();
+        const totalAmount = dduList.length * DDU_UNIT_PRICE;
+
+        return {
+          invoiceNumber,
+          year,
+          billedTo: "ste GEO",
+          recipientEmail,
+          unitPrice: DDU_UNIT_PRICE,
+          items: dduList,
+          totalAmount,
+          issuedAt: new Date().toLocaleDateString("fr-FR")
+        };
       }
 
-      state.users.push({
-        id: "u_" + Date.now(),
-        name,
-        username,
-        passwordHash: encodePass(password),
-        roles,
-        photoDataUrl: "",
-        online: false,
-        lastSeen: "Jamais"
+      function renderInvoiceDocumentMarkup(inv) {
+        const rowsHtml = inv.items.length
+          ? inv.items
+              .map(
+                (d, idx) => `
+              <tr>
+                <td class="py-2 px-3 border-b border-slate-200 text-xs">${idx + 1}</td>
+                <td class="py-2 px-3 border-b border-slate-200 text-xs font-extrabold text-blue-900">${escapeHtml(d.repertoire)}</td>
+                <td class="py-2 px-3 border-b border-slate-200 text-xs font-mono">${escapeHtml(d.bl)}</td>
+                <td class="py-2 px-3 border-b border-slate-200 text-xs font-semibold">${escapeHtml(d.client)}</td>
+                <td class="py-2 px-3 border-b border-slate-200 text-xs font-mono">${escapeHtml(d.declarationNum || "-")}</td>
+                <td class="py-2 px-3 border-b border-slate-200 text-xs text-right font-bold">${inv.unitPrice.toLocaleString("fr-FR")} FCFA</td>
+              </tr>
+            `
+              )
+              .join("")
+          : `
+            <tr>
+              <td colspan="6" class="py-6 px-3 text-center text-xs text-slate-500">
+                Aucun dossier DDU sélectionné pour cette facture.
+              </td>
+            </tr>
+          `;
+
+        return `
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b-2 border-slate-900 pb-3 mb-4">
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-blue-700">GEO SUIVI TRANSIT</div>
+              <h2 class="text-xl font-extrabold text-slate-900 m-0">FACTURE DDU — ${escapeHtml(inv.invoiceNumber)}</h2>
+              <div class="text-xs text-slate-600 mt-1">
+                Facturé à : <strong class="text-slate-900">${escapeHtml(inv.billedTo)}</strong> (${escapeHtml(inv.recipientEmail)})
+              </div>
+            </div>
+            <div class="text-left sm:text-right text-xs text-slate-600">
+              <div><strong>N° Facture :</strong> <span class="font-mono font-bold text-slate-900">${escapeHtml(inv.invoiceNumber)}</span></div>
+              <div><strong>Date :</strong> ${escapeHtml(inv.issuedAt)}</div>
+              <div><strong>Tarif unitaire DDU :</strong> ${inv.unitPrice.toLocaleString("fr-FR")} FCFA</div>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-[11px] uppercase text-slate-600 font-bold">
+                  <th class="py-2 px-3 border-b border-slate-300">#</th>
+                  <th class="py-2 px-3 border-b border-slate-300">Répertoire</th>
+                  <th class="py-2 px-3 border-b border-slate-300">N° BL</th>
+                  <th class="py-2 px-3 border-b border-slate-300">Client</th>
+                  <th class="py-2 px-3 border-b border-slate-300">Déclaration</th>
+                  <th class="py-2 px-3 border-b border-slate-300 text-right">Montant</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 pt-3 border-t-2 border-slate-900 flex flex-wrap items-center justify-between gap-2">
+            <div class="text-xs font-bold text-slate-700">
+              Nombre de dossiers DDU : ${inv.items.length} × ${inv.unitPrice.toLocaleString("fr-FR")} FCFA
+            </div>
+            <div class="text-base sm:text-lg font-extrabold text-slate-900">
+              TOTAL FACTURE : ${inv.totalAmount.toLocaleString("fr-FR")} FCFA
+            </div>
+          </div>
+        `;
+      }
+
+      function renderIssuedInvoicesArchive() {
+        const box = document.getElementById("issuedInvoicesList");
+        if (!appState.invoices.length) {
+          box.innerHTML = `<div class="text-slate-400 italic">Aucune facture encore émise.</div>`;
+          return;
+        }
+        box.innerHTML = appState.invoices
+          .map(
+            (arch) => `
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+            <div>
+              <strong class="font-mono text-blue-900">${escapeHtml(arch.invoiceNumber)}</strong>
+              <span class="text-slate-600 ml-2">• ${escapeHtml(arch.billedTo)} (${escapeHtml(arch.recipientEmail)})</span>
+              <span class="text-slate-500 ml-2">• ${arch.count} DDU • <strong>${Number(arch.totalAmount).toLocaleString("fr-FR")} FCFA</strong></span>
+            </div>
+            <span class="text-[11px] text-slate-500">Émise le ${escapeHtml(arch.issuedAt)}</span>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      window.openDduBillingModal = function () {
+        document.getElementById("invoiceYearInput").value = DEFAULT_YEAR;
+        if (!document.getElementById("invoiceRecipientEmail").value) {
+          document.getElementById("invoiceRecipientEmail").value = DEFAULT_RECIPIENT_EMAIL;
+        }
+        refreshDduBillingPreview();
+        document.getElementById("dduBillingModal").classList.add("open");
+      };
+
+      window.refreshDduBillingPreview = function () {
+        const inv = buildCurrentInvoiceObject();
+        document.getElementById("dduInvoicePreviewCard").innerHTML = renderInvoiceDocumentMarkup(inv);
+        renderIssuedInvoicesArchive();
+      };
+
+      window.printCurrentDduInvoice = function () {
+        const inv = buildCurrentInvoiceObject();
+        document.getElementById("printZone").innerHTML = `
+          <div style="font-family:'Inter',sans-serif;color:#0f172a;padding:24px;max-width:860px;margin:0 auto;">
+            ${renderInvoiceDocumentMarkup(inv)}
+          </div>
+        `;
+        window.print();
+      };
+
+      window.issueAndArchiveDduInvoice = function () {
+        const inv = buildCurrentInvoiceObject();
+        if (!inv.items.length) {
+          showToast("Aucun dossier DDU à facturer.");
+          return;
+        }
+
+        const reps = inv.items.map((d) => d.repertoire);
+        appState.dossiers.forEach((d) => {
+          if (reps.includes(d.repertoire)) {
+            d.billedInvoiceNumber = inv.invoiceNumber;
+          }
+        });
+
+        appState.invoices.unshift({
+          invoiceNumber: inv.invoiceNumber,
+          billedTo: inv.billedTo,
+          recipientEmail: inv.recipientEmail,
+          count: inv.items.length,
+          unitPrice: inv.unitPrice,
+          totalAmount: inv.totalAmount,
+          issuedAt: inv.issuedAt,
+          repertoires: reps
+        });
+
+        appState.invoiceCounter = (Number(appState.invoiceCounter) || 1) + 1;
+        saveState();
+        refreshDduBillingPreview();
+        renderKpis();
+        renderDossiersList();
+        showToast(`Facture ${inv.invoiceNumber} enregistrée (${inv.totalAmount.toLocaleString("fr-FR")} FCFA).`);
+      };
+
+      function buildEmailDraftText(inv) {
+        const lines = inv.items.map(
+          (d, idx) =>
+            `${idx + 1}. ${d.repertoire} | BL: ${d.bl} | Client: ${d.client} | ${inv.unitPrice.toLocaleString("fr-FR")} FCFA`
+        );
+        return [
+          `Bonjour ste GEO,`,
+          ``,
+          `Veuillez trouver ci-dessous le récapitulatif de la facture DDU ${inv.invoiceNumber} émise par GEO SUIVI TRANSIT :`,
+          ``,
+          `Facturé à : ${inv.billedTo}`,
+          `Nombre de dossiers DDU : ${inv.items.length}`,
+          `Tarif unitaire : ${inv.unitPrice.toLocaleString("fr-FR")} FCFA`,
+          `Montant total : ${inv.totalAmount.toLocaleString("fr-FR")} FCFA`,
+          ``,
+          `Détail des répertoires :`,
+          ...(lines.length ? lines : ["Aucun dossier DDU"]),
+          ``,
+          `Cordialement,`,
+          `GEO SUIVI TRANSIT`
+        ].join("\n");
+      }
+
+      window.openEmailComposerForInvoice = function () {
+        const inv = buildCurrentInvoiceObject();
+        const toAddr = document.getElementById("invoiceRecipientEmail").value.trim() || DEFAULT_RECIPIENT_EMAIL;
+        const subject = `Facture DDU ${inv.invoiceNumber} — ste GEO (${inv.totalAmount.toLocaleString("fr-FR")} FCFA)`;
+        const body = buildEmailDraftText(inv);
+
+        document.getElementById("emailToField").value = toAddr;
+        document.getElementById("emailSubjectField").value = subject;
+        document.getElementById("emailBodyField").value = body;
+
+        const mailtoHref = `mailto:${encodeURIComponent(toAddr)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        document.getElementById("mailtoDirectLink").href = mailtoHref;
+
+        document.getElementById("emailComposerModal").classList.add("open");
+      };
+
+      window.copyEmailDraftText = function () {
+        const textarea = document.getElementById("emailBodyField");
+        if (!textarea) return;
+        textarea.select();
+        try {
+          document.execCommand("copy");
+          showToast("Texte de l'e-mail copié dans le presse-papiers.");
+        } catch (err) {
+          showToast("Sélectionnez le texte et copiez-le manuellement.");
+        }
+      };
+
+      window.closeModal = function (modalId) {
+        const el = document.getElementById(modalId);
+        if (el) el.classList.remove("open");
+      };
+
+      window.handleBackdropClick = function (event, modalId) {
+        if (event.target && event.target.id === modalId) {
+          closeModal(modalId);
+        }
+      };
+
+      function renderAll() {
+        renderRoleControls();
+        renderAlertCenter();
+        renderKpis();
+        renderDossiersList();
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        renderAll();
       });
-
-      saveState();
-      document.getElementById("newAgentName").value = "";
-      document.getElementById("newAgentUser").value = "";
-      document.getElementById("newAgentPass").value = "";
-      openAdminModal();
-      renderApp();
-      showToast(`Compte "${username}" créé avec succès.`);
-    }
-
-    function toggleUserRole(userId, role, enabled) {
-      if (!isAdmin(getCurrentUser())) return;
-      const target = state.users.find((u) => u.id === userId);
-      if (!target) return;
-
-      const roleSet = new Set(target.roles || []);
-      if (enabled) roleSet.add(role);
-      else roleSet.delete(role);
-      target.roles = Array.from(roleSet);
-
-      saveState();
-      renderApp();
-      showToast(`Rôles mis à jour pour ${target.username}.`);
-    }
-
-    function deleteUserAccount(userId) {
-      const current = getCurrentUser();
-      if (!isAdmin(current)) return;
-      if (userId === current.id) {
-        showToast("Vous ne pouvez pas supprimer votre propre compte connecté.");
-        return;
-      }
-      const target = state.users.find((u) => u.id === userId);
-      if (!target) return;
-      if (!confirm(`Supprimer définitivement le compte de ${target.name} (${target.username}) ?`)) return;
-
-      state.users = state.users.filter((u) => u.id !== userId);
-      saveState();
-      openAdminModal();
-      renderApp();
-      showToast(`Compte ${target.username} supprimé.`);
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.remove("open");
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-      document.getElementById("loginForm").addEventListener("submit", handleLogin);
-      renderApp();
-    });
+    })();
   </script>
 </body>
 </html>
