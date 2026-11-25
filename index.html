@@ -161,34 +161,44 @@
             ⚓
           </div>
           <div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-base sm:text-lg font-extrabold tracking-wide">GEO SUIVI TRANSIT</span>
-              <span class="text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 font-semibold">
-                Afrique de l'Ouest • Lomé / Corridor
-              </span>
-            </div>
-            <p class="text-xs text-slate-400 m-0">
-              Transit maritime, dédouanement, alertes &lt; 72h, bordereaux &amp; facturation DDU
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Barre de rôles / Connexion rapide -->
+      <!-- Barre d'actions & profil actif -->
       <div class="flex flex-wrap items-center gap-2">
-        <label for="roleSwitcherSelect" class="text-xs text-slate-300 font-semibold">Rôle actif :</label>
-        <select
-          id="roleSwitcherSelect"
-          onchange="switchActiveRole(this.value)"
-          class="bg-slate-800 text-white border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-        ></select>
+        <!-- Sélecteur rapide réservé UNIQUEMENT à Administrateur et Superviseur -->
+        <div id="adminQuickSwitchWrapper" class="hidden items-center gap-2">
+          <label for="roleSwitcherSelect" class="text-xs text-amber-300 font-semibold">Aperçu rôle :</label>
+          <select
+            id="roleSwitcherSelect"
+            onchange="switchActiveRole(this.value)"
+            class="bg-slate-800 text-white border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ></select>
+        </div>
+
+        <!-- Badge statique du rôle attribué (visible par tous, sans menu de changement pour les agents) -->
+        <span
+          id="headerStaticRolePill"
+          class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-bold text-blue-200"
+        ></span>
+
+        <!-- Bouton Gestion des Rôles & Utilisateurs (UNIQUEMENT Administrateur & Superviseur) -->
         <button
           type="button"
-          onclick="openLoginModal()"
-          class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition"
+          id="btnManageRoles"
+          onclick="openRoleAdminModal()"
+          class="hidden px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white shadow transition"
         >
-          🔐 Connexion / Profil
+          👥 Gestion des Rôles &amp; Utilisateurs
         </button>
+
+        <!-- Bouton Facturation DDU (Contrôlé par Agent DDU / Facturier + Superviseur/Admin) -->
+        <button
+          type="button"
+          id="btnOpenDduBilling"
+          onclick="openDduBillingModal()"
+          class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow transition"
+        >
+          🧾 Facturation DDU
+        </button>
+
         <button
           type="button"
           id="btnLogout"
@@ -198,13 +208,7 @@
         >
           🚪 Déconnexion
         </button>
-        <button
-          type="button"
-          onclick="openDduBillingModal()"
-          class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow transition"
-        >
-          🧾 Facturation DDU
-        </button>
+
         <button
           type="button"
           onclick="resetDemoData()"
@@ -221,7 +225,7 @@
       <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
         <div class="flex items-center gap-2 flex-wrap">
           <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>Connecté en tant que : <strong id="activeUserDisplay" class="text-white"></strong></span>
+          <span>Connecté : <strong id="activeUserDisplay" class="text-white"></strong></span>
           <span id="activeRoleBadge" class="px-2 py-0.5 rounded-md bg-blue-900/70 text-blue-200 border border-blue-700/60 font-semibold"></span>
         </div>
         <div id="activeRoleScopeNote" class="text-slate-400"></div>
@@ -232,28 +236,24 @@
   <!-- CONTENU PRINCIPAL -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
-    <!-- ÉCRAN DE SESSION DÉCONNECTÉE / VERROUILLÉE -->
+    <!-- ÉCRAN DE SESSION DÉCONNECTÉE / CONNEXION PAR COMPTE UTILISATEUR -->
     <section id="loggedOutScreen" class="hidden card-surface p-6 sm:p-10 max-w-xl mx-auto my-6 text-center space-y-5 border-slate-300">
       <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-900 text-white flex items-center justify-center text-2xl font-extrabold shadow">
         🔒
       </div>
       <div class="space-y-1.5">
-        <h2 class="text-xl font-extrabold text-slate-900 m-0">Session déconnectée</h2>
+        <h2 class="text-xl font-extrabold text-slate-900 m-0">Connexion — GEO SUIVI TRANSIT</h2>
         <p class="text-sm text-slate-600 m-0">
-          Vous êtes actuellement déconnecté de <strong>GEO SUIVI TRANSIT</strong>. Choisissez un rôle et votre nom d'opérateur ci-dessous pour reprendre votre session.
+          Sélectionnez votre compte utilisateur pour ouvrir votre session. Le profil et les droits d'accès de chaque agent sont attribués uniquement par l'<strong>Administrateur</strong> ou le <strong>Superviseur</strong>.
         </p>
       </div>
       <form id="lockedSessionLoginForm" onsubmit="submitLockedSessionLogin(event)" class="text-left space-y-3.5 max-w-md mx-auto">
         <div>
-          <label for="lockedRoleSelect" class="block text-xs font-bold text-slate-700 mb-1">Rôle / Profil</label>
-          <select id="lockedRoleSelect" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"></select>
+          <label for="lockedUserAccountSelect" class="block text-xs font-bold text-slate-700 mb-1">Compte utilisateur (Rôle attribué)</label>
+          <select id="lockedUserAccountSelect" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-white font-semibold"></select>
         </div>
         <div>
-          <label for="lockedAgentName" class="block text-xs font-bold text-slate-700 mb-1">Nom de l'opérateur</label>
-          <input type="text" id="lockedAgentName" required placeholder="Ex: Mme soumani Queen" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
-        </div>
-        <div>
-          <label for="lockedCodeInput" class="block text-xs font-bold text-slate-700 mb-1">Code d'accès (optionnel)</label>
+          <label for="lockedCodeInput" class="block text-xs font-bold text-slate-700 mb-1">Code d'accès (optionnel en démonstration)</label>
           <input type="password" id="lockedCodeInput" placeholder="Ex: 1234" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
         </div>
         <button
@@ -394,31 +394,57 @@
     </div>
   </main>
 
-  <!-- MODAL CONNEXION / PROFIL -->
-  <div id="loginModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'loginModal')">
-    <div class="modal-panel max-w-md" onclick="event.stopPropagation()">
-      <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-        <h3 class="text-base font-bold text-slate-900 m-0">🔐 Connexion &amp; Changement de Rôle</h3>
-        <button type="button" onclick="closeModal('loginModal')" class="text-slate-500 hover:text-slate-800 font-bold px-2 py-1">✕</button>
+  <!-- MODAL GESTION DES RÔLES & UTILISATEURS (RÉSERVÉ ADMINISTRATEUR & SUPERVISEUR) -->
+  <div id="roleAdminModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'roleAdminModal')">
+    <div class="modal-panel max-w-3xl" onclick="event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-slate-200 bg-indigo-950 text-white flex items-center justify-between gap-3">
+        <div>
+          <h3 class="text-base sm:text-lg font-extrabold m-0">👥 Gestion des Rôles &amp; Attribution des Profils</h3>
+          <p class="text-xs text-indigo-200 m-0 mt-0.5">
+            Accès strictement réservé à l'Administrateur et au Superviseur. Les agents n'ont pas accès au changement de profil.
+          </p>
+        </div>
+        <button type="button" onclick="closeModal('roleAdminModal')" class="px-2.5 py-1.5 rounded-lg bg-indigo-900 hover:bg-indigo-800 text-xs font-bold">✕</button>
       </div>
-      <form id="loginModalForm" onsubmit="submitLoginModal(event)" class="p-5 space-y-3.5">
-        <div>
-          <label for="loginRoleSelect" class="block text-xs font-bold text-slate-700 mb-1">Profil / Rôle à activer</label>
-          <select id="loginRoleSelect" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"></select>
+
+      <div class="p-5 overflow-y-auto space-y-5">
+        <!-- Ajouter un nouveau compte agent -->
+        <form onsubmit="addNewUserAccount(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
+          <div class="sm:col-span-5">
+            <label for="newAgentFullName" class="block text-xs font-bold text-slate-700 mb-1">Nom complet de l'agent *</label>
+            <input type="text" id="newAgentFullName" required placeholder="Ex: Yao Mensah" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm" />
+          </div>
+          <div class="sm:col-span-5">
+            <label for="newAgentAssignedRole" class="block text-xs font-bold text-slate-700 mb-1">Rôle attribué *</label>
+            <select id="newAgentAssignedRole" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold"></select>
+          </div>
+          <div class="sm:col-span-2">
+            <button type="submit" class="w-full py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow">
+              + Ajouter
+            </button>
+          </div>
+        </form>
+
+        <!-- Liste des comptes utilisateurs et attribution de rôles -->
+        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-[11px] uppercase text-slate-600 font-bold border-b border-slate-200">
+                <th class="py-2.5 px-3.5">Utilisateur / Agent</th>
+                <th class="py-2.5 px-3.5">Rôle Attribué</th>
+                <th class="py-2.5 px-3.5 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="usersRoleTableBody" class="divide-y divide-slate-200 text-sm"></tbody>
+          </table>
         </div>
-        <div>
-          <label for="loginAgentName" class="block text-xs font-bold text-slate-700 mb-1">Nom de l'opérateur</label>
-          <input type="text" id="loginAgentName" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
-        </div>
-        <div>
-          <label for="loginCodeInput" class="block text-xs font-bold text-slate-700 mb-1">Code d'accès (optionnel en mode démo)</label>
-          <input type="password" id="loginCodeInput" placeholder="Ex: 1234" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
-        </div>
-        <div class="pt-2 flex justify-end gap-2">
-          <button type="button" onclick="closeModal('loginModal')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-semibold">Annuler</button>
-          <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold">Valider le profil</button>
-        </div>
-      </form>
+      </div>
+
+      <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50 flex justify-end">
+        <button type="button" onclick="closeModal('roleAdminModal')" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold">
+          Fermer
+        </button>
+      </div>
     </div>
   </div>
 
@@ -730,7 +756,7 @@
     <div class="modal-panel max-w-4xl" onclick="event.stopPropagation()">
       <div class="px-5 py-4 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between gap-3">
         <div>
-          <h3 class="text-base sm:text-lg font-extrabold m-0">🧾 Module Facturation DDU Automatisée</h3>
+          <h3 class="text-base sm:text-lg font-extrabold m-0">🧾 Module Facturation DDU — Contrôle Facturier (Agent DDU)</h3>
           <p class="text-xs text-slate-300 m-0 mt-0.5">
             Tarif fixe : <strong>10 000 FCFA</strong> par dossier DDU • Format : <strong>GE001/FA/ANNÉE</strong> • Facturé à : <strong>ste GEO</strong>
           </p>
@@ -741,7 +767,20 @@
       </div>
 
       <div class="p-5 overflow-y-auto space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <div id="dduBillingAccessNotice" class="hidden rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 font-semibold"></div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div>
+            <label for="invoiceLastRepertoireSelect" class="block text-xs font-extrabold text-blue-900 mb-1">
+              Dernier répertoire à calculer *
+            </label>
+            <select
+              id="invoiceLastRepertoireSelect"
+              onchange="refreshDduBillingPreview()"
+              class="w-full px-3 py-2 rounded-lg border-2 border-blue-400 bg-white text-sm font-extrabold text-blue-950"
+            ></select>
+            <div class="text-[11px] text-slate-500 mt-1">Défini par le facturier (Agent DDU)</div>
+          </div>
           <div>
             <label for="invoiceYearInput" class="block text-xs font-bold text-slate-700 mb-1">Année de facturation</label>
             <input
@@ -773,7 +812,7 @@
                 onchange="refreshDduBillingPreview()"
                 class="w-4 h-4 rounded border-slate-400"
               />
-              <span>Uniquement les DDU non encore facturés</span>
+              <span>Uniquement DDU non encore facturés</span>
             </label>
           </div>
         </div>
@@ -808,6 +847,7 @@
           </button>
           <button
             type="button"
+            id="btnIssueArchiveInvoice"
             onclick="issueAndArchiveDduInvoice()"
             class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow transition"
           >
@@ -868,36 +908,57 @@
     (function () {
       "use strict";
 
-      const STORAGE_KEY = "GEO_SUIVI_TRANSIT_DATA_V1";
+      const STORAGE_KEY = "GEO_SUIVI_TRANSIT_DATA_V2";
       const DDU_UNIT_PRICE = 10000; // 10,000 FCFA par DDU
       const DEFAULT_YEAR = 2026;
       const DEFAULT_RECIPIENT_EMAIL = "k@ste-geo.com";
 
       const ROLES = [
         {
+          id: "ADMINISTRATEUR",
+          label: "Administrateur (Attribution des Rôles & Supervision)",
+          scope: "Gestion complète des comptes utilisateurs, attribution des rôles et supervision générale."
+        },
+        {
           id: "SUPERVISEUR",
-          label: "Superviseur (Supervision complète & Clôture)",
-          userName: "Mme soumani Queen",
-          scope: "Accès total : création, modification, affectation camions, retour vide, clôture officielle & facturation DDU."
+          label: "Superviseur (Attribution des Rôles & Clôture Dossiers)",
+          scope: "Attribution des rôles aux agents, validation complète, retour vide et clôture officielle des dossiers."
         },
         {
-          id: "AGENT_DOUANE_DDU_T1",
-          label: "Agent Douane / DDU / T1",
-          userName: "Kossi Mensah (Douane)",
-          scope: "Gestion des régimes DDU, T1, déclarations, BACT, DFU et dates d'expiration T1."
+          id: "AGENT_DDU_FACTURIER",
+          label: "Agent DDU / Facturier",
+          scope: "Gestion DDU, DFU, déclarations et définition du dernier répertoire pour la facturation DDU (10 000 FCFA/DDU)."
         },
         {
-          id: "AGENT_ECHANGE_BAD",
-          label: "Agent Échange / BAD / Consignation",
-          userName: "Afiwa Lawson (Échange)",
-          scope: "Gestion du Bon à Délivrer (BAD), échéance BAD (< 72h), BL/navire et conteneurs."
+          id: "AGENT_BAD",
+          label: "Agent BAD / Échange",
+          scope: "Création des dossiers, gestion du Bon à Délivrer (BAD), BL, navire et alerte < 72h."
         },
         {
-          id: "AGENT_EXPLOITATION_CAMION",
-          label: "Agent Exploitation / Camions / CFS / Retour Vide",
-          userName: "Kodjo Agbeko (Exploitation)",
-          scope: "Modes Sur Camion & Dépotage (CFS / HINTERLAND / PIA / LCT), camions et retour vide."
+          id: "AGENT_T1_BACT",
+          label: "Agent T1 / BACT",
+          scope: "Gestion des régimes T1, BACT, déclarations transit et échéances T1 (< 72h)."
+        },
+        {
+          id: "AGENT_PORT_CFS",
+          label: "Agent Port / PIA / LCT / CFS",
+          scope: "Suivi terminal PIA, LCT, opérations de dépotage CFS et manutention portuaire."
+        },
+        {
+          id: "AGENT_TRANSPORT_HINTERLAND",
+          label: "Agent Transport / Hinterland",
+          scope: "Modes Sur Camion / Dépotage, affectation camions, HINTERLAND et suivi retour vide."
         }
+      ];
+
+      const DEFAULT_USERS = [
+        { id: "usr_admin", name: "Admin Système GEO", roleId: "ADMINISTRATEUR" },
+        { id: "usr_sup", name: "Mme soumani Queen", roleId: "SUPERVISEUR" },
+        { id: "usr_ddu", name: "Kossi Mensah (Facturier)", roleId: "AGENT_DDU_FACTURIER" },
+        { id: "usr_bad", name: "Afiwa Lawson", roleId: "AGENT_BAD" },
+        { id: "usr_t1", name: "Koffi Tetteh", roleId: "AGENT_T1_BACT" },
+        { id: "usr_port", name: "Ama Akakpo", roleId: "AGENT_PORT_CFS" },
+        { id: "usr_trans", name: "Kodjo Agbeko", roleId: "AGENT_TRANSPORT_HINTERLAND" }
       ];
 
       const WORKFLOW_STEPS = [
@@ -919,8 +980,10 @@
       function createInitialState() {
         return {
           isLoggedIn: true,
+          activeUserId: "usr_sup",
           activeRoleId: "SUPERVISEUR",
           activeOperatorName: "Mme soumani Queen",
+          users: DEFAULT_USERS.map((u) => ({ ...u })),
           lastSeqNumber: 4,
           invoiceCounter: 1,
           invoices: [],
@@ -1099,10 +1162,14 @@
           if (!raw) return createInitialState();
           const parsed = JSON.parse(raw);
           const def = createInitialState();
+          const users = Array.isArray(parsed.users) && parsed.users.length ? parsed.users : def.users;
+          const activeUser = users.find((u) => u.id === parsed.activeUserId) || users[1] || users[0];
           return {
             isLoggedIn: typeof parsed.isLoggedIn === "boolean" ? parsed.isLoggedIn : true,
-            activeRoleId: parsed.activeRoleId || def.activeRoleId,
-            activeOperatorName: parsed.activeOperatorName || def.activeOperatorName,
+            activeUserId: activeUser.id,
+            activeRoleId: parsed.activeRoleId || activeUser.roleId,
+            activeOperatorName: parsed.activeOperatorName || activeUser.name,
+            users,
             lastSeqNumber: Number(parsed.lastSeqNumber) || def.dossiers.length,
             invoiceCounter: Number(parsed.invoiceCounter) || 1,
             invoices: Array.isArray(parsed.invoices) ? parsed.invoices : [],
@@ -1149,24 +1216,36 @@
         return ROLES.find((r) => r.id === roleId) || ROLES[0];
       }
 
+      function isAdminOrSupervisor(roleId = appState.activeRoleId) {
+        return roleId === "ADMINISTRATEUR" || roleId === "SUPERVISEUR";
+      }
+
       function getPermissions() {
         const role = appState.activeRoleId;
-        const isSup = role === "SUPERVISEUR";
+        const isHighPrivilege = isAdminOrSupervisor(role);
+        const isFacturier = role === "AGENT_DDU_FACTURIER";
         return {
-          isSup,
-          canCreate: isSup || role === "AGENT_ECHANGE_BAD" || role === "AGENT_DOUANE_DDU_T1",
-          canEditGeneral: isSup || role === "AGENT_ECHANGE_BAD" || role === "AGENT_DOUANE_DDU_T1",
-          canEditBad: isSup || role === "AGENT_ECHANGE_BAD",
-          canEditCustoms: isSup || role === "AGENT_DOUANE_DDU_T1",
-          canEditExploitation: isSup || role === "AGENT_EXPLOITATION_CAMION",
-          canCloseDossier: isSup,
-          allowedSteps: isSup
+          isHighPrivilege,
+          canManageRoles: isHighPrivilege,
+          canCreate: isHighPrivilege || role === "AGENT_BAD" || isFacturier,
+          canEditGeneral: isHighPrivilege || role === "AGENT_BAD" || isFacturier,
+          canEditBad: isHighPrivilege || role === "AGENT_BAD",
+          canEditCustoms: isHighPrivilege || isFacturier || role === "AGENT_T1_BACT",
+          canEditExploitation: isHighPrivilege || role === "AGENT_TRANSPORT_HINTERLAND" || role === "AGENT_PORT_CFS",
+          canCloseDossier: role === "SUPERVISEUR" || role === "ADMINISTRATEUR",
+          canAccessDduBilling: isFacturier || isHighPrivilege,
+          canDefineInvoiceCutoff: isFacturier || isHighPrivilege,
+          allowedSteps: isHighPrivilege
             ? WORKFLOW_STEPS.map((s) => s.key)
-            : role === "AGENT_DOUANE_DDU_T1"
-            ? ["DDU", "T1", "BACT", "DFU"]
-            : role === "AGENT_ECHANGE_BAD"
+            : isFacturier
+            ? ["DDU", "DFU"]
+            : role === "AGENT_BAD"
             ? ["BAD"]
-            : ["PIA", "LCT", "CFS", "HINTERLAND"]
+            : role === "AGENT_T1_BACT"
+            ? ["T1", "BACT"]
+            : role === "AGENT_PORT_CFS"
+            ? ["PIA", "LCT", "CFS"]
+            : ["HINTERLAND"]
         };
       }
 
@@ -1213,50 +1292,71 @@
       }
 
       function renderRoleControls() {
+        const quickSwitchWrapper = document.getElementById("adminQuickSwitchWrapper");
         const select = document.getElementById("roleSwitcherSelect");
-        const loginSelect = document.getElementById("loginRoleSelect");
-        const lockedSelect = document.getElementById("lockedRoleSelect");
+        const staticPill = document.getElementById("headerStaticRolePill");
+        const btnManageRoles = document.getElementById("btnManageRoles");
+        const btnOpenDduBilling = document.getElementById("btnOpenDduBilling");
+        const lockedUserSelect = document.getElementById("lockedUserAccountSelect");
         const logoutBtn = document.getElementById("btnLogout");
         const loggedOutScreen = document.getElementById("loggedOutScreen");
         const workspaceContent = document.getElementById("workspaceContent");
 
-        const optionsHtml = ROLES.map(
+        const roleOptionsHtml = ROLES.map(
           (r) => `<option value="${r.id}" ${r.id === appState.activeRoleId ? "selected" : ""}>${escapeHtml(r.label)}</option>`
         ).join("");
+        select.innerHTML = roleOptionsHtml;
 
-        select.innerHTML = optionsHtml;
-        loginSelect.innerHTML = optionsHtml;
-        if (lockedSelect) {
-          lockedSelect.innerHTML = optionsHtml;
+        if (lockedUserSelect) {
+          lockedUserSelect.innerHTML = appState.users
+            .map((u) => {
+              const rInfo = getRoleInfo(u.roleId);
+              return `<option value="${escapeHtml(u.id)}" ${u.id === appState.activeUserId ? "selected" : ""}>${escapeHtml(u.name)} — [${escapeHtml(rInfo.label)}]</option>`;
+            })
+            .join("");
         }
 
         if (!appState.isLoggedIn) {
-          select.value = "";
-          select.disabled = true;
+          quickSwitchWrapper.classList.add("hidden");
+          quickSwitchWrapper.classList.remove("flex");
+          staticPill.textContent = "Session déconnectée";
+          btnManageRoles.classList.add("hidden");
+          btnOpenDduBilling.classList.add("hidden");
           if (logoutBtn) logoutBtn.classList.add("hidden");
           document.getElementById("activeUserDisplay").textContent = "Déconnecté";
           document.getElementById("activeRoleBadge").textContent = "Aucune session active";
-          document.getElementById("activeRoleScopeNote").textContent = "Connectez-vous pour accéder aux dossiers et actions.";
+          document.getElementById("activeRoleScopeNote").textContent = "Veuillez sélectionner votre compte utilisateur pour vous connecter.";
           if (loggedOutScreen) loggedOutScreen.classList.remove("hidden");
           if (workspaceContent) workspaceContent.classList.add("hidden");
-          const lockedNameInput = document.getElementById("lockedAgentName");
-          if (lockedNameInput && !lockedNameInput.value) {
-            lockedNameInput.value = appState.activeOperatorName || ROLES[0].userName;
-          }
           return;
         }
 
-        select.disabled = false;
         if (logoutBtn) logoutBtn.classList.remove("hidden");
         if (loggedOutScreen) loggedOutScreen.classList.add("hidden");
         if (workspaceContent) workspaceContent.classList.remove("hidden");
 
+        const perms = getPermissions();
         const roleInfo = getRoleInfo(appState.activeRoleId);
-        document.getElementById("activeUserDisplay").textContent = appState.activeOperatorName || roleInfo.userName;
+
+        // STRICT : Seuls Administrateur et Superviseur voient le sélecteur et le bouton Gestion des Rôles
+        if (perms.canManageRoles) {
+          quickSwitchWrapper.classList.remove("hidden");
+          quickSwitchWrapper.classList.add("flex");
+          btnManageRoles.classList.remove("hidden");
+        } else {
+          quickSwitchWrapper.classList.add("hidden");
+          quickSwitchWrapper.classList.remove("flex");
+          btnManageRoles.classList.add("hidden");
+        }
+
+        // Facturation DDU accessible au Facturier (Agent DDU) + Superviseur/Administrateur
+        btnOpenDduBilling.classList.toggle("hidden", !perms.canAccessDduBilling);
+
+        staticPill.textContent = `Profil : ${roleInfo.label}`;
+        document.getElementById("activeUserDisplay").textContent = appState.activeOperatorName;
         document.getElementById("activeRoleBadge").textContent = roleInfo.label;
         document.getElementById("activeRoleScopeNote").textContent = roleInfo.scope;
 
-        const perms = getPermissions();
         const createBtn = document.getElementById("btnCreateDossier");
         createBtn.disabled = !perms.canCreate;
         createBtn.classList.toggle("opacity-50", !perms.canCreate);
@@ -1264,14 +1364,124 @@
       }
 
       window.switchActiveRole = function (roleId) {
-        if (!roleId) return;
+        if (!isAdminOrSupervisor(appState.activeRoleId)) {
+          showToast("Action refusée : seuls l'Administrateur et le Superviseur peuvent changer de rôle.");
+          return;
+        }
         const info = getRoleInfo(roleId);
-        appState.isLoggedIn = true;
         appState.activeRoleId = info.id;
-        appState.activeOperatorName = info.userName;
         saveState();
         renderAll();
-        showToast("Rôle actif : " + info.label);
+        showToast("Simulation de rôle activée : " + info.label);
+      };
+
+      window.logoutSession = function () {
+        appState.isLoggedIn = false;
+        saveState();
+        renderAll();
+        showToast("Session déconnectée.");
+      };
+
+      window.submitLockedSessionLogin = function (event) {
+        event.preventDefault();
+        const userId = document.getElementById("lockedUserAccountSelect").value;
+        const userObj = appState.users.find((u) => u.id === userId) || appState.users[0];
+        if (!userObj) return;
+        const info = getRoleInfo(userObj.roleId);
+        appState.isLoggedIn = true;
+        appState.activeUserId = userObj.id;
+        appState.activeRoleId = userObj.roleId;
+        appState.activeOperatorName = userObj.name;
+        saveState();
+        renderAll();
+        showToast(`Connecté : ${userObj.name} (${info.label})`);
+      };
+
+      window.openRoleAdminModal = function () {
+        if (!getPermissions().canManageRoles) {
+          showToast("Accès réservé à l'Administrateur et au Superviseur.");
+          return;
+        }
+        document.getElementById("newAgentAssignedRole").innerHTML = ROLES.map(
+          (r) => `<option value="${r.id}">${escapeHtml(r.label)}</option>`
+        ).join("");
+        renderUsersRoleTable();
+        document.getElementById("roleAdminModal").classList.add("open");
+      };
+
+      function renderUsersRoleTable() {
+        const tbody = document.getElementById("usersRoleTableBody");
+        tbody.innerHTML = appState.users
+          .map((u) => {
+            const options = ROLES.map(
+              (r) => `<option value="${r.id}" ${r.id === u.roleId ? "selected" : ""}>${escapeHtml(r.label)}</option>`
+            ).join("");
+            const isCurrent = u.id === appState.activeUserId;
+            return `
+              <tr>
+                <td class="py-2.5 px-3.5 font-bold text-slate-900">
+                  ${escapeHtml(u.name)}
+                  ${isCurrent ? `<span class="ml-1.5 text-[10.5px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Session active</span>` : ""}
+                </td>
+                <td class="py-2.5 px-3.5">
+                  <select
+                    onchange="assignRoleToUser('${escapeHtml(u.id)}', this.value)"
+                    class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold"
+                  >
+                    ${options}
+                  </select>
+                </td>
+                <td class="py-2.5 px-3.5 text-right">
+                  ${
+                    appState.users.length > 1 && !isCurrent
+                      ? `<button type="button" onclick="removeUserAccount('${escapeHtml(u.id)}')" class="px-2.5 py-1 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold">Supprimer</button>`
+                      : `<span class="text-xs text-slate-400">Protégé</span>`
+                  }
+                </td>
+              </tr>
+            `;
+          })
+          .join("");
+      }
+
+      window.assignRoleToUser = function (userId, newRoleId) {
+        if (!getPermissions().canManageRoles) return;
+        const user = appState.users.find((u) => u.id === userId);
+        if (!user) return;
+        user.roleId = newRoleId;
+        if (appState.activeUserId === user.id) {
+          appState.activeRoleId = newRoleId;
+        }
+        saveState();
+        renderUsersRoleTable();
+        renderAll();
+        showToast(`Rôle attribué à ${user.name} : ${getRoleInfo(newRoleId).label}`);
+      };
+
+      window.addNewUserAccount = function (event) {
+        event.preventDefault();
+        if (!getPermissions().canManageRoles) return;
+        const nameInput = document.getElementById("newAgentFullName");
+        const roleSelect = document.getElementById("newAgentAssignedRole");
+        const name = nameInput.value.trim();
+        if (!name) return;
+        appState.users.push({
+          id: "usr_" + Date.now(),
+          name,
+          roleId: roleSelect.value
+        });
+        nameInput.value = "";
+        saveState();
+        renderUsersRoleTable();
+        showToast(`Compte ajouté : ${name}`);
+      };
+
+      window.removeUserAccount = function (userId) {
+        if (!getPermissions().canManageRoles) return;
+        appState.users = appState.users.filter((u) => u.id !== userId);
+        saveState();
+        renderUsersRoleTable();
+        showToast("Compte supprimé.");
       };
 
       window.logoutSession = function () {
@@ -2036,16 +2246,54 @@
       };
 
       /**
-       * Module Facturation DDU automatisée : 10 000 FCFA / DDU, GE001/FA/ANNÉE, ste GEO, e-mail k@ste-geo.com
+       * Module Facturation DDU contrôlé par le Facturier (Agent DDU) :
+       * Le facturier définit le dernier répertoire à calculer (ex: GEO00003), 10 000 FCFA / DDU, GE001/FA/ANNÉE, ste GEO.
        */
+      function parseRepertoireNumber(repStr) {
+        const match = String(repStr || "").toUpperCase().match(/(\d+)/);
+        return match ? parseInt(match[1], 10) : 0;
+      }
+
+      function populateLastRepertoireSelector() {
+        const select = document.getElementById("invoiceLastRepertoireSelect");
+        if (!select) return;
+        const sortedDossiers = [...appState.dossiers].sort(
+          (a, b) => parseRepertoireNumber(a.repertoire) - parseRepertoireNumber(b.repertoire)
+        );
+        if (!sortedDossiers.length) {
+          select.innerHTML = `<option value="">Aucun répertoire</option>`;
+          return;
+        }
+        const previousVal = select.value;
+        select.innerHTML = sortedDossiers
+          .map((d) => {
+            const isDdu = !!(d.steps && d.steps.DDU);
+            const tag = isDdu ? (d.billedInvoiceNumber ? ` [Déjà facturé: ${d.billedInvoiceNumber}]` : " [DDU à facturer]") : " [Hors DDU]";
+            return `<option value="${escapeHtml(d.repertoire)}">Jusqu'à ${escapeHtml(d.repertoire)} — ${escapeHtml(d.client)}${escapeHtml(tag)}</option>`;
+          })
+          .join("");
+
+        if (previousVal && sortedDossiers.some((d) => d.repertoire === previousVal)) {
+          select.value = previousVal;
+        } else {
+          select.value = sortedDossiers[sortedDossiers.length - 1].repertoire;
+        }
+      }
+
       function getBillableDduDossiers() {
         const onlyUnbilled = !!document.getElementById("invoiceOnlyUnbilledCheckbox")?.checked;
-        return appState.dossiers.filter((d) => {
-          const isDdu = !!(d.steps && d.steps.DDU);
-          if (!isDdu) return false;
-          if (onlyUnbilled && d.billedInvoiceNumber) return false;
-          return true;
-        });
+        const cutoffRep = document.getElementById("invoiceLastRepertoireSelect")?.value || "";
+        const cutoffNum = parseRepertoireNumber(cutoffRep);
+
+        return [...appState.dossiers]
+          .sort((a, b) => parseRepertoireNumber(a.repertoire) - parseRepertoireNumber(b.repertoire))
+          .filter((d) => {
+            const isDdu = !!(d.steps && d.steps.DDU);
+            if (!isDdu) return false;
+            if (onlyUnbilled && d.billedInvoiceNumber) return false;
+            if (cutoffNum > 0 && parseRepertoireNumber(d.repertoire) > cutoffNum) return false;
+            return true;
+          });
       }
 
       function buildCurrentInvoiceObject() {
@@ -2054,6 +2302,7 @@
         const seqStr = String(Math.max(1, Number(appState.invoiceCounter) || 1)).padStart(3, "0");
         const invoiceNumber = `GE${seqStr}/FA/${year}`;
         const recipientEmail = (document.getElementById("invoiceRecipientEmail")?.value || DEFAULT_RECIPIENT_EMAIL).trim() || DEFAULT_RECIPIENT_EMAIL;
+        const cutoffRepertoire = document.getElementById("invoiceLastRepertoireSelect")?.value || "-";
         const dduList = getBillableDduDossiers();
         const totalAmount = dduList.length * DDU_UNIT_PRICE;
 
@@ -2062,6 +2311,7 @@
           year,
           billedTo: "ste GEO",
           recipientEmail,
+          cutoffRepertoire,
           unitPrice: DDU_UNIT_PRICE,
           items: dduList,
           totalAmount,
@@ -2088,7 +2338,7 @@
           : `
             <tr>
               <td colspan="6" class="py-6 px-3 text-center text-xs text-slate-500">
-                Aucun dossier DDU sélectionné pour cette facture.
+                Aucun dossier DDU éligible jusqu'au répertoire <strong>${escapeHtml(inv.cutoffRepertoire)}</strong>.
               </td>
             </tr>
           `;
@@ -2100,6 +2350,9 @@
               <h2 class="text-xl font-extrabold text-slate-900 m-0">FACTURE DDU — ${escapeHtml(inv.invoiceNumber)}</h2>
               <div class="text-xs text-slate-600 mt-1">
                 Facturé à : <strong class="text-slate-900">${escapeHtml(inv.billedTo)}</strong> (${escapeHtml(inv.recipientEmail)})
+              </div>
+              <div class="text-xs text-blue-900 font-semibold mt-0.5">
+                Arrêté au dernier répertoire : <strong>${escapeHtml(inv.cutoffRepertoire)}</strong>
               </div>
             </div>
             <div class="text-left sm:text-right text-xs text-slate-600">
@@ -2127,7 +2380,7 @@
 
           <div class="mt-4 pt-3 border-t-2 border-slate-900 flex flex-wrap items-center justify-between gap-2">
             <div class="text-xs font-bold text-slate-700">
-              Nombre de dossiers DDU : ${inv.items.length} × ${inv.unitPrice.toLocaleString("fr-FR")} FCFA
+              Nombre de dossiers DDU (jusqu'à ${escapeHtml(inv.cutoffRepertoire)}) : ${inv.items.length} × ${inv.unitPrice.toLocaleString("fr-FR")} FCFA
             </div>
             <div class="text-base sm:text-lg font-extrabold text-slate-900">
               TOTAL FACTURE : ${inv.totalAmount.toLocaleString("fr-FR")} FCFA
@@ -2159,9 +2412,22 @@
       }
 
       window.openDduBillingModal = function () {
+        const perms = getPermissions();
+        if (!perms.canAccessDduBilling) {
+          showToast("Accès refusé : la facturation DDU est réservée à l'Agent DDU (Facturier).");
+          return;
+        }
         document.getElementById("invoiceYearInput").value = DEFAULT_YEAR;
         if (!document.getElementById("invoiceRecipientEmail").value) {
           document.getElementById("invoiceRecipientEmail").value = DEFAULT_RECIPIENT_EMAIL;
+        }
+        populateLastRepertoireSelector();
+        const noticeEl = document.getElementById("dduBillingAccessNotice");
+        if (appState.activeRoleId === "AGENT_DDU_FACTURIER") {
+          noticeEl.classList.add("hidden");
+        } else {
+          noticeEl.classList.remove("hidden");
+          noticeEl.textContent = "Mode supervision : le calcul et le choix du dernier répertoire relèvent normalement de l'Agent DDU (Facturier).";
         }
         refreshDduBillingPreview();
         document.getElementById("dduBillingModal").classList.add("open");
@@ -2186,7 +2452,7 @@
       window.issueAndArchiveDduInvoice = function () {
         const inv = buildCurrentInvoiceObject();
         if (!inv.items.length) {
-          showToast("Aucun dossier DDU à facturer.");
+          showToast("Aucun dossier DDU à facturer jusqu'au répertoire sélectionné.");
           return;
         }
 
@@ -2201,6 +2467,7 @@
           invoiceNumber: inv.invoiceNumber,
           billedTo: inv.billedTo,
           recipientEmail: inv.recipientEmail,
+          cutoffRepertoire: inv.cutoffRepertoire,
           count: inv.items.length,
           unitPrice: inv.unitPrice,
           totalAmount: inv.totalAmount,
@@ -2210,10 +2477,11 @@
 
         appState.invoiceCounter = (Number(appState.invoiceCounter) || 1) + 1;
         saveState();
+        populateLastRepertoireSelector();
         refreshDduBillingPreview();
         renderKpis();
         renderDossiersList();
-        showToast(`Facture ${inv.invoiceNumber} enregistrée (${inv.totalAmount.toLocaleString("fr-FR")} FCFA).`);
+        showToast(`Facture ${inv.invoiceNumber} enregistrée (${inv.totalAmount.toLocaleString("fr-FR")} FCFA) jusqu'à ${inv.cutoffRepertoire}.`);
       };
 
       function buildEmailDraftText(inv) {
