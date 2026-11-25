@@ -409,6 +409,19 @@
     .pill.jaune { background: var(--warning-bg); color: var(--warning); }
     .pill.cloture { background: #e2e8f0; color: #334155; }
 
+    .paid-stamp {
+      display: inline-block;
+      background: #dcfce7;
+      color: #15803d;
+      border: 2px solid #15803d;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
     .row-actions {
       display: flex;
       gap: 6px;
@@ -501,7 +514,7 @@
       background: var(--surface);
       border-radius: 12px;
       width: 100%;
-      max-width: 900px;
+      max-width: 960px;
       max-height: 92vh;
       display: flex;
       flex-direction: column;
@@ -623,6 +636,19 @@
       color: #0f172a;
     }
 
+    .archive-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
     .toast {
       position: fixed;
       bottom: 20px;
@@ -708,6 +734,7 @@
       </div>
       <div class="topbar-actions">
         <button id="btnDduBilling" onclick="openDduBillingModal()" class="primary" style="display:none;">🧾 Facturation DDU</button>
+        <button id="btnInvoiceArchive" onclick="openInvoiceArchiveModal()" style="display:none;">🗂️ Factures &amp; Archives</button>
         <button onclick="exportBulkBordereauPdf()">📄 Bordereau PDF (Groupé)</button>
         <button id="btnAdminPanel" onclick="openAdminModal()" style="display:none;">🛡️ Administration</button>
         <button id="btnSettings" onclick="openSettingsModal()" style="display:none;">⚙️ Paramètres</button>
@@ -717,6 +744,7 @@
 
     <main class="container">
       <div id="alertBanner" class="alert-banner" style="display:none;"></div>
+      <div id="supervisorInvoiceBanner" class="truck-banner" style="display:none; background:#eff6ff; border-color:#bfdbfe; color:#1e3a8a;"></div>
       <div id="truckBanner" class="truck-banner" style="display:none;"></div>
 
       <div class="kpis" id="kpiContainer"></div>
@@ -1049,15 +1077,15 @@
 
         <!-- 8. Évolution & Points du dossier -->
         <div id="secEvolution" class="section-box">
-          <h3>8. Évolution &amp; Renseignement du suivi du dossier</h3>
+          <h3>8. Évolution &amp; Renseignement du suivi du dossier (De l'enregistrement à la sortie camion)</h3>
           <div class="grid-2" style="margin-bottom:10px;">
             <div class="field" style="margin-bottom:0;">
               <label for="fEvoStage">Nouvelle étape / Statut</label>
-              <input type="text" id="fEvoStage" placeholder="Ex: BAD récupéré / Passage douane / Dépotage" />
+              <input type="text" id="fEvoStage" placeholder="Ex: Enregistrement / BAD / Déclaration / Sortie camion" />
             </div>
             <div class="field" style="margin-bottom:0;">
-              <label for="fEvoNote">Détail de l'évolution</label>
-              <input type="text" id="fEvoNote" placeholder="Ex: Dossier validé à SEGUCE, camion affecté" />
+              <label for="fEvoNote">Détail de l'évolution / Camion / Sortie</label>
+              <input type="text" id="fEvoNote" placeholder="Ex: Camion TG-4512-MD sorti du port, retour vide planifié" />
             </div>
           </div>
           <button type="button" id="btnAddEvolution" class="sm primary" onclick="addEvolutionEntry()">+ Enregistrer cette évolution</button>
@@ -1067,7 +1095,7 @@
         <div id="secPoints" class="section-box" style="margin-bottom:0;">
           <h3>9. Points / Étapes d'avancement (Bordereau PDF sans facturation)</h3>
           <div class="field" style="margin-bottom:0;">
-            <textarea id="fPoints" rows="3" placeholder="Ex:&#10;- Arrivée navire et BAD récupéré&#10;- Déclaration validée&#10;- Enlèvement / Transport vers destination"></textarea>
+            <textarea id="fPoints" rows="3" placeholder="Ex:&#10;- Enregistrement &amp; BAD récupéré&#10;- Déclaration validée&#10;- Enlèvement &amp; Sortie camion / Retour vide"></textarea>
           </div>
         </div>
       </div>
@@ -1089,10 +1117,10 @@
       </div>
       <div class="modal-body">
         <div class="section-box">
-          <h3>Filtrage par numéro de répertoire (De A à X)</h3>
+          <h3>Filtrage par numéro de répertoire (Reprise auto après la dernière facture)</h3>
           <div class="grid-2">
             <div class="field">
-              <label>Répertoire de début (A)</label>
+              <label>Répertoire de début (auto-positionné sur le suivant)</label>
               <input type="text" id="billRepStart" placeholder="Ex: GEO00001" oninput="computeDduInvoice()" />
             </div>
             <div class="field">
@@ -1109,7 +1137,8 @@
             </div>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button type="button" class="sm" onclick="prefillRangeFromDossiers()">Remplir min → max automatiquement</button>
+            <button type="button" class="sm" onclick="applyNextUnbilledStart()">Reprendre au répertoire suivant</button>
+            <button type="button" class="sm" onclick="prefillRangeFromDossiers()">Remplir min → max dossiers</button>
             <button type="button" class="sm" onclick="computeDduInvoice()">Calculer la facture</button>
           </div>
         </div>
@@ -1118,8 +1147,42 @@
       </div>
       <div class="modal-footer">
         <button onclick="printInvoicePdf()">🖨️ Générer / Imprimer Facture PDF</button>
-        <button onclick="sendInvoiceToGeo()" class="success">✉️ Transmettre Facture PDF à STE GEO</button>
+        <button onclick="sendInvoiceToGeo()" class="success">✉️ Émettre &amp; Envoyer Facture PDF au Superviseur / STE GEO</button>
         <button onclick="closeModal('billingModal')">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ARCHIVE & PAIEMENT FACTURES (SUPERVISEUR & RECHERCHE) -->
+  <div id="invoiceArchiveModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>🗂️ Factures Émises, Payées &amp; Archivées (GE.../FA/ANNÉE)</h2>
+        <button onclick="closeModal('invoiceArchiveModal')" class="sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="section-box">
+          <h3>Recherche dans les factures archivées ou payées</h3>
+          <div class="grid-2">
+            <div class="field" style="margin-bottom:0;">
+              <label for="invoiceSearchInput">Rechercher par N° facture (GE001/FA/...), répertoire, client ou date</label>
+              <input type="text" id="invoiceSearchInput" placeholder="Ex: GE001/FA/2026, GEO00002, PAYÉE..." oninput="renderInvoiceArchiveList()" />
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="invoiceStatusFilter">Filtrer par statut</label>
+              <select id="invoiceStatusFilter" onchange="renderInvoiceArchiveList()">
+                <option value="TOUTES">Toutes les factures archivées</option>
+                <option value="PAYEE">Factures payées (Vert)</option>
+                <option value="EN_ATTENTE">En attente de paiement Superviseur</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="invoiceArchiveListContainer"></div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeModal('invoiceArchiveModal')">Fermer</button>
       </div>
     </div>
   </div>
@@ -1216,7 +1279,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V7";
+    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V8";
     const AVAILABLE_ROLES = [
       "ADMIN",
       "SUPERVISEUR",
@@ -1233,8 +1296,10 @@
         emailK: "k@geosuvitransit.tg",
         dduUnitPrice: 10000,
         currency: "FCFA",
-        invoiceCounter: 1
+        invoiceCounter: 1,
+        lastBilledRep: ""
       },
+      invoicesArchive: [],
       users: [
         {
           id: "u_admin",
@@ -1442,11 +1507,12 @@
 
     function loadState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("GEO_SUIVI_TRANSIT_STATE_V7");
         if (!raw) return cloneDefaultState();
         const parsed = JSON.parse(raw);
         return {
           settings: { ...DEFAULT_STATE.settings, ...(parsed.settings || {}) },
+          invoicesArchive: Array.isArray(parsed.invoicesArchive) ? parsed.invoicesArchive : [],
           users: Array.isArray(parsed.users) && parsed.users.length ? parsed.users : cloneDefaultState().users,
           dossiers: Array.isArray(parsed.dossiers) ? parsed.dossiers : cloneDefaultState().dossiers,
           sessionUserId: parsed.sessionUserId || null
@@ -1498,7 +1564,7 @@
       clearTimeout(window.__toastTimer);
       window.__toastTimer = setTimeout(() => {
         el.style.display = "none";
-      }, 3400);
+      }, 3500);
     }
 
     function escapeHtml(str) {
@@ -1529,6 +1595,10 @@
       return hasRole(user, "AGENT_DDU_T1") || hasRole(user, "ADMIN") || hasRole(user, "SUPERVISEUR");
     }
 
+    function canAccessInvoiceArchive(user) {
+      return !!(user && (isSupervisor(user) || canAccessDduBilling(user)));
+    }
+
     function getPermissions(user) {
       const admin = isAdmin(user);
       const sup = hasRole(user, "SUPERVISEUR");
@@ -1548,7 +1618,6 @@
       };
     }
 
-    /* Alertes < 72h pour BAD et T1 tant que le dossier n'est pas clôturé par le superviseur */
     function getDossierAlerts72h(d) {
       if (!d || d.closed) return [];
       const alerts = [];
@@ -1583,6 +1652,17 @@
       const match = clean.match(/(\d+)$/);
       if (match) return Number(match[1]);
       return null;
+    }
+
+    function formatRepLike(referenceRep, nextNum) {
+      const ref = String(referenceRep || "GEO00001").trim().toUpperCase();
+      const match = ref.match(/^(.*?)(\d+)$/);
+      if (match) {
+        const prefix = match[1];
+        const width = match[2].length;
+        return `${prefix}${String(nextNum).padStart(width, "0")}`;
+      }
+      return `GEO${String(nextNum).padStart(5, "0")}`;
     }
 
     function compareRepertoires(a, b) {
@@ -1656,11 +1736,13 @@
       document.getElementById("currentUserLabel").textContent = `${user.name} (${user.username})`;
       document.getElementById("currentRolesLabel").textContent = `[${user.roles.join(", ")}]`;
       document.getElementById("btnDduBilling").style.display = canAccessDduBilling(user) ? "inline-block" : "none";
+      document.getElementById("btnInvoiceArchive").style.display = canAccessInvoiceArchive(user) ? "inline-block" : "none";
       document.getElementById("btnAdminPanel").style.display = isAdmin(user) ? "inline-block" : "none";
       document.getElementById("btnSettings").style.display = isSupervisor(user) ? "inline-block" : "none";
       document.getElementById("btnNewDossier").style.display = perms.canCreateDossier ? "inline-block" : "none";
 
       renderAlertBanner();
+      renderSupervisorInvoiceBanner(user);
       renderTruckBanner(user);
       renderKpis();
       renderDossiers();
@@ -1677,6 +1759,20 @@
       banner.innerHTML = `
         <div><strong>⚠️ ALERTE EXPIRATION &lt; 72H (BAD / T1) :</strong> ${escapeHtml(allAlerts.join(" • "))}</div>
         <span class="pill rouge">${allAlerts.length} alerte(s) active(s)</span>
+      `;
+    }
+
+    function renderSupervisorInvoiceBanner(user) {
+      const banner = document.getElementById("supervisorInvoiceBanner");
+      const pendingInvoices = (state.invoicesArchive || []).filter((inv) => inv.status !== "PAYEE");
+      if (!pendingInvoices.length || !isSupervisor(user)) {
+        banner.style.display = "none";
+        return;
+      }
+      banner.style.display = "flex";
+      banner.innerHTML = `
+        <div><strong>🧾 SUPERVISEUR — ${pendingInvoices.length} FACTURE(S) DDU EN ATTENTE DE PAIEMENT :</strong> ${pendingInvoices.map((inv) => `${escapeHtml(inv.invoiceNumber)} (${escapeHtml(inv.repStart)} → ${escapeHtml(inv.repEnd)})`).join(" • ")}</div>
+        <button type="button" class="sm primary" onclick="openInvoiceArchiveModal()">Voir &amp; Payer</button>
       `;
     }
 
@@ -1699,13 +1795,13 @@
       const openCount = state.dossiers.filter((d) => !d.closed).length;
       const alertCount = state.dossiers.flatMap((d) => getDossierAlerts72h(d)).length;
       const truckWaitCount = state.dossiers.filter((d) => isDossierWaitingForTruck(d)).length;
-      const closedCount = state.dossiers.filter((d) => d.closed).length;
+      const paidInvoicesCount = (state.invoicesArchive || []).filter((inv) => inv.status === "PAYEE").length;
 
       document.getElementById("kpiContainer").innerHTML = `
         <div class="kpi-card">
           <div class="kpi-label">Total Dossiers</div>
           <div class="kpi-value">${total}</div>
-          <div class="kpi-sub">Actifs : ${openCount} • Clôturés : ${closedCount}</div>
+          <div class="kpi-sub">Actifs : ${openCount} • Clôturés : ${total - openCount}</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Alertes &lt; 72h</div>
@@ -1718,9 +1814,9 @@
           <div class="kpi-sub">Signalé Superviseur</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Dossiers DDU</div>
-          <div class="kpi-value" style="color:var(--info);">${state.dossiers.filter((d) => d.isDdu).length}</div>
-          <div class="kpi-sub">Facturation 10 000</div>
+          <div class="kpi-label">Factures Archivées</div>
+          <div class="kpi-value" style="color:var(--success);">${(state.invoicesArchive || []).length}</div>
+          <div class="kpi-sub">Payées : ${paidInvoicesCount}</div>
         </div>
       `;
     }
@@ -1806,7 +1902,6 @@
       renderDossiers();
     }
 
-    /* Application des droits attribués par l'Administrateur dans le modal dossier */
     function setSectionLock(sectionId, allowed) {
       const sec = document.getElementById(sectionId);
       if (!sec) return;
@@ -1843,7 +1938,6 @@
       document.getElementById("badgeGeneralAccess").textContent = perms.canEditGeneral ? "Édition autorisée" : "Lecture seule";
     }
 
-    /* Conteneurs (4 lettres + 7 chiffres) */
     function renderContainerFields(values = []) {
       const list = Array.isArray(values) && values.length ? values : [""];
       const grid = document.getElementById("containersFieldsGrid");
@@ -1906,7 +2000,6 @@
       }
     }
 
-    /* Fichiers joints par agent */
     function handleSectionFiles(sectionKey, fileList) {
       if (!fileList || !fileList.length) return;
       const names = Array.from(fileList).map((f) => f.name);
@@ -1942,7 +2035,6 @@
       `).join("");
     }
 
-    /* Affectation camions (Sur camion / Dépotage) */
     function toggleTruckSections() {
       const mode = document.getElementById("fTransportMode").value;
       document.getElementById("surCamionSection").style.display = mode === "SUR_CAMION" ? "block" : "none";
@@ -2024,7 +2116,6 @@
       document.getElementById("truckRequestBadge").style.display = checked ? "inline-block" : "none";
     }
 
-    /* Retour vide */
     function handleEmptyReturnFile(fileList) {
       if (!fileList || !fileList.length) return;
       workingEmptyReturnFile = fileList[0].name;
@@ -2055,7 +2146,6 @@
       showToast("Retour vide renseigné.");
     }
 
-    /* Évolution du dossier */
     function renderEvolutionList() {
       const box = document.getElementById("evolutionHistoryList");
       if (!workingEvolutions.length) {
@@ -2097,7 +2187,6 @@
       showToast("Évolution ajoutée au dossier.");
     }
 
-    /* Ouverture / Clôture / Sauvegarde Dossier */
     function openDossierModal(id = null) {
       const modal = document.getElementById("dossierModal");
       const user = getCurrentUser();
@@ -2150,7 +2239,12 @@
         workingEmptyReturnFile = "";
         workingFiles = { exchange: [], ddu: [], passation: [], manutention: [] };
         workingTruckAssignments = [];
-        workingEvolutions = [];
+        workingEvolutions = [{
+          date: new Date().toLocaleString("fr-FR"),
+          stage: "Enregistrement",
+          note: "Création et enregistrement initial du dossier",
+          author: user?.username || "agent"
+        }];
         renderContainerFields([""]);
         document.getElementById("fPoints").value = "";
       } else {
@@ -2274,11 +2368,11 @@
         points: ""
       };
 
-      const perms = getPermissions(getCurrentUser());
+      const user = getCurrentUser();
+      const perms = getPermissions(user);
       const pendingStage = (document.getElementById("fEvoStage").value || "").trim();
       const pendingNote = (document.getElementById("fEvoNote").value || "").trim();
       if (perms.canEditEvolution && (pendingStage || pendingNote)) {
-        const user = getCurrentUser();
         workingEvolutions.unshift({
           date: new Date().toLocaleString("fr-FR"),
           stage: pendingStage || (document.getElementById("fStatut").value || "").trim() || "Suivi",
@@ -2424,10 +2518,23 @@
       showToast(`Dossier ${payload.repertoire} clôturé.`);
     }
 
-    /* Bordereau PDF (SANS FACTURATION) */
+    /* Bordereau PDF détaillé (SANS FACTURATION, de l'enregistrement à la sortie camion & retour vide / sur camion) */
+    function formatTruckAssignmentsForBordereau(d) {
+      const list = d.passation?.truckAssignments || [];
+      if (!list.length) return "Aucun camion renseigné";
+      return list.map((row) => {
+        if (d.transportMode === "DEPOTAGE") {
+          return `${row.truck || "Camion"} (Poids : ${row.poids || "-"}, Qté : ${row.quantite || "-"})`;
+        }
+        return `${row.truck || "Camion"} (TC : ${row.containers || "-"})`;
+      }).join(" ; ");
+    }
+
     function buildBordereauHtml(dossiersList, titleText) {
       const nowStr = new Date().toLocaleString("fr-FR");
       const cards = dossiersList.map((d) => {
+        const isSurCamion = (d.transportMode || "SUR_CAMION") === "SUR_CAMION";
+        const modeLabel = isSurCamion ? "SUR CAMION" : "DÉPOTAGE";
         const pointsLines = (d.points || "Aucun point renseigné.")
           .split("\n")
           .filter(Boolean)
@@ -2435,22 +2542,28 @@
           .join("");
         const containersText = (d.containers && d.containers.length) ? d.containers.join(", ") : "Non précisé";
         const evoHtml = (d.evolutions && d.evolutions.length)
-          ? `<div style="margin-top:8px;"><strong>ÉVOLUTION DU DOSSIER :</strong><ul style="margin:4px 0 0 18px; padding:0;">${
-              d.evolutions.map((e) => `<li><strong>${escapeHtml(e.date)}</strong> — ${escapeHtml(e.stage)} : ${escapeHtml(e.note)}</li>`).join("")
+          ? `<div style="margin-top:8px;"><strong>ÉVOLUTION COMPLÈTE DU DOSSIER (ENREGISTREMENT → SORTIE CAMION / RETOUR VIDE) :</strong><ul style="margin:4px 0 0 18px; padding:0;">${
+              d.evolutions.slice().reverse().map((e) => `<li><strong>${escapeHtml(e.date)}</strong> — <strong>${escapeHtml(e.stage)}</strong> : ${escapeHtml(e.note)} ${e.author ? "(" + escapeHtml(e.author) + ")" : ""}</li>`).join("")
             }</ul></div>`
-          : "";
+          : `<div style="margin-top:8px;"><strong>ÉVOLUTION DU DOSSIER :</strong> Aucune modification d'évolution enregistrée.</div>`;
+
+        const returnVideText = d.emptyReturn?.date
+          ? `Effectué le ${escapeHtml(d.emptyReturn.date)}${d.emptyReturn.fileName ? " — Bordereau : " + escapeHtml(d.emptyReturn.fileName) : ""}`
+          : (isSurCamion ? "En attente / Non encore renseigné (Dossier sur camion)" : "Non applicable (Dossier en dépotage)");
 
         return `
           <div style="border:1px solid #334155; border-radius:8px; padding:14px; margin-bottom:16px; page-break-inside:avoid;">
             <div style="display:flex; justify-content:space-between; border-bottom:1px solid #cbd5e1; padding-bottom:6px; margin-bottom:10px;">
               <strong>RÉPERTOIRE : ${escapeHtml(d.repertoire)}</strong>
-              <span><strong>STATUT :</strong> ${escapeHtml(d.statut || "N/A")} (${escapeHtml(d.circuit)})</span>
+              <span><strong>MODE :</strong> ${escapeHtml(modeLabel)} &nbsp;|&nbsp; <strong>STATUT :</strong> ${escapeHtml(d.statut || "N/A")} (${escapeHtml(d.circuit)})</span>
             </div>
-            <p style="margin:4px 0;"><strong>N° BL :</strong> ${escapeHtml(d.bl || "-")} &nbsp;|&nbsp; <strong>CLIENT :</strong> ${escapeHtml(d.client || "-")}</p>
+            <p style="margin:4px 0;"><strong>N° BL :</strong> ${escapeHtml(d.bl || "-")} &nbsp;|&nbsp; <strong>CLIENT :</strong> ${escapeHtml(d.client || "-")} &nbsp;|&nbsp; <strong>FLUX :</strong> ${escapeHtml(d.flux || "-")}</p>
             <p style="margin:4px 0;"><strong>NAVIRE :</strong> ${escapeHtml(d.navire || "-")} &nbsp;|&nbsp; <strong>PROVENANCE :</strong> ${escapeHtml(d.paysProvenance || "-")} &nbsp;|&nbsp; <strong>DESTINATION :</strong> ${escapeHtml(d.paysDestination || d.destination || "-")}</p>
             <p style="margin:4px 0;"><strong>POIDS :</strong> ${escapeHtml(d.poids || "-")} &nbsp;|&nbsp; <strong>QUANTITÉ :</strong> ${escapeHtml(d.quantite || "-")} &nbsp;|&nbsp; <strong>TYPE CONTENEUR :</strong> ${escapeHtml(d.containerType || "-")}</p>
             <p style="margin:4px 0;"><strong>CONTENEURS :</strong> ${escapeHtml(containersText)}</p>
-            ${d.emptyReturn?.date ? `<p style="margin:4px 0;"><strong>RETOUR VIDE :</strong> ${escapeHtml(d.emptyReturn.date)} ${d.emptyReturn.fileName ? "(" + escapeHtml(d.emptyReturn.fileName) + ")" : ""}</p>` : ""}
+            <p style="margin:4px 0;"><strong>ÉCHANGE / DOUANE :</strong> Doc ${escapeHtml(d.exchange?.docType || "-")} | Déclaration : ${escapeHtml(d.ddu?.declarationNum || "-")} | T1 : ${escapeHtml(d.ddu?.t1Num || "-")} | Bon : ${escapeHtml(d.passation?.bon || "-")}</p>
+            <p style="margin:4px 0;"><strong>CAMIONS / SORTIE :</strong> ${escapeHtml(formatTruckAssignmentsForBordereau(d))}</p>
+            <p style="margin:4px 0;"><strong>RETOUR VIDE (${escapeHtml(modeLabel)}) :</strong> ${returnVideText}</p>
             <div style="margin-top:8px;">
               <strong>POINTS / ÉTAPES D'AVANCEMENT :</strong>
               <ul style="margin:6px 0 0 18px; padding:0;">${pointsLines}</ul>
@@ -2465,7 +2578,7 @@
           <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #0f172a; padding-bottom:10px; margin-bottom:16px;">
             <div>
               <h1 style="margin:0; font-size:20px;">GEO SUIVI TRANSIT — ${escapeHtml(titleText)}</h1>
-              <div style="font-size:12px; color:#475569;">Document d'exploitation et suivi opérationnel</div>
+              <div style="font-size:12px; color:#475569;">Bordereau détaillé d'exploitation et d'évolution du dossier</div>
             </div>
             <div style="font-size:12px; text-align:right;">Édité le ${escapeHtml(nowStr)}</div>
           </div>
@@ -2487,7 +2600,7 @@
         showToast("Dossier introuvable pour le bordereau.");
         return;
       }
-      triggerPrintHtml(buildBordereauHtml([d], `BORDEREAU ${d.repertoire}`));
+      triggerPrintHtml(buildBordereauHtml([d], `BORDEREAU DÉTAILLÉ ${d.repertoire}`));
     }
 
     function printSingleBordereauPdf() {
@@ -2501,13 +2614,49 @@
         showToast("Aucun dossier à exporter en bordereau PDF.");
         return;
       }
-      triggerPrintHtml(buildBordereauHtml(list, `BORDEREAUX GROUPÉS (${list.length})`));
+      triggerPrintHtml(buildBordereauHtml(list, `BORDEREAUX DÉTAILLÉS GROUPÉS (${list.length})`));
     }
 
-    /* Facturation DDU */
+    /* Facturation DDU : GE001/FA/ANNÉE, reprise au répertoire suivant, paiement Superviseur (vert), archive & recherche */
     function formatInvoiceNumber(counterNum, year) {
       const seq = String(counterNum || 1).padStart(3, "0");
       return `GE${seq}/FA/${year}`;
+    }
+
+    function getSortedDossiersByRep() {
+      return state.dossiers
+        .slice()
+        .filter((d) => (d.repertoire || "").trim())
+        .sort((a, b) => compareRepertoires(a.repertoire, b.repertoire));
+    }
+
+    function getNextUnbilledRepValue() {
+      const sorted = getSortedDossiersByRep();
+      if (!sorted.length) return "";
+      const lastBilled = (state.settings.lastBilledRep || "").trim().toUpperCase();
+      if (!lastBilled) {
+        return sorted[0].repertoire;
+      }
+      const afterLast = sorted.find((d) => compareRepertoires(d.repertoire, lastBilled) > 0);
+      if (afterLast) return afterLast.repertoire;
+
+      const lastNum = parseRepNumber(lastBilled);
+      if (lastNum !== null) {
+        return formatRepLike(lastBilled, lastNum + 1);
+      }
+      return sorted[sorted.length - 1].repertoire;
+    }
+
+    function applyNextUnbilledStart() {
+      const nextRep = getNextUnbilledRepValue();
+      const sorted = getSortedDossiersByRep();
+      if (nextRep) {
+        document.getElementById("billRepStart").value = nextRep;
+      }
+      if (sorted.length) {
+        document.getElementById("billRepEnd").value = sorted[sorted.length - 1].repertoire;
+      }
+      computeDduInvoice();
     }
 
     function openDduBillingModal() {
@@ -2520,21 +2669,18 @@
       currentInvoiceNumberPreview = formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
       document.getElementById("billUnitPrice").value = state.settings.dduUnitPrice ?? 10000;
       document.getElementById("billRecipientEmail").value = state.settings.emailK || "k@geosuvitransit.tg";
-      prefillRangeFromDossiers();
+      applyNextUnbilledStart();
       computeDduInvoice();
       document.getElementById("billingModal").classList.add("open");
     }
 
     function prefillRangeFromDossiers() {
-      const sortedReps = state.dossiers
-        .map((d) => (d.repertoire || "").trim().toUpperCase())
-        .filter(Boolean)
-        .sort(compareRepertoires);
-
+      const sortedReps = getSortedDossiersByRep().map((d) => d.repertoire.trim().toUpperCase());
       if (sortedReps.length) {
         document.getElementById("billRepStart").value = sortedReps[0];
         document.getElementById("billRepEnd").value = sortedReps[sortedReps.length - 1];
       }
+      computeDduInvoice();
     }
 
     function getDduRangeMatches() {
@@ -2552,44 +2698,38 @@
         .sort((a, b) => compareRepertoires(a.repertoire, b.repertoire));
     }
 
-    function computeDduInvoice() {
-      const unitPrice = Number(document.getElementById("billUnitPrice").value) || 0;
-      const currency = state.settings.currency || "FCFA";
-      const recipient = (document.getElementById("billRecipientEmail").value || state.settings.emailK || "").trim();
-      const matches = getDduRangeMatches();
-      const totalAmount = matches.length * unitPrice;
-
-      const startLabel = document.getElementById("billRepStart").value.trim().toUpperCase() || "DÉBUT";
-      const endLabel = document.getElementById("billRepEnd").value.trim().toUpperCase() || "FIN";
-      const year = new Date().getFullYear();
-      const invoiceRef = currentInvoiceNumberPreview || formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
-      const invoiceDate = new Date().toLocaleDateString("fr-FR");
-
-      const linesHtml = matches.length
-        ? matches.map((d, idx) => `
+    function renderInvoiceDocumentHtml(invoiceObj) {
+      const linesHtml = (invoiceObj.lines && invoiceObj.lines.length)
+        ? invoiceObj.lines.map((d, idx) => `
             <tr>
               <td>${idx + 1}</td>
               <td><strong>${escapeHtml(d.repertoire)}</strong></td>
               <td>${escapeHtml(d.bl || "-")}</td>
               <td>${escapeHtml(d.client || "-")}</td>
-              <td>${escapeHtml(d.ddu?.declarationNum || "-")}</td>
-              <td>${escapeHtml(d.poids || "-")} / ${escapeHtml(d.quantite || "-")}</td>
-              <td style="text-align:right;">${unitPrice.toLocaleString("fr-FR")} ${escapeHtml(currency)}</td>
+              <td>${escapeHtml(d.declarationNum || "-")}</td>
+              <td>${escapeHtml(d.poidsQuantite || "-")}</td>
+              <td style="text-align:right;">${Number(invoiceObj.unitPrice || 0).toLocaleString("fr-FR")} ${escapeHtml(invoiceObj.currency || "FCFA")}</td>
             </tr>
           `).join("")
         : `<tr><td colspan="7" style="text-align:center; color:var(--muted);">Aucun répertoire trouvé dans cette plage.</td></tr>`;
 
-      document.getElementById("invoicePreviewBox").innerHTML = `
+      const statusBadge = invoiceObj.status === "PAYEE"
+        ? `<div class="paid-stamp">PAYÉE${invoiceObj.paidAt ? " • " + escapeHtml(invoiceObj.paidAt) : ""}</div>`
+        : `<span class="pill jaune">ENVOYÉE AU SUPERVISEUR — EN ATTENTE DE PAIEMENT</span>`;
+
+      return `
         <div class="invoice-banner">
           <div>
             <p class="invoice-doc-title">FACTURE DDU</p>
-            <div style="font-size:13px;"><strong>Destinataire :</strong> STE GEO (${escapeHtml(recipient || "Non défini")})</div>
-            <div style="font-size:12.5px; color:var(--muted);">Plage répertoires : <strong>${escapeHtml(startLabel)}</strong> → <strong>${escapeHtml(endLabel)}</strong></div>
+            <div style="font-size:13px;"><strong>Destinataire :</strong> STE GEO (${escapeHtml(invoiceObj.recipient || "Non défini")})</div>
+            <div style="font-size:12.5px; color:var(--muted);">Plage répertoires : <strong>${escapeHtml(invoiceObj.repStart)}</strong> → <strong>${escapeHtml(invoiceObj.repEnd)}</strong></div>
+            <div style="margin-top:6px;">${statusBadge}</div>
           </div>
           <div style="text-align:right; font-size:12.5px;">
-            <div><strong>N° Facture :</strong> <span style="font-size:14px; font-weight:800;">${escapeHtml(invoiceRef)}</span></div>
-            <div><strong>Date :</strong> ${escapeHtml(invoiceDate)}</div>
-            <div><strong>Tarif unitaire :</strong> ${unitPrice.toLocaleString("fr-FR")} ${escapeHtml(currency)}</div>
+            <div><strong>N° Facture :</strong> <span style="font-size:14px; font-weight:800;">${escapeHtml(invoiceObj.invoiceNumber)}</span></div>
+            <div><strong>Date :</strong> ${escapeHtml(invoiceObj.createdAt)}</div>
+            <div><strong>Tarif unitaire :</strong> ${Number(invoiceObj.unitPrice || 0).toLocaleString("fr-FR")} ${escapeHtml(invoiceObj.currency || "FCFA")}</div>
+            ${invoiceObj.paidBy ? `<div style="color:var(--success); font-weight:600; margin-top:4px;">Payée par : ${escapeHtml(invoiceObj.paidBy)}</div>` : ""}
           </div>
         </div>
         <table style="min-width:100%; margin-bottom:12px;">
@@ -2607,10 +2747,45 @@
           <tbody>${linesHtml}</tbody>
         </table>
         <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:700; padding-top:10px; border-top:2px solid #0f172a;">
-          <span>Total DDU facturés : ${matches.length}</span>
-          <span>MONTANT TOTAL : ${totalAmount.toLocaleString("fr-FR")} ${escapeHtml(currency)}</span>
+          <span>Total DDU facturés : ${invoiceObj.count}</span>
+          <span>MONTANT TOTAL : ${Number(invoiceObj.totalAmount || 0).toLocaleString("fr-FR")} ${escapeHtml(invoiceObj.currency || "FCFA")}</span>
         </div>
       `;
+    }
+
+    function computeDduInvoice() {
+      const unitPrice = Number(document.getElementById("billUnitPrice").value) || 0;
+      const currency = state.settings.currency || "FCFA";
+      const recipient = (document.getElementById("billRecipientEmail").value || state.settings.emailK || "").trim();
+      const matches = getDduRangeMatches();
+      const totalAmount = matches.length * unitPrice;
+
+      const startLabel = document.getElementById("billRepStart").value.trim().toUpperCase() || "DÉBUT";
+      const endLabel = document.getElementById("billRepEnd").value.trim().toUpperCase() || "FIN";
+      const year = new Date().getFullYear();
+      const invoiceRef = currentInvoiceNumberPreview || formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
+
+      const previewObj = {
+        invoiceNumber: invoiceRef,
+        createdAt: new Date().toLocaleDateString("fr-FR"),
+        recipient,
+        repStart: startLabel,
+        repEnd: endLabel,
+        unitPrice,
+        currency,
+        count: matches.length,
+        totalAmount,
+        status: "BROUILLON",
+        lines: matches.map((d) => ({
+          repertoire: d.repertoire,
+          bl: d.bl,
+          client: d.client,
+          declarationNum: d.ddu?.declarationNum || "-",
+          poidsQuantite: `${d.poids || "-"} / ${d.quantite || "-"}`
+        }))
+      };
+
+      document.getElementById("invoicePreviewBox").innerHTML = renderInvoiceDocumentHtml(previewObj);
     }
 
     function printInvoicePdf() {
@@ -2623,7 +2798,8 @@
     }
 
     function sendInvoiceToGeo() {
-      if (!canAccessDduBilling(getCurrentUser())) {
+      const user = getCurrentUser();
+      if (!canAccessDduBilling(user)) {
         showToast("Accès réservé à l'Agent DDU, l'Administrateur et le Superviseur.");
         return;
       }
@@ -2642,8 +2818,40 @@
         return;
       }
 
+      const archivedInvoice = {
+        id: "inv_" + Date.now(),
+        invoiceNumber: invoiceRef,
+        createdAt: new Date().toLocaleString("fr-FR"),
+        createdBy: user?.username || "agent_ddu",
+        recipient,
+        repStart: startLabel,
+        repEnd: endLabel,
+        unitPrice,
+        currency,
+        count: matches.length,
+        totalAmount,
+        status: "ENVOYEE_SUPERVISEUR",
+        paidAt: "",
+        paidBy: "",
+        lines: matches.map((d) => ({
+          repertoire: d.repertoire,
+          bl: d.bl,
+          client: d.client,
+          declarationNum: d.ddu?.declarationNum || "-",
+          poidsQuantite: `${d.poids || "-"} / ${d.quantite || "-"}`
+        }))
+      };
+
+      state.invoicesArchive.unshift(archivedInvoice);
       state.settings.invoiceCounter = (Number(state.settings.invoiceCounter) || 1) + 1;
+      if (matches.length) {
+        const maxRep = matches[matches.length - 1].repertoire;
+        if (!state.settings.lastBilledRep || compareRepertoires(maxRep, state.settings.lastBilledRep) > 0) {
+          state.settings.lastBilledRep = maxRep;
+        }
+      }
       saveState();
+      renderApp();
 
       printInvoicePdf();
 
@@ -2656,13 +2864,101 @@
         `Tarif unitaire : ${unitPrice.toLocaleString("fr-FR")} ${currency}\n` +
         `Montant total : ${totalAmount.toLocaleString("fr-FR")} ${currency}\n` +
         `Détails : ${matches.map((m) => `${m.repertoire} (BL ${m.bl || "-"}, ${m.client || "-"})`).join(" | ") || "Aucun"}\n\n` +
-        `La facture PDF (${invoiceRef}) a été générée pour pièce jointe.`
+        `La facture PDF (${invoiceRef}) a été générée, archivée et transmise au Superviseur.`
       );
 
-      showToast(`Facture ${invoiceRef} générée en PDF et transmise à ${recipient}.`);
+      showToast(`Facture ${invoiceRef} générée en PDF, archivée et envoyée au Superviseur.`);
       setTimeout(() => {
         window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${subject}&body=${body}`;
       }, 300);
+    }
+
+    function openInvoiceArchiveModal() {
+      if (!canAccessInvoiceArchive(getCurrentUser())) {
+        showToast("Accès réservé au Superviseur, à l'Administrateur et à l'Agent DDU.");
+        return;
+      }
+      renderInvoiceArchiveList();
+      document.getElementById("invoiceArchiveModal").classList.add("open");
+    }
+
+    function renderInvoiceArchiveList() {
+      const container = document.getElementById("invoiceArchiveListContainer");
+      const q = (document.getElementById("invoiceSearchInput")?.value || "").trim().toLowerCase();
+      const statusFilter = document.getElementById("invoiceStatusFilter")?.value || "TOUTES";
+      const user = getCurrentUser();
+      const supAllowed = isSupervisor(user);
+
+      const list = (state.invoicesArchive || []).filter((inv) => {
+        if (statusFilter === "PAYEE" && inv.status !== "PAYEE") return false;
+        if (statusFilter === "EN_ATTENTE" && inv.status === "PAYEE") return false;
+        if (!q) return true;
+        const linesHay = (inv.lines || []).map((l) => `${l.repertoire} ${l.bl} ${l.client}`).join(" ");
+        const hay = `${inv.invoiceNumber} ${inv.repStart} ${inv.repEnd} ${inv.createdAt} ${inv.paidAt || ""} ${inv.status} ${linesHay}`.toLowerCase();
+        return hay.includes(q);
+      });
+
+      if (!list.length) {
+        container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--muted);">Aucune facture trouvée dans l'archive.</div>`;
+        return;
+      }
+
+      container.innerHTML = list.map((inv) => {
+        const isPaid = inv.status === "PAYEE";
+        const badgeHtml = isPaid
+          ? `<span class="paid-stamp">PAYÉE${inv.paidAt ? " • " + escapeHtml(inv.paidAt) : ""}</span>`
+          : `<span class="pill jaune">En attente de paiement</span>`;
+
+        const payBtnHtml = (!isPaid && supAllowed)
+          ? `<button type="button" class="sm success" onclick="payInvoiceBySupervisor('${inv.id}')">💳 Payer</button>`
+          : "";
+
+        return `
+          <div class="archive-card">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <strong>${escapeHtml(inv.invoiceNumber)}</strong>
+                <span style="font-size:12.5px; color:var(--muted);">${escapeHtml(inv.repStart)} → ${escapeHtml(inv.repEnd)} (${inv.count} DDU)</span>
+                ${badgeHtml}
+              </div>
+              <div style="font-size:12.5px; margin-top:4px;">
+                Montant : <strong>${Number(inv.totalAmount || 0).toLocaleString("fr-FR")} ${escapeHtml(inv.currency || "FCFA")}</strong>
+                • Émise le ${escapeHtml(inv.createdAt)}
+                ${inv.paidBy ? ` • Payée par <strong>${escapeHtml(inv.paidBy)}</strong>` : ""}
+              </div>
+            </div>
+            <div class="row-actions">
+              ${payBtnHtml}
+              <button type="button" class="sm" onclick="printArchivedInvoicePdf('${inv.id}')">📄 PDF / Imprimer</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function payInvoiceBySupervisor(invoiceId) {
+      const user = getCurrentUser();
+      if (!isSupervisor(user)) {
+        showToast("Seul le Superviseur (ou l'Admin) peut payer la facture.");
+        return;
+      }
+      const inv = (state.invoicesArchive || []).find((item) => item.id === invoiceId);
+      if (!inv) return;
+
+      inv.status = "PAYEE";
+      inv.paidAt = new Date().toLocaleString("fr-FR");
+      inv.paidBy = user.name || user.username;
+
+      saveState();
+      renderApp();
+      renderInvoiceArchiveList();
+      showToast(`Facture ${inv.invoiceNumber} enregistrée avec la mention PAYÉE.`);
+    }
+
+    function printArchivedInvoicePdf(invoiceId) {
+      const inv = (state.invoicesArchive || []).find((item) => item.id === invoiceId);
+      if (!inv) return;
+      triggerPrintHtml(`<div style="padding:16px;">${renderInvoiceDocumentHtml(inv)}</div>`);
     }
 
     /* Administration */
