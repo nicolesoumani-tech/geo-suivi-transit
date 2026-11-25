@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GEO SUIVI TRANSIT</title>
+  <title>GEO SUIVI TRANSIT — Lomé</title>
   <style>
     :root {
       --bg: #f1f5f9;
@@ -12,8 +12,9 @@
       --text: #0f172a;
       --muted: #64748b;
       --border: #e2e8f0;
-      --primary: #1d4ed8;
-      --primary-hover: #1e40af;
+      --primary: #0f766e;
+      --primary-hover: #115e59;
+      --accent: #1d4ed8;
       --success: #15803d;
       --success-bg: #dcfce7;
       --warning: #b45309;
@@ -63,39 +64,12 @@
       color: #334155;
     }
 
-    button.primary {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #fff;
-    }
-
-    button.primary:hover:not(:disabled) {
-      background: var(--primary-hover);
-      border-color: var(--primary-hover);
-    }
-
-    button.success {
-      background: var(--success);
-      border-color: var(--success);
-      color: #fff;
-    }
-
-    button.warning {
-      background: var(--warning);
-      border-color: var(--warning);
-      color: #fff;
-    }
-
-    button.danger {
-      background: var(--danger);
-      border-color: var(--danger);
-      color: #fff;
-    }
-
-    button.sm {
-      padding: 5px 10px;
-      font-size: 12.5px;
-    }
+    button.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    button.primary:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--primary-hover); }
+    button.success { background: var(--success); border-color: var(--success); color: #fff; }
+    button.warning { background: var(--warning); border-color: var(--warning); color: #fff; }
+    button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+    button.sm { padding: 5px 10px; font-size: 12.5px; }
 
     input, select, textarea {
       width: 100%;
@@ -109,71 +83,33 @@
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
     }
 
-    /* Login */
     #loginScreen {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      background: linear-gradient(135deg, #0f172a 0%, #115e59 100%);
     }
 
     .login-card {
       width: 100%;
-      max-width: 430px;
+      max-width: 420px;
       background: var(--surface);
       border-radius: 14px;
-      padding: 28px;
+      padding: 30px 28px;
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
     }
 
-    .login-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 6px;
-    }
+    .login-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .login-brand h1 { margin: 0; font-size: 20px; letter-spacing: 0.4px; }
+    .login-sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
 
-    .login-brand h1 {
-      margin: 0;
-      font-size: 20px;
-      letter-spacing: 0.4px;
-    }
-
-    .login-sub {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 18px;
-    }
-
-    .field {
-      margin-bottom: 12px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 12.5px;
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: #334155;
-    }
-
-    .check-inline {
-      display: inline-flex !important;
-      align-items: center;
-      gap: 6px;
-      width: auto !important;
-      cursor: pointer;
-    }
-
-    .check-inline input {
-      width: auto;
-      margin: 0;
-    }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 5px; color: #334155; }
 
     .error-box {
       background: var(--danger-bg);
@@ -186,21 +122,7 @@
       display: none;
     }
 
-    .hint-box {
-      margin-top: 14px;
-      padding: 10px 12px;
-      background: var(--surface-alt);
-      border: 1px dashed #cbd5e1;
-      border-radius: 8px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    /* App */
-    #appScreen {
-      display: none;
-      min-height: 100vh;
-    }
+    #appScreen { display: none; min-height: 100vh; }
 
     header.topbar {
       background: #0f172a;
@@ -216,22 +138,12 @@
       z-index: 20;
     }
 
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .brand-title {
-      font-weight: 700;
-      font-size: 16px;
-      letter-spacing: 0.5px;
-    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .brand-title { font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
 
     .user-badge {
       background: rgba(255, 255, 255, 0.12);
-      padding: 5px 10px;
+      padding: 4px 10px 4px 6px;
       border-radius: 999px;
       font-size: 12.5px;
       display: flex;
@@ -239,149 +151,52 @@
       gap: 8px;
     }
 
-    .sync-pill {
-      padding: 4px 10px;
-      border-radius: 999px;
+    .avatar-sm {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #14b8a6;
+      color: #0f172a;
+      font-weight: 700;
       font-size: 12px;
-      font-weight: 600;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.12);
-      color: #e2e8f0;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
-    .sync-pill.online {
-      background: rgba(21, 128, 61, 0.35);
-      color: #bbf7d0;
-      border: 1px solid rgba(74, 222, 128, 0.45);
-    }
-
-    .sync-pill.local {
-      background: rgba(180, 83, 9, 0.35);
-      color: #fde68a;
-      border: 1px solid rgba(251, 191, 36, 0.45);
-    }
-
-    .topbar-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+    .avatar-lg {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #e2e8f0;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 24px;
+      display: inline-flex;
       align-items: center;
+      justify-content: center;
+      border: 2px solid var(--primary);
+      flex-shrink: 0;
     }
 
+    .topbar-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .topbar-actions button {
       background: rgba(255, 255, 255, 0.08);
       border-color: rgba(255, 255, 255, 0.2);
       color: #fff;
     }
+    .topbar-actions button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.18); }
+    .topbar-actions button.primary { background: #0d9488; border-color: #0d9488; }
+    .topbar-actions button.danger { background: #dc2626; border-color: #dc2626; }
 
-    .topbar-actions button:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.18);
-    }
-
-    .topbar-actions button.primary {
-      background: #2563eb;
-      border-color: #2563eb;
-    }
-
-    .topbar-actions button.danger {
-      background: #dc2626;
-      border-color: #dc2626;
-    }
-
-    main.container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .cloud-banner {
-      background: #fefce8;
-      border: 1px solid #fde047;
-      color: #854d0e;
-      border-radius: var(--radius);
-      padding: 11px 14px;
-      margin-bottom: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-    }
-
-    .cloud-banner.connected {
-      background: #f0fdf4;
-      border-color: #86efac;
-      color: #166534;
-    }
-
-    .alert-banner {
-      background: #fff1f2;
-      border: 1px solid #fecdd3;
-      color: #9f1239;
-      border-radius: var(--radius);
-      padding: 11px 14px;
-      margin-bottom: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-    }
-
-    .truck-banner {
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      color: #92400e;
-      border-radius: var(--radius);
-      padding: 11px 14px;
-      margin-bottom: 14px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-    }
-
-    .sup-msg-banner {
-      background: #eff6ff;
-      border: 1.5px solid #3b82f6;
-      color: #1e3a8a;
-      border-radius: var(--radius);
-      padding: 12px 15px;
-      margin-bottom: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-size: 13px;
-    }
-
-    .sup-msg-item {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      background: #ffffff;
-      border: 1px solid #bfdbfe;
-      border-radius: 8px;
-      padding: 9px 12px;
-      cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease;
-    }
-
-    .sup-msg-item:hover {
-      background: #dbeafe;
-      border-color: #2563eb;
-    }
+    main.container { max-width: 1420px; margin: 0 auto; padding: 20px; }
 
     .kpis {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 12px;
       margin-bottom: 18px;
     }
@@ -394,24 +209,9 @@
       box-shadow: var(--shadow);
     }
 
-    .kpi-label {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    .kpi-value {
-      font-size: 24px;
-      font-weight: 700;
-      margin-top: 4px;
-    }
-
-    .kpi-sub {
-      font-size: 11.5px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
+    .kpi-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+    .kpi-value { font-size: 24px; font-weight: 700; margin-top: 4px; }
+    .kpi-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
 
     .toolbar {
       background: var(--surface);
@@ -427,17 +227,8 @@
       justify-content: space-between;
     }
 
-    .toolbar-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .toolbar-group input, .toolbar-group select {
-      width: auto;
-      min-width: 170px;
-    }
+    .toolbar-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .toolbar-group input, .toolbar-group select { width: auto; min-width: 170px; }
 
     .table-wrap {
       background: var(--surface);
@@ -447,132 +238,20 @@
       overflow-x: auto;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 1020px;
-    }
+    table { width: 100%; border-collapse: collapse; min-width: 960px; }
+    th, td { padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: left; font-size: 13.5px; vertical-align: middle; }
+    th { background: var(--surface-alt); font-size: 12px; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+    tr:hover td { background: #f8fafc; }
 
-    th, td {
-      padding: 11px 12px;
-      border-bottom: 1px solid var(--border);
-      text-align: left;
-      font-size: 13.5px;
-      vertical-align: middle;
-    }
-
-    th {
-      background: var(--surface-alt);
-      font-size: 12px;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    tr:hover td {
-      background: #f8fafc;
-    }
-
-    .pill {
-      display: inline-block;
-      padding: 3px 9px;
-      border-radius: 999px;
-      font-size: 11.5px;
-      font-weight: 600;
-    }
-
+    .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
     .pill.rouge { background: var(--danger-bg); color: var(--danger); }
     .pill.vert { background: var(--success-bg); color: var(--success); }
     .pill.bleu { background: var(--info-bg); color: var(--info); }
     .pill.jaune { background: var(--warning-bg); color: var(--warning); }
     .pill.cloture { background: #e2e8f0; color: #334155; }
 
-    .paid-stamp {
-      display: inline-block;
-      background: #dcfce7;
-      color: #15803d;
-      border: 2px solid #15803d;
-      font-weight: 800;
-      padding: 4px 12px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
-    }
+    .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
-    .row-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .containers-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .container-slot label {
-      display: block;
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--muted);
-      margin-bottom: 3px;
-    }
-
-    .file-chip-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 6px;
-    }
-
-    .file-chip {
-      background: #fff;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 3px 8px;
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .truck-alloc-card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-top: 8px;
-    }
-
-    .evolution-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .evolution-item {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-left: 4px solid var(--primary);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font-size: 13px;
-    }
-
-    .evolution-meta {
-      font-size: 11.5px;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 3px;
-    }
-
-    /* Modals */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -584,15 +263,13 @@
       z-index: 50;
     }
 
-    .modal-backdrop.open {
-      display: flex;
-    }
+    .modal-backdrop.open { display: flex; }
 
     .modal {
       background: var(--surface);
       border-radius: 12px;
       width: 100%;
-      max-width: 960px;
+      max-width: 920px;
       max-height: 92vh;
       display: flex;
       flex-direction: column;
@@ -609,15 +286,8 @@
       gap: 12px;
     }
 
-    .modal-header h2 {
-      margin: 0;
-      font-size: 17px;
-    }
-
-    .modal-body {
-      padding: 18px 20px;
-      overflow-y: auto;
-    }
+    .modal-header h2 { margin: 0; font-size: 17px; }
+    .modal-body { padding: 18px 20px; overflow-y: auto; }
 
     .modal-footer {
       padding: 12px 20px;
@@ -629,17 +299,8 @@
       flex-wrap: wrap;
     }
 
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
-      gap: 12px;
-    }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 
     .section-box {
       border: 1px solid var(--border);
@@ -649,11 +310,7 @@
       background: var(--surface-alt);
     }
 
-    .section-box.locked-section {
-      opacity: 0.72;
-      background: #f1f5f9;
-    }
-
+    .section-box.locked-section { opacity: 0.72; background: #f1f5f9; }
     .section-box h3 {
       margin: 0 0 10px 0;
       font-size: 14px;
@@ -665,12 +322,7 @@
       flex-wrap: wrap;
     }
 
-    .role-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
+    .role-grid { display: flex; flex-wrap: wrap; gap: 10px; }
     .role-chip {
       display: inline-flex;
       align-items: center;
@@ -682,60 +334,7 @@
       font-size: 13px;
       width: auto;
     }
-
-    .role-chip input {
-      width: auto;
-      margin: 0;
-    }
-
-    .invoice-preview {
-      background: #fff;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 22px;
-      margin-top: 12px;
-    }
-
-    .invoice-banner {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      border-bottom: 2px solid #0f172a;
-      padding-bottom: 12px;
-      margin-bottom: 16px;
-    }
-
-    .invoice-doc-title {
-      font-size: 21px;
-      font-weight: 800;
-      letter-spacing: 0.6px;
-      margin: 0 0 4px 0;
-      color: #0f172a;
-    }
-
-    .archive-card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .lock-note {
-      font-size: 11.5px;
-      color: #b45309;
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      padding: 6px 10px;
-      border-radius: 7px;
-      margin-top: 6px;
-    }
+    .role-chip input { width: auto; margin: 0; }
 
     .toast {
       position: fixed;
@@ -750,124 +349,70 @@
       z-index: 100;
       display: none;
     }
-
-    @media print {
-      body * { visibility: hidden; }
-      #printArea, #printArea * { visibility: visible; }
-      #printArea {
-        display: block !important;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        padding: 18px;
-        background: #fff;
-        color: #000;
-      }
-      .no-print { display: none !important; }
-    }
-
-    #printArea {
-      display: none;
-    }
   </style>
 </head>
 <body>
 
-  <!-- ÉCRAN DE CONNEXION -->
+  <!-- CONNEXION SÉCURISÉE -->
   <div id="loginScreen">
     <div class="login-card">
       <div class="login-brand">
-        <span style="font-size:24px;">🚢</span>
+        <span style="font-size:24px;">⚓</span>
         <h1>GEO SUIVI TRANSIT</h1>
       </div>
-      <div class="login-sub">Suivi opérationnel, conteneurs, bordereaux &amp; facturation DDU — Partagé en ligne</div>
+      <div class="login-sub">Accès sécurisé — Suivi des opérations de transit</div>
 
       <div id="loginError" class="error-box"></div>
 
       <form id="loginForm">
         <div class="field">
-          <label for="loginUsername">Identifiant / Utilisateur</label>
-          <input type="text" id="loginUsername" autocomplete="username" placeholder="Ex: admin, superviseur ou esta" required />
+          <label for="loginUsername">Identifiant</label>
+          <input type="text" id="loginUsername" autocomplete="username" placeholder="Votre identifiant" required />
         </div>
         <div class="field">
           <label for="loginPassword">Mot de passe</label>
           <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" required />
         </div>
-        <button type="submit" id="loginSubmitBtn" class="primary" style="width:100%; padding:10px;">Se connecter</button>
+        <button type="submit" class="primary" style="width:100%; padding:10px; margin-top:4px;">Se connecter</button>
       </form>
-
-      <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-        <button type="button" class="sm" onclick="openCloudSyncModalFromLogin()">☁️ Configurer la synchro en ligne</button>
-        <button type="button" class="sm" onclick="resetStorageSession()">Réinitialiser le cache local</button>
-      </div>
-
-      <div class="hint-box">
-        <strong>Comptes par défaut :</strong><br />
-        Admin : <code>admin</code> / <code>admin123</code><br />
-        Superviseur : <code>superviseur</code> / <code>sup123</code><br />
-        Agent DDU : <code>esta</code> / <code>esta123</code>
-      </div>
     </div>
   </div>
 
-  <!-- APPLICATION PRINCIPALE -->
+  <!-- APPLICATION -->
   <div id="appScreen">
     <header class="topbar">
       <div class="topbar-left">
-        <div class="brand-title">🚢 GEO SUIVI TRANSIT</div>
+        <div class="brand-title">⚓ GEO SUIVI TRANSIT</div>
         <div class="user-badge">
+          <span id="topbarAvatar"></span>
           <span id="currentUserLabel">Utilisateur</span>
           <span id="currentRolesLabel" style="opacity:0.85;"></span>
         </div>
-        <div id="cloudStatusBadge" class="sync-pill local" onclick="openCloudSyncModal()" style="cursor:pointer;" title="Cliquer pour configurer ou vérifier la synchronisation partagée en ligne">
-          ● Mode Local
-        </div>
       </div>
       <div class="topbar-actions">
-        <button id="btnCloudSync" onclick="openCloudSyncModal()">☁️ Synchro En Ligne</button>
-        <button id="btnDduBilling" onclick="openDduBillingModal()" class="primary" style="display:none;">🧾 Facturation DDU</button>
-        <button id="btnInvoiceArchive" onclick="openInvoiceArchiveModal()" style="display:none;">🗂️ Factures &amp; Archives</button>
-        <button onclick="exportBulkBordereauPdf()">📄 Bordereau PDF (Groupé)</button>
+        <button onclick="openProfileModal()">👤 Mon Profil</button>
         <button id="btnAdminPanel" onclick="openAdminModal()" style="display:none;">🛡️ Administration</button>
-        <button id="btnSettings" onclick="openSettingsModal()" style="display:none;">⚙️ Paramètres</button>
         <button onclick="logout()" class="danger sm">Déconnexion</button>
       </div>
     </header>
 
     <main class="container">
-      <div id="cloudBanner" class="cloud-banner"></div>
-      <div id="alertBanner" class="alert-banner" style="display:none;"></div>
-      <div id="supervisorInvoiceBanner" class="sup-msg-banner" style="display:none;"></div>
-      <div id="truckBanner" class="truck-banner" style="display:none;"></div>
-
       <div class="kpis" id="kpiContainer"></div>
 
       <div class="toolbar">
         <div class="toolbar-group">
-          <input type="text" id="searchInput" placeholder="Rechercher répertoire, BL, client, navire, conteneur..." oninput="renderDossiers()" />
+          <input type="text" id="searchInput" placeholder="Rechercher dossier, BL, client, statut..." oninput="renderDossiers()" />
           <select id="circuitFilter" onchange="renderDossiers()">
-            <option value="TOUS">Tous les circuits</option>
-            <option value="ROUGE">Rouge (Circuit / Douane)</option>
-            <option value="VERT">Vert (Circuit normal)</option>
-            <option value="BLEU">Bleu (Dépotage / CFS)</option>
-            <option value="JAUNE">Jaune (En attente)</option>
+            <option value="TOUS">Tous circuits</option>
+            <option value="VERT">Vert</option>
+            <option value="ROUGE">Rouge</option>
+            <option value="BLEU">Bleu</option>
+            <option value="JAUNE">Jaune</option>
           </select>
-          <select id="fluxFilter" onchange="renderDossiers()">
-            <option value="TOUS">Tous les flux</option>
-            <option value="HINTERLAND">HINTERLAND (SC)</option>
-            <option value="DEPOTAGE">DÉPOTAGE (CFS)</option>
-            <option value="MAGASINS">MAGASINS (MAD)</option>
-          </select>
-          <label class="check-inline" style="font-size:13px;">
-            <input type="checkbox" id="dduOnlyFilter" onchange="renderDossiers()" />
-            DDU uniquement
-          </label>
         </div>
 
         <div class="toolbar-group">
-          <button type="button" class="sm" onclick="pullCloudNow()">↻ Actualiser en ligne</button>
-          <button id="btnNewDossier" onclick="openDossierModal()" class="primary">+ Nouveau Dossier</button>
+          <button id="btnNewDossier" onclick="openDossierModal()" class="primary" style="display:none;">+ Nouveau Dossier</button>
         </div>
       </div>
 
@@ -875,13 +420,11 @@
         <table>
           <thead>
             <tr>
-              <th style="width:36px;"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)" /></th>
               <th>Répertoire</th>
               <th>N° BL</th>
               <th>Client</th>
-              <th>Navire / Provenance → Destination</th>
-              <th>Poids / Qté / Conteneurs</th>
-              <th>Statut / Alertes</th>
+              <th>Circuit &amp; Statut</th>
+              <th>Créé par</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -891,158 +434,106 @@
     </main>
   </div>
 
-  <!-- MODAL SYNCHRONISATION PARTAGÉE EN LIGNE -->
-  <div id="cloudSyncModal" class="modal-backdrop">
-    <div class="modal" style="max-width:680px;">
+  <!-- MODAL PROFIL AGENT (PHOTO + MOT DE PASSE) -->
+  <div id="profileModal" class="modal-backdrop">
+    <div class="modal" style="max-width:540px;">
       <div class="modal-header">
-        <h2>☁️ Synchronisation Partagée en Ligne (Tous Comptes &amp; Tous Appareils)</h2>
-        <button onclick="closeModal('cloudSyncModal')" class="sm">✕</button>
+        <h2>👤 Mon Profil — Photo &amp; Mot de passe</h2>
+        <button onclick="closeModal('profileModal')" class="sm">✕</button>
       </div>
       <div class="modal-body">
         <div class="section-box">
-          <h3>Pourquoi tous les comptes ne voient pas les nouveaux dossiers sur un autre appareil ?</h3>
-          <div style="font-size:13px; color:#334155; line-height:1.5;">
-            Sans espace partagé en ligne, chaque navigateur ou téléphone garde ses propres données locales. En activant un <strong>Espace Partagé (Code d'équipe / Workspace ou Endpoint Cloud)</strong>, chaque création ou modification de dossier, facture ou rôle est synchronisée et récupérée par tous les comptes connectés sur n'importe quel appareil.
-          </div>
-        </div>
-
-        <div class="section-box">
-          <h3>Configuration de l'Espace Partagé</h3>
-          <div class="grid-2">
-            <div class="field">
-              <label for="cloudEnabled">Activer la synchronisation en ligne</label>
-              <select id="cloudEnabled">
-                <option value="true">Activée (Partagée en ligne)</option>
-                <option value="false">Désactivée (Local uniquement)</option>
-              </select>
+          <h3>Photo de profil</h3>
+          <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+            <div id="profileAvatarPreview"></div>
+            <div style="flex:1; min-width:200px;">
+              <input type="file" id="profilePhotoInput" accept="image/*" onchange="handleProfilePhotoChange(this.files)" />
+              <div style="font-size:12px; color:var(--muted); margin-top:6px;">Formats image acceptés (max ~1,5 Mo).</div>
+              <button type="button" class="sm" style="margin-top:6px;" onclick="clearProfilePhoto()">Supprimer la photo</button>
             </div>
-            <div class="field">
-              <label for="cloudWorkspaceCode">Code d'Espace Partagé (identique sur tous les appareils)</label>
-              <input type="text" id="cloudWorkspaceCode" placeholder="Ex: GEO-TRANSIT-LOME-2026" />
-            </div>
-          </div>
-          <div class="field">
-            <label for="cloudEndpointUrl">URL du serveur / stockage partagé (optionnel — par défaut espace public JSONBucket / REST si configuré)</label>
-            <input type="text" id="cloudEndpointUrl" placeholder="Ex: https://api.jsonbin.io/v3/b/... ou votre endpoint HTTPS" />
-            <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">
-              Si vous laissez vide ou utilisez un <strong>Code d'Espace Partagé</strong>, l'application utilise un canal partagé multi-onglets + service de partage en ligne configuré, et permet aussi l'import/export JSON instantané pour tout appareil hors ligne.
-            </div>
-          </div>
-          <div class="field" style="margin-bottom:0;">
-            <label for="cloudApiKey">Clé d'accès / Token (optionnel, si votre endpoint exige un header Authorization)</label>
-            <input type="password" id="cloudApiKey" placeholder="Optionnel" />
           </div>
         </div>
 
         <div class="section-box" style="margin-bottom:0;">
-          <h3>Synchronisation immédiate &amp; Transfert JSON entre appareils</h3>
-          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-            <button type="button" class="primary sm" onclick="saveAndSyncCloudConfig()">💾 Enregistrer &amp; Synchroniser maintenant</button>
-            <button type="button" class="sm" onclick="pullCloudNow()">⬇️ Télécharger les dernières données</button>
-            <button type="button" class="sm" onclick="pushCloudNow()">⬆️ Publier mes données locales</button>
-            <button type="button" class="sm" onclick="exportStateJsonFile()">📤 Exporter sauvegarde JSON</button>
-            <label class="button sm" style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:#fff; border:1px solid var(--border); padding:5px 10px; border-radius:8px; font-size:12.5px; font-weight:500;">
-              📥 Importer JSON
-              <input type="file" accept=".json,application/json" style="display:none;" onchange="importStateJsonFile(this.files)" />
-            </label>
+          <h3>Modifier mon mot de passe</h3>
+          <div class="field">
+            <label for="currentPasswordInput">Mot de passe actuel</label>
+            <input type="password" id="currentPasswordInput" placeholder="Entrez votre mot de passe actuel" />
           </div>
-          <div id="cloudSyncLog" style="font-size:12px; color:var(--muted);">Dernière synchronisation : jamais</div>
+          <div class="grid-2">
+            <div class="field" style="margin-bottom:0;">
+              <label for="newPasswordInput">Nouveau mot de passe</label>
+              <input type="password" id="newPasswordInput" placeholder="Au moins 4 caractères" />
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="confirmPasswordInput">Confirmer le mot de passe</label>
+              <input type="password" id="confirmPasswordInput" placeholder="Répétez le nouveau mot de passe" />
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button onclick="closeModal('cloudSyncModal')">Fermer</button>
+        <button onclick="closeModal('profileModal')">Fermer</button>
+        <button onclick="saveProfileChanges()" class="primary">Enregistrer mon profil</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL DOSSIER COMPLET -->
+  <!-- MODAL RÉINITIALISATION MOT DE PASSE PAR L'ADMIN -->
+  <div id="resetPasswordModal" class="modal-backdrop">
+    <div class="modal" style="max-width:460px;">
+      <div class="modal-header">
+        <h2>🔑 Réinitialiser le mot de passe</h2>
+        <button onclick="closeModal('resetPasswordModal')" class="sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="resetTargetUserId" />
+        <p id="resetTargetUserLabel" style="margin-top:0; font-size:14px; color:#334155;"></p>
+        <div class="field" style="margin-bottom:0;">
+          <label for="adminResetPasswordInput">Nouveau mot de passe pour cet agent</label>
+          <input type="text" id="adminResetPasswordInput" placeholder="Entrez le nouveau mot de passe (min. 4 caractères)" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeModal('resetPasswordModal')">Annuler</button>
+        <button type="button" onclick="confirmAdminPasswordReset()" class="warning">Valider la réinitialisation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DOSSIER -->
   <div id="dossierModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
-        <h2 id="dossierModalTitle">Dossier</h2>
+        <h2 id="dossierModalTitle">Dossier — GEO SUIVI TRANSIT</h2>
         <div style="display:flex; gap:8px; align-items:center;">
-          <button type="button" id="btnCloseDossierSupervisor" class="success sm" style="display:none;" onclick="closeDossierBySupervisor()">✓ Clôturer le dossier</button>
+          <button type="button" id="btnCloseDossier" class="success sm" style="display:none;" onclick="closeDossier()">✓ Clôturer</button>
+          <button type="button" id="btnDeleteDossier" class="danger sm" style="display:none;" onclick="deleteCurrentDossier()">🗑️ Supprimer</button>
           <button onclick="closeModal('dossierModal')" class="sm">✕</button>
         </div>
       </div>
       <div class="modal-body">
         <input type="hidden" id="editDossierId" />
-
-        <div id="dossierStatusBanner" style="display:none; margin-bottom:12px;" class="truck-banner"></div>
-
-        <!-- 1. Informations générales -->
         <div id="secGeneral" class="section-box">
           <h3>
-            <span>1. Informations générales &amp; Exploitation</span>
-            <span id="badgeGeneralAccess" class="pill bleu"></span>
+            <span>Informations du dossier</span>
+            <span id="badgeDossierAccess" class="pill bleu"></span>
           </h3>
           <div class="grid-3">
             <div class="field">
-              <label>N° Répertoire</label>
+              <label for="fRepertoire">N° Répertoire</label>
               <input type="text" id="fRepertoire" placeholder="Ex: GEO00001" />
             </div>
             <div class="field">
-              <label>N° Bill of Lading (BL)</label>
-              <input type="text" id="fBl" placeholder="Ex: LOM40231" />
+              <label for="fBl">N° BL</label>
+              <input type="text" id="fBl" placeholder="Ex: MSCU1234567" />
             </div>
             <div class="field">
-              <label>Client / Importateur</label>
+              <label for="fClient">Client</label>
               <input type="text" id="fClient" placeholder="Nom du client" />
             </div>
             <div class="field">
-              <label>Navire</label>
-              <input type="text" id="fNavire" placeholder="Ex: MSC LOME" />
-            </div>
-            <div class="field">
-              <label>Pays de provenance</label>
-              <input type="text" id="fPaysProvenance" placeholder="Ex: Chine" />
-            </div>
-            <div class="field">
-              <label>Pays de destination</label>
-              <input type="text" id="fPaysDestination" placeholder="Ex: Burkina Faso" />
-            </div>
-            <div class="field">
-              <label>Destination finale / Ville</label>
-              <input type="text" id="fDestination" placeholder="Ex: OUAGA BF / LOMÉ" />
-            </div>
-            <div class="field">
-              <label>Type de conteneurs</label>
-              <select id="fContainerType">
-                <option value="20'DC">20'DC (Dry Standard)</option>
-                <option value="40'DC">40'DC (Dry Standard)</option>
-                <option value="40'HC">40'HC (High Cube)</option>
-                <option value="20'RF">20'RF (Reefer)</option>
-                <option value="40'RF">40'RF (Reefer)</option>
-                <option value="20'OT">20'OT (Open Top)</option>
-                <option value="40'OT">40'OT (Open Top)</option>
-                <option value="GROUPAGE">Groupage / LCL</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Poids</label>
-              <input type="text" id="fPoids" placeholder="Ex: 24 500 kg" />
-            </div>
-            <div class="field">
-              <label>Quantité</label>
-              <input type="text" id="fQuantite" placeholder="Ex: 120 colis" />
-            </div>
-            <div class="field">
-              <label>Mode / Transport</label>
-              <select id="fTransportMode" onchange="toggleTruckSections()">
-                <option value="SUR_CAMION">Sur camion</option>
-                <option value="DEPOTAGE">Dépotage</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Flux opérationnel</label>
-              <select id="fFlux">
-                <option value="HINTERLAND">HINTERLAND (SC)</option>
-                <option value="DEPOTAGE">DÉPOTAGE (CFS)</option>
-                <option value="MAGASINS">MAGASINS (MAD)</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Circuit</label>
+              <label for="fCircuit">Circuit</label>
               <select id="fCircuit">
                 <option value="VERT">VERT</option>
                 <option value="ROUGE">ROUGE</option>
@@ -1050,341 +541,20 @@
                 <option value="JAUNE">JAUNE</option>
               </select>
             </div>
-            <div class="field">
-              <label>Statut actuel</label>
-              <input type="text" id="fStatut" placeholder="Ex: En transit / Dépotage CFS" />
-            </div>
-            <div class="field">
-              <label>Régime DDU</label>
-              <select id="fIsDdu">
-                <option value="true">Oui (DDU facturable)</option>
-                <option value="false">Non</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. Conteneurs (4 lettres + 7 chiffres) -->
-        <div id="secContainers" class="section-box">
-          <h3>
-            <span>2. Conteneurs (4 lettres + 7 chiffres — collage auto-réparti)</span>
-            <button type="button" id="btnAddContainer" class="sm" onclick="addContainerField()">+ Ajouter un champ conteneur</button>
-          </h3>
-          <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">
-            Collez plusieurs numéros (4 lettres + 7 chiffres, ex. <code>MSCU1234567 CMAU9876543</code>) dans le <strong>premier champ</strong> : chaque conteneur est automatiquement renvoyé dans son champ.
-          </div>
-          <div id="containersFieldsGrid" class="containers-grid"></div>
-        </div>
-
-        <!-- 3. Agent de l'échange -->
-        <div id="secExchange" class="section-box">
-          <h3>
-            <span>3. Agent de l'Échange (BAD, Télex / Original &amp; Problème circuit)</span>
-            <span class="pill bleu">AGENT_ECHANGE</span>
-          </h3>
-          <div class="grid-3">
-            <div class="field">
-              <label for="fBadEndDate">Date fin du BAD (Alerte &lt; 72h)</label>
-              <input type="datetime-local" id="fBadEndDate" />
-            </div>
-            <div class="field">
-              <label for="fDocType">Nature du document</label>
-              <select id="fDocType">
-                <option value="TELEX">Télex</option>
-                <option value="ORIGINAL">Original</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="fExchangeFiles">Télécharger / Joindre fichiers Échange</label>
-              <input type="file" id="fExchangeFiles" multiple onchange="handleSectionFiles('exchange', this.files)" />
-              <div id="exchangeFilesList" class="file-chip-list"></div>
+            <div class="field" style="grid-column: span 2;">
+              <label for="fStatut">Statut / Étape</label>
+              <input type="text" id="fStatut" placeholder="Ex: BAD en cours / Déclaration / Enlèvement" />
             </div>
           </div>
           <div class="field" style="margin-bottom:0;">
-            <label for="fExchangeComment">Commentaire / Problème rencontré dans le circuit échange</label>
-            <textarea id="fExchangeComment" rows="2" placeholder="Notifier si un problème est rencontré dans le circuit échange..."></textarea>
-          </div>
-        </div>
-
-        <!-- 4. Agent DDU & T1 -->
-        <div id="secDdu" class="section-box">
-          <h3>
-            <span>4. Agent DDU &amp; Transit T1</span>
-            <span class="pill bleu">AGENT_DDU_T1</span>
-          </h3>
-          <div class="grid-2">
-            <label class="check-inline" style="margin-bottom:8px;">
-              <input type="checkbox" id="fDduLevee" />
-              <strong>Confirmer le lever du DDU</strong>
-            </label>
-            <div class="field">
-              <label for="fDeclarationNum">Numéro de la déclaration</label>
-              <input type="text" id="fDeclarationNum" placeholder="Ex: DEC-2026-88412" />
-            </div>
-          </div>
-          <div class="grid-3">
-            <div class="field">
-              <label for="fT1Num">Numéro T1 (demande T1)</label>
-              <input type="text" id="fT1Num" placeholder="Ex: T1-LOM-00491" />
-            </div>
-            <div class="field">
-              <label for="fT1ValidityDate">Date de validité du T1 (Alerte &lt; 72h)</label>
-              <input type="datetime-local" id="fT1ValidityDate" />
-            </div>
-            <div class="field">
-              <label for="fDduFiles">Télécharger / Joindre fichiers DDU / T1</label>
-              <input type="file" id="fDduFiles" multiple onchange="handleSectionFiles('ddu', this.files)" />
-              <div id="dduFilesList" class="file-chip-list"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 5. Agent de passation et enlèvement -->
-        <div id="secPassation" class="section-box">
-          <h3>
-            <span>5. Agent de Passation et Enlèvement</span>
-            <span class="pill bleu">AGENT_PASSATION</span>
-          </h3>
-          <div class="grid-3">
-            <div class="field">
-              <label for="fPassationBon">Bon pris</label>
-              <select id="fPassationBon">
-                <option value="AUCUN">Non précisé</option>
-                <option value="BON_A_ENLEVER">Bon à enlever (BAE)</option>
-                <option value="BON_A_CONDUIRE">Bon à conduire (BAC)</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="fPassationConsigne">Commentaire s'il y a consigne sur le dossier</label>
-              <input type="text" id="fPassationConsigne" placeholder="Préciser la consigne éventuelle..." />
-            </div>
-            <div class="field">
-              <label for="fPassationFiles">Télécharger / Joindre fichiers Passation</label>
-              <input type="file" id="fPassationFiles" multiple onchange="handleSectionFiles('passation', this.files)" />
-              <div id="passationFilesList" class="file-chip-list"></div>
-            </div>
-          </div>
-
-          <div id="surCamionSection" class="truck-alloc-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-              <strong>Affectation des conteneurs au camion (Sur camion)</strong>
-              <button type="button" id="btnAddTruckSurCamion" class="sm" onclick="addTruckAssignmentRow('SUR_CAMION')">+ Ajouter un camion</button>
-            </div>
-            <div id="surCamionRows"></div>
-          </div>
-
-          <div id="depotageSection" class="truck-alloc-card" style="display:none;">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-              <strong>Répartition des poids et quantités par camion (Dépotage)</strong>
-              <button type="button" id="btnAddTruckDepotage" class="sm" onclick="addTruckAssignmentRow('DEPOTAGE')">+ Ajouter un camion de dépotage</button>
-            </div>
-            <div id="depotageRows"></div>
-          </div>
-        </div>
-
-        <!-- 6. Agent de manutention -->
-        <div id="secManutention" class="section-box">
-          <h3>
-            <span>6. Agent de Manutention &amp; Demande de Camion de Chargement</span>
-            <span class="pill bleu">AGENT_MANUTENTION</span>
-          </h3>
-          <div class="role-grid" style="margin-bottom:12px;">
-            <label class="role-chip"><input type="checkbox" id="fManFactureRecue" /> Facture reçue</label>
-            <label class="role-chip"><input type="checkbox" id="fManFacturePayee" /> Facture payée</label>
-            <label class="role-chip"><input type="checkbox" id="fManDfuPaye" /> DFU payé</label>
-            <label class="role-chip"><input type="checkbox" id="fManBactFait" /> BACT effectué</label>
-            <label class="role-chip"><input type="checkbox" id="fManGatePassDemande" /> Gate Pass demandé</label>
-            <label class="role-chip"><input type="checkbox" id="fManGatePassRecu" /> Gate Pass reçu</label>
-          </div>
-          <div class="grid-2">
-            <div class="field" style="margin-bottom:0;">
-              <label>Demande de camion de chargement (signale chez le Superviseur)</label>
-              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                <label class="check-inline">
-                  <input type="checkbox" id="fManTruckRequested" onchange="renderTruckDemandPreview()" />
-                  <strong>Demander le camion de chargement</strong>
-                </label>
-                <span id="truckRequestBadge" class="pill jaune" style="display:none;">Dossier en attente de camion</span>
-              </div>
-            </div>
-            <div class="field" style="margin-bottom:0;">
-              <label for="fManutentionFiles">Télécharger / Joindre fichiers Manutention</label>
-              <input type="file" id="fManutentionFiles" multiple onchange="handleSectionFiles('manutention', this.files)" />
-              <div id="manutentionFilesList" class="file-chip-list"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 7. Retour vide (Dossiers sur camion) -->
-        <div id="emptyReturnSection" class="section-box">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
-            <h3 style="margin:0;">7. Retour Vide (Dossiers sur camion)</h3>
-            <button type="button" id="btnEmptyReturn" class="warning sm" onclick="triggerEmptyReturnAction()">🔄 Retour vide</button>
-          </div>
-          <div class="grid-2">
-            <div class="field" style="margin-bottom:0;">
-              <label for="fEmptyReturnDate">Date du retour vide</label>
-              <input type="date" id="fEmptyReturnDate" />
-            </div>
-            <div class="field" style="margin-bottom:0;">
-              <label for="fEmptyReturnFile">Télécharger bordereau de retour vide</label>
-              <input type="file" id="fEmptyReturnFile" onchange="handleEmptyReturnFile(this.files)" />
-              <div id="emptyReturnFileInfo" class="file-chip-list"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 8. Évolution & Points du dossier -->
-        <div id="secEvolution" class="section-box">
-          <h3>8. Évolution &amp; Renseignement du suivi du dossier (De l'enregistrement à la sortie camion)</h3>
-          <div class="grid-2" style="margin-bottom:10px;">
-            <div class="field" style="margin-bottom:0;">
-              <label for="fEvoStage">Nouvelle étape / Statut</label>
-              <input type="text" id="fEvoStage" placeholder="Ex: Enregistrement / BAD / Déclaration / Sortie camion" />
-            </div>
-            <div class="field" style="margin-bottom:0;">
-              <label for="fEvoNote">Détail de l'évolution / Camion / Sortie</label>
-              <input type="text" id="fEvoNote" placeholder="Ex: Camion TG-4512-MD sorti du port, retour vide planifié" />
-            </div>
-          </div>
-          <button type="button" id="btnAddEvolution" class="sm primary" onclick="addEvolutionEntry()">+ Enregistrer cette évolution</button>
-          <div id="evolutionHistoryList" class="evolution-list"></div>
-        </div>
-
-        <div id="secPoints" class="section-box" style="margin-bottom:0;">
-          <h3>9. Points / Étapes d'avancement (Bordereau PDF sans facturation)</h3>
-          <div class="field" style="margin-bottom:0;">
-            <textarea id="fPoints" rows="3" placeholder="Ex:&#10;- Enregistrement &amp; BAD récupéré&#10;- Déclaration validée&#10;- Enlèvement &amp; Sortie camion / Retour vide"></textarea>
+            <label for="fNotes">Observations / Points de suivi</label>
+            <textarea id="fNotes" rows="3" placeholder="Détails de suivi du dossier..."></textarea>
           </div>
         </div>
       </div>
-
       <div class="modal-footer">
-        <button onclick="printSingleBordereauPdf()">📄 Télécharger / Imprimer Bordereau PDF</button>
         <button onclick="closeModal('dossierModal')">Annuler</button>
-        <button id="btnSaveDossier" onclick="saveDossier()" class="primary">Enregistrer le dossier</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL FACTURATION DDU -->
-  <div id="billingModal" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>🧾 Facturation DDU par Plage de Répertoires (STE GEO)</h2>
-        <button onclick="closeModal('billingModal')" class="sm">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="section-box">
-          <h3>Filtrage par numéro de répertoire (Reprise automatique verrouillée pour l'Agent DDU)</h3>
-          <div class="grid-2">
-            <div class="field">
-              <label>Répertoire de début (auto-positionné sur le suivant)</label>
-              <input type="text" id="billRepStart" placeholder="Ex: GEO00001" oninput="computeDduInvoice()" />
-              <div id="billStartLockNotice" class="lock-note" style="display:none;">
-                🔒 Verrouillé automatiquement sur le répertoire suivant la dernière facture émise. En cas de souci, contactez l'<strong>Administrateur</strong> pour qu'il le modifie pour vous.
-              </div>
-            </div>
-            <div class="field">
-              <label>Répertoire de fin (X)</label>
-              <input type="text" id="billRepEnd" placeholder="Ex: GEO00004" oninput="computeDduInvoice()" />
-            </div>
-            <div class="field">
-              <label>Tarif unitaire par DDU</label>
-              <input type="number" id="billUnitPrice" value="10000" min="0" step="100" oninput="computeDduInvoice()" />
-            </div>
-            <div class="field">
-              <label>Adresse destinataire STE GEO (k)</label>
-              <input type="email" id="billRecipientEmail" oninput="computeDduInvoice()" />
-            </div>
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button type="button" id="btnResetNextStart" class="sm" onclick="applyNextUnbilledStart()">Reprendre au répertoire suivant</button>
-            <button type="button" id="btnPrefillMinMax" class="sm" onclick="prefillRangeFromDossiers()">Remplir min → max dossiers (Admin)</button>
-            <button type="button" class="sm" onclick="computeDduInvoice()">Calculer la facture</button>
-          </div>
-        </div>
-
-        <div id="invoicePreviewBox" class="invoice-preview"></div>
-      </div>
-      <div class="modal-footer">
-        <button onclick="printInvoicePdf()">🖨️ Générer / Imprimer Facture PDF</button>
-        <button onclick="openConfirmEmitModal()" class="success">✉️ Émettre la Facture DDU</button>
-        <button onclick="closeModal('billingModal')">Fermer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL CONFIRMATION D'ÉMISSION FACTURE DDU -->
-  <div id="confirmEmitModal" class="modal-backdrop">
-    <div class="modal" style="max-width:520px;">
-      <div class="modal-header">
-        <h2>⚠️ Confirmation d'émission de la Facture DDU</h2>
-        <button onclick="closeModal('confirmEmitModal')" class="sm">✕</button>
-      </div>
-      <div class="modal-body">
-        <p style="margin-top:0;">Voulez-vous confirmer définitivement l'émission de cette facture DDU ?</p>
-        <div id="confirmEmitSummary" class="section-box" style="margin-bottom:10px;"></div>
-        <div style="font-size:12.5px; color:var(--muted);">
-          Après confirmation, la facture sera générée en PDF, archivée, le prochain départ sera automatiquement avancé au répertoire suivant, et un <strong>message automatique de demande de paiement</strong> sera envoyé immédiatement au <strong>Superviseur</strong>.
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" onclick="closeModal('confirmEmitModal')">Annuler</button>
-        <button type="button" onclick="confirmAndEmitInvoice()" class="success">✓ Confirmer l'émission</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL LECTEUR FACTURE PDF & PAIEMENT SUPERVISEUR -->
-  <div id="supervisorInvoiceReaderModal" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 id="readerInvoiceTitle">📄 Facture DDU PDF — Demande de paiement</h2>
-        <button onclick="closeModal('supervisorInvoiceReaderModal')" class="sm">✕</button>
-      </div>
-      <div class="modal-body">
-        <div id="readerInvoiceMessageBanner" class="truck-banner" style="background:#eff6ff; border-color:#93c5fd; color:#1e3a8a; margin-bottom:12px;"></div>
-        <div id="readerInvoiceContent" class="invoice-preview"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" onclick="printReaderInvoicePdf()">🖨️ Imprimer / Télécharger PDF</button>
-        <button type="button" id="btnPayFromSupervisorMessage" onclick="payInvoiceFromReader()" class="success" style="display:none;">💳 Payer la facture</button>
-        <button type="button" onclick="closeModal('supervisorInvoiceReaderModal')">Fermer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL ARCHIVE FACTURES -->
-  <div id="invoiceArchiveModal" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>🗂️ Factures Émises, Payées &amp; Archivées (GE.../FA/ANNÉE)</h2>
-        <button onclick="closeModal('invoiceArchiveModal')" class="sm">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="section-box">
-          <h3>Recherche dans les factures archivées ou payées</h3>
-          <div class="grid-2">
-            <div class="field" style="margin-bottom:0;">
-              <label for="invoiceSearchInput">Rechercher par N° facture (GE001/FA/...), répertoire, client ou date</label>
-              <input type="text" id="invoiceSearchInput" placeholder="Ex: GE001/FA/2026, GEO00002, PAYÉE..." oninput="renderInvoiceArchiveList()" />
-            </div>
-            <div class="field" style="margin-bottom:0;">
-              <label for="invoiceStatusFilter">Filtrer par statut</label>
-              <select id="invoiceStatusFilter" onchange="renderInvoiceArchiveList()">
-                <option value="TOUTES">Toutes les factures archivées</option>
-                <option value="PAYEE">Factures payées (Vert)</option>
-                <option value="EN_ATTENTE">En attente de paiement Superviseur</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div id="invoiceArchiveListContainer"></div>
-      </div>
-      <div class="modal-footer">
-        <button onclick="closeModal('invoiceArchiveModal')">Fermer</button>
+        <button id="btnSaveDossier" onclick="saveDossier()" class="primary">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -1393,71 +563,36 @@
   <div id="adminModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
-        <h2>🛡️ Administration — Agents Connectés, Rôles &amp; Déblocage Répertoire DDU</h2>
+        <h2>🛡️ Administration — Comptes, Rôles, Mots de passe &amp; Suppression</h2>
         <button onclick="closeModal('adminModal')" class="sm">✕</button>
       </div>
       <div class="modal-body">
         <div class="section-box">
-          <h3>🔧 Correction Administrateur — Répertoire de départ Facturation DDU</h3>
-          <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">
-            L'Agent DDU reprend automatiquement au répertoire suivant la dernière facture émise et ne peut pas le modifier. En cas de souci, modifiez ici le dernier répertoire facturé (laisser vide pour repartir du tout premier dossier).
-          </div>
-          <div class="grid-2" style="align-items:end;">
-            <div class="field" style="margin-bottom:0;">
-              <label for="adminLastBilledRepInput">Dernier répertoire clôturé / facturé (le suivant sera pris automatiquement)</label>
-              <input type="text" id="adminLastBilledRepInput" placeholder="Ex: GEO00002 (ou vide pour début)" />
+          <h3>Créer un nouveau compte agent</h3>
+          <div class="grid-3">
+            <div class="field">
+              <label for="newAgentName">Nom complet</label>
+              <input type="text" id="newAgentName" placeholder="Ex: Ama Koffi" />
             </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <button type="button" class="primary sm" onclick="saveAdminLastBilledRep()">Enregistrer le réglage répertoire</button>
-              <button type="button" class="sm" onclick="resetAdminLastBilledRep()">Réinitialiser au début</button>
+            <div class="field">
+              <label for="newAgentUser">Identifiant</label>
+              <input type="text" id="newAgentUser" placeholder="Ex: ama" />
+            </div>
+            <div class="field">
+              <label for="newAgentPass">Mot de passe</label>
+              <input type="text" id="newAgentPass" placeholder="Ex: ama123" />
             </div>
           </div>
-        </div>
-
-        <div class="section-box">
-          <h3>Agents &amp; Sessions actives</h3>
-          <div class="table-wrap" style="box-shadow:none;">
-            <table style="min-width:560px;">
-              <thead>
-                <tr>
-                  <th>Agent</th>
-                  <th>Identifiant</th>
-                  <th>Rôles attribués</th>
-                  <th>État</th>
-                  <th>Dernière activité</th>
-                </tr>
-              </thead>
-              <tbody id="adminSessionsBody"></tbody>
-            </table>
+          <div class="field">
+            <label>Fonctions / Rôles (Seuls AGENT_ECHANGE, AGENT_TRANSIT et SUPERVISEUR peuvent créer un dossier)</label>
+            <div class="role-grid" id="newAgentRoles"></div>
           </div>
+          <button type="button" onclick="createNewAgent()" class="primary sm">+ Créer le compte</button>
         </div>
 
         <div class="section-box" style="margin-bottom:0;">
-          <h3>Attribution multi-rôles par l'Administrateur</h3>
-          <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">
-            Cochez les rôles attribués à chaque agent pour ouvrir uniquement les volets correspondants dans les dossiers.
-          </div>
+          <h3>Comptes existants — Rôles, réinitialisation mot de passe &amp; suppression</h3>
           <div id="adminUsersList"></div>
-          <hr style="border:none; border-top:1px solid var(--border); margin:14px 0;" />
-          <div class="grid-2">
-            <div class="field">
-              <label>Nom complet nouvel agent</label>
-              <input type="text" id="newAgentName" placeholder="Ex: Koffi Mensah" />
-            </div>
-            <div class="field">
-              <label>Identifiant de connexion</label>
-              <input type="text" id="newAgentUser" placeholder="Ex: koffi" />
-            </div>
-            <div class="field">
-              <label>Mot de passe</label>
-              <input type="text" id="newAgentPass" placeholder="Ex: pass123" />
-            </div>
-            <div class="field">
-              <label>Rôles attribués</label>
-              <div class="role-grid" id="newAgentRoles"></div>
-            </div>
-          </div>
-          <button onclick="createNewAgent()" class="primary sm">Ajouter l'agent</button>
         </div>
       </div>
       <div class="modal-footer">
@@ -1466,361 +601,80 @@
     </div>
   </div>
 
-  <!-- MODAL MODIFICATION / CORRECTION FACTURE ARCHIVÉE (ADMIN) -->
-  <div id="editInvoiceModal" class="modal-backdrop">
-    <div class="modal" style="max-width:860px;">
-      <div class="modal-header">
-        <h2 id="editInvoiceModalTitle">✏️ Modifier / Corriger une Facture Archivée</h2>
-        <button onclick="closeModal('editInvoiceModal')" class="sm">✕</button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="editInvoiceId" />
-        <div class="section-box">
-          <h3>Informations générales &amp; Recalcul automatique</h3>
-          <div class="grid-3">
-            <div class="field">
-              <label for="editInvNumber">N° Facture</label>
-              <input type="text" id="editInvNumber" />
-            </div>
-            <div class="field">
-              <label for="editInvRecipient">Destinataire (STE GEO)</label>
-              <input type="text" id="editInvRecipient" />
-            </div>
-            <div class="field">
-              <label for="editInvStatus">Statut de paiement</label>
-              <select id="editInvStatus" onchange="handleEditInvoiceStatusChange()">
-                <option value="ENVOYEE_SUPERVISEUR">En attente de paiement Superviseur</option>
-                <option value="PAYEE">PAYÉE</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="editInvRepStart">Répertoire début</label>
-              <input type="text" id="editInvRepStart" />
-            </div>
-            <div class="field">
-              <label for="editInvRepEnd">Répertoire fin</label>
-              <input type="text" id="editInvRepEnd" />
-            </div>
-            <div class="field">
-              <label for="editInvUnitPrice">Tarif unitaire par DDU</label>
-              <input type="number" id="editInvUnitPrice" min="0" step="100" oninput="recalcEditInvoiceLines()" />
-            </div>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:6px;">
-            <span id="editInvTotalSummary" style="font-weight:700; font-size:14px;">Total DDU : 0 • Montant total : 0 FCFA</span>
-            <button type="button" class="sm primary" onclick="addEditInvoiceLine()">+ Ajouter une ligne DDU</button>
-          </div>
-        </div>
-
-        <div class="section-box">
-          <h3>Lignes de la facture (modifiables — recalcul automatique)</h3>
-          <div class="table-wrap" style="box-shadow:none;">
-            <table style="min-width:680px;">
-              <thead>
-                <tr>
-                  <th>Répertoire</th>
-                  <th>N° BL</th>
-                  <th>Client</th>
-                  <th>N° Déclaration</th>
-                  <th>Poids / Qté</th>
-                  <th style="width:60px;">Action</th>
-                </tr>
-              </thead>
-              <tbody id="editInvLinesBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div id="paidUnlockNoticeBox" class="lock-note" style="display:none; margin-bottom:12px;">
-          🔓 <strong>Facture marquée PAYÉE déverrouillée par l'Administrateur :</strong> toute modification ou repassage en attente mettra à jour l'historique et enverra une notification automatique au Superviseur.
-        </div>
-
-        <div class="section-box">
-          <h3>Motif de la correction (obligatoire pour l'historique)</h3>
-          <div class="field" style="margin-bottom:0;">
-            <textarea id="editInvReason" rows="2" placeholder="Ex: Rectification du tarif unitaire ou ajout du répertoire GEO00005..."></textarea>
-          </div>
-          <label class="check-inline" style="margin-top:8px; font-size:12.5px;">
-            <input type="checkbox" id="editInvNotifySupervisor" checked />
-            Notifier automatiquement le Superviseur de cette correction de facture
-          </label>
-        </div>
-
-        <div class="section-box" style="margin-bottom:0;">
-          <h3>Historique des modifications de cette facture</h3>
-          <div id="editInvAuditHistory" class="evolution-list"></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="danger sm" onclick="deleteArchivedInvoice()">🗑️ Supprimer la facture</button>
-        <button type="button" onclick="closeModal('editInvoiceModal')">Annuler</button>
-        <button type="button" class="success" onclick="saveEditedArchivedInvoice()">💾 Enregistrer la correction</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL PARAMÈTRES -->
-  <div id="settingsModal" class="modal-backdrop">
-    <div class="modal" style="max-width:520px;">
-      <div class="modal-header">
-        <h2>⚙️ Paramètres GEO SUIVI TRANSIT</h2>
-        <button onclick="closeModal('settingsModal')" class="sm">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="field">
-          <label>Adresse e-mail STE GEO (k)</label>
-          <input type="email" id="settingEmailK" placeholder="k@geosuvitransit.tg" />
-        </div>
-        <div class="field">
-          <label>Tarif par défaut par DDU</label>
-          <input type="number" id="settingDefaultDduPrice" min="0" step="100" />
-        </div>
-        <div class="field" style="margin-bottom:0;">
-          <label>Devise affichée</label>
-          <input type="text" id="settingCurrency" placeholder="FCFA" />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button onclick="closeModal('settingsModal')">Annuler</button>
-        <button onclick="saveSettings()" class="primary">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="printArea"></div>
   <div id="toast" class="toast"></div>
 
   <script>
-    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V10";
-    const CLOUD_CFG_KEY = "GEO_SUIVI_TRANSIT_CLOUD_CFG_V1";
-    const BROADCAST_CHANNEL_NAME = "GEO_SUIVI_TRANSIT_SYNC_CHANNEL_V1";
+    const STORAGE_KEY = "GEO_SUIVI_TRANSIT_STATE_V2";
+    const CHANNEL_NAME = "GEO_SUIVI_TRANSIT_SYNC_V2";
 
     const AVAILABLE_ROLES = [
       "ADMIN",
       "SUPERVISEUR",
+      "AGENT_TRANSIT",
       "AGENT_ECHANGE",
       "AGENT_DDU_T1",
-      "AGENT_PASSATION",
-      "AGENT_MANUTENTION",
-      "AGENT_TRANSIT",
       "AGENT_EXPLOITATION"
     ];
 
-    const DEFAULT_CLOUD_CFG = {
-      enabled: true,
-      workspaceCode: "GEO-TRANSIT-LOME-SHARED",
-      endpointUrl: "",
-      apiKey: "",
-      lastSyncAt: ""
-    };
+    function encodePass(plain) {
+      return btoa(unescape(encodeURIComponent(String(plain || ""))));
+    }
 
     const DEFAULT_STATE = {
-      updatedAt: 0,
-      settings: {
-        emailK: "k@geosuvitransit.tg",
-        dduUnitPrice: 10000,
-        currency: "FCFA",
-        invoiceCounter: 1,
-        lastBilledRep: ""
-      },
-      invoicesArchive: [],
-      supervisorMessages: [],
+      updatedAt: Date.now(),
       users: [
         {
           id: "u_admin",
-          name: "Administrateur Système",
+          name: "Administrateur",
           username: "admin",
-          passwordHash: btoa("admin123"),
+          passwordHash: encodePass("admin123"),
           roles: ["ADMIN"],
+          photoDataUrl: "",
           online: false,
-          lastSeen: "Jamais connecté"
-        },
-        {
-          id: "u_esta",
-          name: "ESTA",
-          username: "esta",
-          passwordHash: btoa("esta123"),
-          roles: ["AGENT_DDU_T1"],
-          online: false,
-          lastSeen: "Jamais connecté"
+          lastSeen: "Jamais"
         },
         {
           id: "u_sup",
           name: "Superviseur Transit",
           username: "superviseur",
-          passwordHash: btoa("sup123"),
+          passwordHash: encodePass("sup123"),
           roles: ["SUPERVISEUR"],
+          photoDataUrl: "",
           online: false,
-          lastSeen: "Jamais connecté"
+          lastSeen: "Jamais"
+        },
+        {
+          id: "u_transit",
+          name: "Agent de Transit",
+          username: "transit",
+          passwordHash: encodePass("trans123"),
+          roles: ["AGENT_TRANSIT"],
+          photoDataUrl: "",
+          online: false,
+          lastSeen: "Jamais"
+        },
+        {
+          id: "u_echange",
+          name: "Agent d'Échange",
+          username: "echange",
+          passwordHash: encodePass("ech123"),
+          roles: ["AGENT_ECHANGE"],
+          photoDataUrl: "",
+          online: false,
+          lastSeen: "Jamais"
         }
       ],
       dossiers: [
         {
-          id: "d1",
+          id: "d_1",
           repertoire: "GEO00001",
-          bl: "LOM40231",
-          client: "STE LOG",
-          navire: "MSC LOME",
-          paysProvenance: "Chine",
-          paysDestination: "Burkina Faso",
-          destination: "OUAGA BF",
-          containerType: "40'HC",
-          poids: "26 400 kg",
-          quantite: "2 conteneurs",
-          transportMode: "SUR_CAMION",
-          flux: "HINTERLAND",
-          circuit: "ROUGE",
-          statut: "Alerte < 72h - Douane",
-          isDdu: true,
-          closed: false,
-          containers: ["MSCU4512091", "MSCU8841203"],
-          exchange: {
-            badEndDate: new Date(Date.now() + 24 * 3600 * 1000).toISOString().slice(0, 16),
-            docType: "TELEX",
-            comment: "",
-            files: []
-          },
-          ddu: {
-            levee: false,
-            declarationNum: "DEC-2026-1001",
-            t1Num: "T1-2026-001",
-            t1ValidityDate: new Date(Date.now() + 36 * 3600 * 1000).toISOString().slice(0, 16),
-            files: []
-          },
-          passation: {
-            bon: "BON_A_ENLEVER",
-            consigne: "",
-            truckAssignments: [{ truck: "TG-4512-MD", containers: "MSCU4512091, MSCU8841203", poids: "", quantite: "" }],
-            files: []
-          },
-          manutention: {
-            factureRecue: true,
-            facturePayee: true,
-            dfuPaye: true,
-            bactFait: false,
-            gatePassDemande: false,
-            gatePassRecu: false,
-            truckRequested: true,
-            files: []
-          },
-          emptyReturn: { date: "", fileName: "" },
-          evolutions: [
-            { date: "23/11/2026 09:15", stage: "Arrivée navire", note: "Navire accosté au terminal à conteneurs", author: "admin" }
-          ],
-          points: "- Arrivée navire à Lomé\n- BAD émis\n- Contrôle documentaire en cours"
-        },
-        {
-          id: "d2",
-          repertoire: "GEO00002",
-          bl: "LOM55891",
-          client: "FASO IMPORT SARL",
-          navire: "CMA CGM AFRICA",
-          paysProvenance: "Émirats arabes unis",
-          paysDestination: "Niger",
-          destination: "NIAMEY NE",
-          containerType: "20'DC",
-          poids: "18 200 kg",
-          quantite: "85 colis",
-          transportMode: "DEPOTAGE",
-          flux: "DEPOTAGE",
-          circuit: "BLEU",
-          statut: "Dépotage CFS",
-          isDdu: true,
-          closed: false,
-          containers: ["CMAU3019942"],
-          exchange: { badEndDate: "", docType: "ORIGINAL", comment: "", files: [] },
-          ddu: { levee: true, declarationNum: "DEC-2026-1002", t1Num: "", t1ValidityDate: "", files: [] },
-          passation: {
-            bon: "BON_A_CONDUIRE",
-            consigne: "",
-            truckAssignments: [{ truck: "BF-8821-AA", containers: "CMAU3019942", poids: "18 200 kg", quantite: "85 colis" }],
-            files: []
-          },
-          manutention: {
-            factureRecue: true,
-            facturePayee: true,
-            dfuPaye: true,
-            bactFait: true,
-            gatePassDemande: true,
-            gatePassRecu: true,
-            truckRequested: false,
-            files: []
-          },
-          emptyReturn: { date: "", fileName: "" },
-          evolutions: [],
-          points: "- Transfert CFS effectué\n- Dépotage programmé"
-        },
-        {
-          id: "d3",
-          repertoire: "GEO00003",
-          bl: "LOM60122",
-          client: "TRANSIT SAHL",
-          navire: "MAERSK KENSINGTON",
-          paysProvenance: "Turquie",
-          paysDestination: "Mali",
-          destination: "BAMAKO ML",
-          containerType: "40'DC",
-          poids: "21 000 kg",
-          quantite: "140 cartons",
-          transportMode: "SUR_CAMION",
-          flux: "MAGASINS",
-          circuit: "JAUNE",
-          statut: "En attente validation",
-          isDdu: true,
-          closed: false,
-          containers: ["MRKU7721004"],
-          exchange: { badEndDate: "", docType: "TELEX", comment: "", files: [] },
-          ddu: { levee: false, declarationNum: "", t1Num: "", t1ValidityDate: "", files: [] },
-          passation: { bon: "AUCUN", consigne: "", truckAssignments: [], files: [] },
-          manutention: {
-            factureRecue: false,
-            facturePayee: false,
-            dfuPaye: false,
-            bactFait: false,
-            gatePassDemande: false,
-            gatePassRecu: false,
-            truckRequested: false,
-            files: []
-          },
-          emptyReturn: { date: "", fileName: "" },
-          evolutions: [],
-          points: "- Dossier créé"
-        },
-        {
-          id: "d4",
-          repertoire: "GEO00004",
-          bl: "MEDU4987822",
-          client: "STE APECME MOTO BF",
-          navire: "MSC BETTINA",
-          paysProvenance: "Inde",
-          paysDestination: "Burkina Faso",
-          destination: "OUAGA BF",
-          containerType: "40'HC",
-          poids: "23 800 kg",
-          quantite: "60 motos",
-          transportMode: "SUR_CAMION",
-          flux: "HINTERLAND",
+          bl: "MAEU7845120",
+          client: "SOCIÉTÉ LOMÉ IMPORT",
           circuit: "VERT",
-          statut: "Circuit normal",
-          isDdu: true,
-          closed: false,
-          containers: ["MSCU1190442", "MSCU5501928"],
-          exchange: { badEndDate: "", docType: "ORIGINAL", comment: "", files: [] },
-          ddu: { levee: true, declarationNum: "DEC-2026-1004", t1Num: "", t1ValidityDate: "", files: [] },
-          passation: { bon: "BON_A_ENLEVER", consigne: "", truckAssignments: [], files: [] },
-          manutention: {
-            factureRecue: true,
-            facturePayee: true,
-            dfuPaye: true,
-            bactFait: true,
-            gatePassDemande: true,
-            gatePassRecu: true,
-            truckRequested: false,
-            files: []
-          },
-          emptyReturn: { date: "", fileName: "" },
-          evolutions: [],
-          points: "- Circuit vert validé"
+          statut: "BAD validé / Enlèvement en cours",
+          notes: "Dossier initial prêt pour enlèvement.",
+          createdBy: "transit",
+          closed: false
         }
       ],
       sessionUserId: null
@@ -1830,73 +684,46 @@
       return JSON.parse(JSON.stringify(DEFAULT_STATE));
     }
 
-    function loadCloudCfg() {
-      try {
-        const raw = localStorage.getItem(CLOUD_CFG_KEY);
-        if (!raw) return { ...DEFAULT_CLOUD_CFG };
-        return { ...DEFAULT_CLOUD_CFG, ...JSON.parse(raw) };
-      } catch (e) {
-        return { ...DEFAULT_CLOUD_CFG };
-      }
-    }
-
-    let cloudCfg = loadCloudCfg();
-
-    function saveCloudCfg() {
-      try {
-        localStorage.setItem(CLOUD_CFG_KEY, JSON.stringify(cloudCfg));
-      } catch (e) {}
-    }
-
-    function normalizeLoadedState(parsed) {
+    function normalizeState(raw) {
       const def = cloneDefaultState();
+      if (!raw || typeof raw !== "object") return def;
       return {
-        updatedAt: Number(parsed?.updatedAt) || 0,
-        settings: { ...def.settings, ...(parsed?.settings || {}) },
-        invoicesArchive: Array.isArray(parsed?.invoicesArchive) ? parsed.invoicesArchive : [],
-        supervisorMessages: Array.isArray(parsed?.supervisorMessages) ? parsed.supervisorMessages : [],
-        users: Array.isArray(parsed?.users) && parsed.users.length ? parsed.users : def.users,
-        dossiers: Array.isArray(parsed?.dossiers) && parsed.dossiers.length ? parsed.dossiers : def.dossiers,
-        sessionUserId: parsed?.sessionUserId || null
+        updatedAt: Number(raw.updatedAt) || 0,
+        users: Array.isArray(raw.users) ? raw.users.map((u) => ({
+          id: u.id || ("u_" + Math.random().toString(36).slice(2, 8)),
+          name: String(u.name || "").trim(),
+          username: String(u.username || "").trim().toLowerCase(),
+          passwordHash: String(u.passwordHash || ""),
+          roles: Array.isArray(u.roles) ? Array.from(new Set(u.roles)) : [],
+          photoDataUrl: typeof u.photoDataUrl === "string" ? u.photoDataUrl : "",
+          online: !!u.online,
+          lastSeen: u.lastSeen || "Jamais"
+        })) : def.users,
+        dossiers: Array.isArray(raw.dossiers) ? raw.dossiers : def.dossiers,
+        sessionUserId: raw.sessionUserId || null
       };
     }
 
     function loadState() {
       try {
-        const raw =
-          localStorage.getItem(STORAGE_KEY) ||
-          localStorage.getItem("GEO_SUIVI_TRANSIT_STATE_V9") ||
-          localStorage.getItem("GEO_SUIVI_TRANSIT_STATE_V8");
-        if (!raw) return cloneDefaultState();
-        return normalizeLoadedState(JSON.parse(raw));
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return cloneDefaultState();
+        return normalizeState(JSON.parse(saved));
       } catch (e) {
         return cloneDefaultState();
       }
     }
 
     let state = loadState();
-    let selectedIds = new Set();
-    let workingEvolutions = [];
-    let workingFiles = { exchange: [], ddu: [], passation: [], manutention: [] };
-    let workingEmptyReturnFile = "";
-    let workingTruckAssignments = [];
-    let currentInvoiceNumberPreview = "";
-    let activeReaderInvoiceId = null;
-    let activeReaderViaSupervisorMessage = false;
-    let broadcastChan = null;
+    let pendingProfilePhoto = "";
+    let channel = null;
 
     try {
       if ("BroadcastChannel" in window) {
-        broadcastChan = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
-        broadcastChan.onmessage = function (ev) {
-          if (ev.data && ev.data.type === "STATE_UPDATED" && ev.data.payload) {
-            const incoming = normalizeLoadedState(ev.data.payload);
-            if ((incoming.updatedAt || 0) >= (state.updatedAt || 0)) {
-              const keepSession = state.sessionUserId;
-              state = { ...incoming, sessionUserId: keepSession };
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-              renderApp();
-            }
+        channel = new BroadcastChannel(CHANNEL_NAME);
+        channel.onmessage = function (ev) {
+          if (ev.data && ev.data.type === "SYNC_STATE" && ev.data.payload) {
+            applyRemoteOrPeerState(ev.data.payload);
           }
         };
       }
@@ -1905,97 +732,30 @@
     window.addEventListener("storage", function (ev) {
       if (ev.key === STORAGE_KEY && ev.newValue) {
         try {
-          const incoming = normalizeLoadedState(JSON.parse(ev.newValue));
-          const keepSession = state.sessionUserId;
-          state = { ...incoming, sessionUserId: keepSession };
-          renderApp();
+          applyRemoteOrPeerState(JSON.parse(ev.newValue));
         } catch (e) {}
       }
     });
 
-    window.addEventListener("error", function (event) {
-      const loginErr = document.getElementById("loginError");
-      if (loginErr && document.getElementById("loginScreen").style.display !== "none") {
-        loginErr.textContent = "Erreur détectée : " + (event.message || "problème de script");
-        loginErr.style.display = "block";
-      }
-    });
-
-    function getSharedPayloadSnapshot() {
+    function getSharedSnapshot() {
       const copy = JSON.parse(JSON.stringify(state));
       delete copy.sessionUserId;
       return copy;
     }
 
-    function getRemoteEndpointForWorkspace() {
-      if (cloudCfg.endpointUrl && cloudCfg.endpointUrl.trim()) {
-        return cloudCfg.endpointUrl.trim();
-      }
-      const code = encodeURIComponent((cloudCfg.workspaceCode || "GEO-TRANSIT-LOME-SHARED").trim() || "GEO-TRANSIT-LOME-SHARED");
-      return `https://kvdb.io/GEO_SUIVI_TRANSIT_SHARED_KV/${code}`;
-    }
-
-    async function pushCloudNow(silent = false) {
-      if (!cloudCfg.enabled) return;
-      const url = getRemoteEndpointForWorkspace();
-      const headers = { "Content-Type": "application/json" };
-      if (cloudCfg.apiKey && cloudCfg.apiKey.trim()) {
-        headers["Authorization"] = `Bearer ${cloudCfg.apiKey.trim()}`;
-      }
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(getSharedPayloadSnapshot())
-        });
-        if (res.ok) {
-          cloudCfg.lastSyncAt = new Date().toLocaleString("fr-FR");
-          saveCloudCfg();
-          updateCloudUi();
-          if (!silent) showToast("Données synchronisées en ligne pour tous les comptes.");
-        } else if (!silent) {
-          showToast("Synchronisation locale/inter-onglets active (serveur distant non joignable).");
+    function applyRemoteOrPeerState(incomingRaw) {
+      const incoming = normalizeState(incomingRaw);
+      if ((incoming.updatedAt || 0) >= (state.updatedAt || 0)) {
+        const currentSession = state.sessionUserId;
+        state = { ...incoming, sessionUserId: currentSession };
+        if (state.sessionUserId && !state.users.some((u) => u.id === state.sessionUserId)) {
+          state.sessionUserId = null;
+          showToast("Votre compte a été retiré par l'administrateur.");
         }
-      } catch (err) {
-        if (!silent) {
-          showToast("Sauvegarde locale & inter-onglets effectuée (hors ligne ou réseau restreint).");
-        }
-      }
-    }
-
-    async function pullCloudNow(silent = false) {
-      if (!cloudCfg.enabled) return;
-      const url = getRemoteEndpointForWorkspace();
-      const headers = {};
-      if (cloudCfg.apiKey && cloudCfg.apiKey.trim()) {
-        headers["Authorization"] = `Bearer ${cloudCfg.apiKey.trim()}`;
-      }
-      try {
-        const res = await fetch(url, { method: "GET", headers });
-        if (!res.ok) {
-          if (!silent) showToast("Aucune donnée distante trouvée ou serveur distant indisponible.");
-          return;
-        }
-        const remoteData = await res.json();
-        if (remoteData && Array.isArray(remoteData.dossiers)) {
-          const normalized = normalizeLoadedState(remoteData);
-          if ((normalized.updatedAt || 0) > (state.updatedAt || 0)) {
-            const keepSession = state.sessionUserId;
-            state = { ...normalized, sessionUserId: keepSession };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            renderApp();
-            if (!silent) showToast("Nouveaux dossiers synchronisés depuis l'espace partagé !");
-          } else if (!silent) {
-            showToast("Vos données sont déjà à jour.");
-          }
-        }
-        cloudCfg.lastSyncAt = new Date().toLocaleString("fr-FR");
-        saveCloudCfg();
-        updateCloudUi();
-      } catch (err) {
-        if (!silent) {
-          showToast("Impossible de joindre le serveur partagé pour le moment.");
-        }
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+        renderApp();
       }
     }
 
@@ -2005,36 +765,20 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch (e) {}
       try {
-        if (broadcastChan) {
-          broadcastChan.postMessage({ type: "STATE_UPDATED", payload: getSharedPayloadSnapshot() });
+        if (channel) {
+          channel.postMessage({ type: "SYNC_STATE", payload: getSharedSnapshot() });
         }
       } catch (e) {}
-      if (cloudCfg.enabled) {
-        pushCloudNow(true);
-      }
-    }
-
-    function resetStorageSession() {
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {}
-      state = cloneDefaultState();
-      selectedIds.clear();
-      document.getElementById("loginError").style.display = "none";
-      document.getElementById("loginUsername").value = "admin";
-      document.getElementById("loginPassword").value = "admin123";
-      showToast("Cache local réinitialisé.");
     }
 
     function showToast(msg) {
       const el = document.getElementById("toast");
-      if (!el) return;
       el.textContent = msg;
       el.style.display = "block";
       clearTimeout(window.__toastTimer);
       window.__toastTimer = setTimeout(() => {
         el.style.display = "none";
-      }, 3600);
+      }, 3400);
     }
 
     function escapeHtml(str) {
@@ -2045,110 +789,8 @@
         .replace(/"/g, "&quot;");
     }
 
-    function updateCloudUi() {
-      const badge = document.getElementById("cloudStatusBadge");
-      const banner = document.getElementById("cloudBanner");
-      const logEl = document.getElementById("cloudSyncLog");
-      const ws = cloudCfg.workspaceCode || "GEO-TRANSIT-LOME-SHARED";
-
-      if (badge) {
-        if (cloudCfg.enabled) {
-          badge.className = "sync-pill online";
-          badge.textContent = `☁️ Partagé : ${ws}`;
-        } else {
-          badge.className = "sync-pill local";
-          badge.textContent = "● Mode Local";
-        }
-      }
-
-      if (banner) {
-        if (cloudCfg.enabled) {
-          banner.className = "cloud-banner connected";
-          banner.innerHTML = `
-            <div>
-              <strong>☁️ ESPACE PARTAGÉ ACTIF (${escapeHtml(ws)}) :</strong> Les dossiers créés ou modifiés sont synchronisés entre comptes et appareils. ${cloudCfg.lastSyncAt ? `<em>(Dernière synchro : ${escapeHtml(cloudCfg.lastSyncAt)})</em>` : ""}
-            </div>
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button type="button" class="sm" onclick="pullCloudNow()">↻ Actualiser</button>
-              <button type="button" class="sm" onclick="openCloudSyncModal()">Paramètres synchro</button>
-            </div>
-          `;
-        } else {
-          banner.className = "cloud-banner";
-          banner.innerHTML = `
-            <div>
-              <strong>⚠️ MODE LOCAL UNIQUEMENT :</strong> Les autres appareils ne verront pas les nouveaux dossiers tant que la synchronisation en ligne n'est pas activée ou importée.
-            </div>
-            <button type="button" class="primary sm" onclick="openCloudSyncModal()">Activer la synchro en ligne</button>
-          `;
-        }
-      }
-
-      if (logEl) {
-        logEl.textContent = `Espace : ${ws} • Dernière synchronisation : ${cloudCfg.lastSyncAt || "jamais"}`;
-      }
-    }
-
-    function openCloudSyncModalFromLogin() {
-      openCloudSyncModal();
-    }
-
-    function openCloudSyncModal() {
-      document.getElementById("cloudEnabled").value = cloudCfg.enabled ? "true" : "false";
-      document.getElementById("cloudWorkspaceCode").value = cloudCfg.workspaceCode || "GEO-TRANSIT-LOME-SHARED";
-      document.getElementById("cloudEndpointUrl").value = cloudCfg.endpointUrl || "";
-      document.getElementById("cloudApiKey").value = cloudCfg.apiKey || "";
-      updateCloudUi();
-      document.getElementById("cloudSyncModal").classList.add("open");
-    }
-
-    async function saveAndSyncCloudConfig() {
-      cloudCfg.enabled = document.getElementById("cloudEnabled").value === "true";
-      cloudCfg.workspaceCode = (document.getElementById("cloudWorkspaceCode").value || "GEO-TRANSIT-LOME-SHARED").trim();
-      cloudCfg.endpointUrl = (document.getElementById("cloudEndpointUrl").value || "").trim();
-      cloudCfg.apiKey = (document.getElementById("cloudApiKey").value || "").trim();
-      saveCloudCfg();
-      updateCloudUi();
-      if (cloudCfg.enabled) {
-        await pullCloudNow(true);
-        await pushCloudNow(false);
-      } else {
-        showToast("Synchronisation en ligne désactivée.");
-      }
-    }
-
-    function exportStateJsonFile() {
-      const dataStr = JSON.stringify(getSharedPayloadSnapshot(), null, 2);
-      const blob = new Blob([dataStr], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `geo-suivi-transit-${(cloudCfg.workspaceCode || "partage").toLowerCase()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast("Sauvegarde JSON exportée.");
-    }
-
-    function importStateJsonFile(fileList) {
-      if (!fileList || !fileList.length) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          const normalized = normalizeLoadedState(parsed);
-          const keepSession = state.sessionUserId;
-          state = { ...normalized, sessionUserId: keepSession, updatedAt: Date.now() };
-          saveState();
-          renderApp();
-          showToast("Données JSON importées et partagées avec succès !");
-        } catch (err) {
-          showToast("Fichier JSON invalide.");
-        }
-      };
-      reader.readAsText(fileList[0]);
-    }
-
     function getCurrentUser() {
+      if (!state.sessionUserId) return null;
       return state.users.find((u) => u.id === state.sessionUserId) || null;
     }
 
@@ -2161,118 +803,60 @@
     }
 
     function isSupervisor(user) {
-      return hasRole(user, "SUPERVISEUR") || hasRole(user, "ADMIN");
+      return hasRole(user, "SUPERVISEUR") || isAdmin(user);
     }
 
-    function canAccessDduBilling(user) {
-      return hasRole(user, "AGENT_DDU_T1") || hasRole(user, "ADMIN") || hasRole(user, "SUPERVISEUR");
+    function canCreateDossier(user) {
+      if (!user) return false;
+      return (
+        isAdmin(user) ||
+        hasRole(user, "SUPERVISEUR") ||
+        hasRole(user, "AGENT_TRANSIT") ||
+        hasRole(user, "AGENT_ECHANGE")
+      );
     }
 
-    function canAccessInvoiceArchive(user) {
-      return !!(user && (isSupervisor(user) || canAccessDduBilling(user)));
+    function canEditDossier(user, dossier) {
+      if (!user) return false;
+      if (isAdmin(user) || hasRole(user, "SUPERVISEUR")) return true;
+      if (dossier && dossier.closed) return false;
+      return (
+        hasRole(user, "AGENT_TRANSIT") ||
+        hasRole(user, "AGENT_ECHANGE") ||
+        hasRole(user, "AGENT_DDU_T1") ||
+        hasRole(user, "AGENT_EXPLOITATION")
+      );
     }
 
-    function getPermissions(user) {
-      const admin = isAdmin(user);
-      const sup = hasRole(user, "SUPERVISEUR");
-      const fullOps = admin || sup;
-      return {
-        fullOps,
-        canCreateDossier: fullOps || hasRole(user, "AGENT_TRANSIT") || hasRole(user, "AGENT_EXPLOITATION") || hasRole(user, "AGENT_ECHANGE") || hasRole(user, "AGENT_DDU_T1"),
-        canEditGeneral: fullOps || hasRole(user, "AGENT_TRANSIT") || hasRole(user, "AGENT_EXPLOITATION"),
-        canEditContainers: fullOps || hasRole(user, "AGENT_TRANSIT") || hasRole(user, "AGENT_EXPLOITATION") || hasRole(user, "AGENT_PASSATION"),
-        canEditExchange: fullOps || hasRole(user, "AGENT_ECHANGE"),
-        canEditDdu: fullOps || hasRole(user, "AGENT_DDU_T1"),
-        canEditPassation: fullOps || hasRole(user, "AGENT_PASSATION"),
-        canEditManutention: fullOps || hasRole(user, "AGENT_MANUTENTION"),
-        canEditEmptyReturn: fullOps || hasRole(user, "AGENT_MANUTENTION") || hasRole(user, "AGENT_PASSATION"),
-        canEditEvolution: !!user,
-        canEditPoints: fullOps || hasRole(user, "AGENT_TRANSIT") || hasRole(user, "AGENT_EXPLOITATION")
-      };
+    function renderAvatarHtml(user, sizeClass = "avatar-sm") {
+      const initial = (user?.name || user?.username || "?").trim().charAt(0).toUpperCase() || "?";
+      if (user && user.photoDataUrl) {
+        return `<img src="${user.photoDataUrl}" alt="${escapeHtml(user.name)}" class="${sizeClass}" />`;
+      }
+      return `<span class="${sizeClass}">${escapeHtml(initial)}</span>`;
     }
 
-    function getDossierAlerts72h(d) {
-      if (!d || d.closed) return [];
-      const alerts = [];
-      const now = Date.now();
-      const limit72h = 72 * 3600 * 1000;
+    function handleLogin(ev) {
+      if (ev) ev.preventDefault();
+      const errBox = document.getElementById("loginError");
+      errBox.style.display = "none";
 
-      const badDateStr = d.exchange?.badEndDate;
-      if (badDateStr) {
-        const ts = new Date(badDateStr).getTime();
-        if (!Number.isNaN(ts) && ts - now <= limit72h) {
-          alerts.push(`BAD < 72h (${d.repertoire})`);
-        }
+      const latest = loadState();
+      if ((latest.updatedAt || 0) > (state.updatedAt || 0)) {
+        state = latest;
       }
 
-      const t1DateStr = d.ddu?.t1ValidityDate;
-      if (t1DateStr) {
-        const ts = new Date(t1DateStr).getTime();
-        if (!Number.isNaN(ts) && ts - now <= limit72h) {
-          alerts.push(`T1 < 72h (${d.repertoire})`);
-        }
-      }
-      return alerts;
-    }
+      const username = (document.getElementById("loginUsername").value || "").trim().toLowerCase();
+      const password = document.getElementById("loginPassword").value || "";
+      const hash = encodePass(password);
 
-    function isDossierWaitingForTruck(d) {
-      return !!(d && !d.closed && d.manutention && d.manutention.truckRequested);
-    }
-
-    function parseRepNumber(val) {
-      const clean = String(val || "").trim().toUpperCase();
-      if (!clean) return null;
-      const match = clean.match(/(\d+)$/);
-      if (match) return Number(match[1]);
-      return null;
-    }
-
-    function formatRepLike(referenceRep, nextNum) {
-      const ref = String(referenceRep || "GEO00001").trim().toUpperCase();
-      const match = ref.match(/^(.*?)(\d+)$/);
-      if (match) {
-        const prefix = match[1];
-        const width = match[2].length;
-        return `${prefix}${String(nextNum).padStart(width, "0")}`;
-      }
-      return `GEO${String(nextNum).padStart(5, "0")}`;
-    }
-
-    function compareRepertoires(a, b) {
-      const numA = parseRepNumber(a);
-      const numB = parseRepNumber(b);
-      if (numA !== null && numB !== null) {
-        if (numA !== numB) return numA - numB;
-      }
-      return String(a || "").trim().toUpperCase().localeCompare(String(b || "").trim().toUpperCase(), undefined, { numeric: true });
-    }
-
-    async function handleLogin(event) {
-      if (event) event.preventDefault();
-      const errEl = document.getElementById("loginError");
-      errEl.style.display = "none";
-
-      if (cloudCfg.enabled) {
-        await pullCloudNow(true);
-      }
-
-      const usernameInput = (document.getElementById("loginUsername").value || "").trim().toLowerCase();
-      const passwordInput = document.getElementById("loginPassword").value || "";
-
-      if (!usernameInput || !passwordInput) {
-        errEl.textContent = "Veuillez renseigner l'identifiant et le mot de passe.";
-        errEl.style.display = "block";
-        return;
-      }
-
-      const expectedHash = btoa(passwordInput);
       const user = state.users.find(
-        (u) => String(u.username || "").trim().toLowerCase() === usernameInput && u.passwordHash === expectedHash
+        (u) => String(u.username || "").trim().toLowerCase() === username && u.passwordHash === hash
       );
 
       if (!user) {
-        errEl.textContent = "Identifiant ou mot de passe incorrect. (Par défaut : admin / admin123)";
-        errEl.style.display = "block";
+        errBox.textContent = "Identifiant ou mot de passe incorrect.";
+        errBox.style.display = "block";
         return;
       }
 
@@ -2281,7 +865,7 @@
       state.sessionUserId = user.id;
       saveState();
       renderApp();
-      showToast("Bienvenue, " + user.name);
+      showToast("Connecté en tant que " + user.name);
     }
 
     function logout() {
@@ -2291,7 +875,6 @@
         user.lastSeen = new Date().toLocaleString("fr-FR");
       }
       state.sessionUserId = null;
-      selectedIds.clear();
       saveState();
       document.getElementById("appScreen").style.display = "none";
       document.getElementById("loginScreen").style.display = "flex";
@@ -2306,106 +889,41 @@
         return;
       }
 
-      const perms = getPermissions(user);
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("appScreen").style.display = "block";
 
+      document.getElementById("topbarAvatar").innerHTML = renderAvatarHtml(user, "avatar-sm");
       document.getElementById("currentUserLabel").textContent = `${user.name} (${user.username})`;
-      document.getElementById("currentRolesLabel").textContent = `[${user.roles.join(", ")}]`;
-      document.getElementById("btnDduBilling").style.display = canAccessDduBilling(user) ? "inline-block" : "none";
-      document.getElementById("btnInvoiceArchive").style.display = canAccessInvoiceArchive(user) ? "inline-block" : "none";
-      document.getElementById("btnAdminPanel").style.display = isAdmin(user) ? "inline-block" : "none";
-      document.getElementById("btnSettings").style.display = isSupervisor(user) ? "inline-block" : "none";
-      document.getElementById("btnNewDossier").style.display = perms.canCreateDossier ? "inline-block" : "none";
+      document.getElementById("currentRolesLabel").textContent = `[${user.roles.join(", ") || "AUCUN RÔLE"}]`;
 
-      updateCloudUi();
-      renderAlertBanner();
-      renderSupervisorInvoiceBanner(user);
-      renderTruckBanner(user);
+      document.getElementById("btnAdminPanel").style.display = isAdmin(user) ? "inline-block" : "none";
+      document.getElementById("btnNewDossier").style.display = canCreateDossier(user) ? "inline-block" : "none";
+
       renderKpis();
       renderDossiers();
     }
 
-    function renderAlertBanner() {
-      const banner = document.getElementById("alertBanner");
-      const allAlerts = state.dossiers.flatMap((d) => getDossierAlerts72h(d));
-      if (!allAlerts.length) {
-        banner.style.display = "none";
-        return;
-      }
-      banner.style.display = "flex";
-      banner.innerHTML = `
-        <div><strong>⚠️ ALERTE EXPIRATION &lt; 72H (BAD / T1) :</strong> ${escapeHtml(allAlerts.join(" • "))}</div>
-        <span class="pill rouge">${allAlerts.length} alerte(s) active(s)</span>
-      `;
-    }
-
-    function renderSupervisorInvoiceBanner(user) {
-      const banner = document.getElementById("supervisorInvoiceBanner");
-      const pendingInvoices = (state.invoicesArchive || []).filter((inv) => inv.status !== "PAYEE");
-      if (!pendingInvoices.length || !isSupervisor(user)) {
-        banner.style.display = "none";
-        return;
-      }
-      banner.style.display = "block";
-      banner.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
-          <strong>📩 MESSAGE AUTOMATIQUE SUPERVISEUR — FACTURE DDU ÉMISE (DEMANDE DE PAIEMENT)</strong>
-          <span class="pill bleu">${pendingInvoices.length} demande(s)</span>
-        </div>
-        ${pendingInvoices.map((inv) => `
-          <div class="sup-msg-item" onclick="openSupervisorInvoiceFromMessage('${inv.id}')">
-            <div>
-              <strong>Facture DDU émise — demande de paiement : ${escapeHtml(inv.invoiceNumber)}</strong>
-              <span style="color:var(--muted); margin-left:6px;">(${escapeHtml(inv.repStart)} → ${escapeHtml(inv.repEnd)} • ${inv.count} DDU • ${Number(inv.totalAmount || 0).toLocaleString("fr-FR")} ${escapeHtml(inv.currency || "FCFA")})</span>
-            </div>
-            <span class="pill bleu">Cliquer pour ouvrir la facture PDF &amp; Payer →</span>
-          </div>
-        `).join("")}
-      `;
-    }
-
-    function renderTruckBanner(user) {
-      const banner = document.getElementById("truckBanner");
-      const waiting = state.dossiers.filter((d) => isDossierWaitingForTruck(d));
-      if (!waiting.length || !isSupervisor(user)) {
-        banner.style.display = "none";
-        return;
-      }
-      banner.style.display = "flex";
-      banner.innerHTML = `
-        <div><strong>🚛 SUPERVISEUR — DOSSIER(S) EN ATTENTE DE CAMION :</strong> ${waiting.map((d) => `${escapeHtml(d.repertoire)} (${escapeHtml(d.client || "-")})`).join(" • ")}</div>
-        <span class="pill jaune">${waiting.length} en attente</span>
-      `;
-    }
-
     function renderKpis() {
       const total = state.dossiers.length;
-      const openCount = state.dossiers.filter((d) => !d.closed).length;
-      const alertCount = state.dossiers.flatMap((d) => getDossierAlerts72h(d)).length;
-      const truckWaitCount = state.dossiers.filter((d) => isDossierWaitingForTruck(d)).length;
-      const paidInvoicesCount = (state.invoicesArchive || []).filter((inv) => inv.status === "PAYEE").length;
+      const open = state.dossiers.filter((d) => !d.closed).length;
+      const closed = total - open;
+      const agentsCount = state.users.length;
 
       document.getElementById("kpiContainer").innerHTML = `
         <div class="kpi-card">
           <div class="kpi-label">Total Dossiers</div>
           <div class="kpi-value">${total}</div>
-          <div class="kpi-sub">Actifs : ${openCount} • Clôturés : ${total - openCount}</div>
+          <div class="kpi-sub">En cours : ${open} • Clôturés : ${closed}</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Alertes &lt; 72h</div>
-          <div class="kpi-value" style="color:var(--danger);">${alertCount}</div>
-          <div class="kpi-sub">BAD &amp; T1 actifs</div>
+          <div class="kpi-label">Dossiers Ouverts</div>
+          <div class="kpi-value" style="color:var(--primary);">${open}</div>
+          <div class="kpi-sub">Suivi actif</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Attente Camion</div>
-          <div class="kpi-value" style="color:var(--warning);">${truckWaitCount}</div>
-          <div class="kpi-sub">Signalé Superviseur</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Factures Archivées</div>
-          <div class="kpi-value" style="color:var(--success);">${(state.invoicesArchive || []).length}</div>
-          <div class="kpi-sub">Payées : ${paidInvoicesCount}</div>
+          <div class="kpi-label">Comptes Agents</div>
+          <div class="kpi-value">${agentsCount}</div>
+          <div class="kpi-sub">Utilisateurs actifs</div>
         </div>
       `;
     }
@@ -2413,63 +931,41 @@
     function getFilteredDossiers() {
       const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
       const circuit = document.getElementById("circuitFilter").value;
-      const flux = document.getElementById("fluxFilter").value;
-      const dduOnly = document.getElementById("dduOnlyFilter").checked;
-
       return state.dossiers.filter((d) => {
         if (circuit !== "TOUS" && d.circuit !== circuit) return false;
-        if (flux !== "TOUS" && (d.flux || "HINTERLAND") !== flux) return false;
-        if (dduOnly && !d.isDdu) return false;
         if (!q) return true;
-        const hay = `${d.repertoire} ${d.bl} ${d.client} ${d.navire} ${d.paysProvenance || ""} ${d.paysDestination || ""} ${d.destination} ${d.containerType || ""} ${d.poids || ""} ${d.quantite || ""} ${d.flux || ""} ${d.statut} ${(d.containers || []).join(" ")}`.toLowerCase();
+        const hay = `${d.repertoire} ${d.bl} ${d.client} ${d.statut} ${d.createdBy || ""}`.toLowerCase();
         return hay.includes(q);
       });
     }
 
     function renderDossiers() {
+      const user = getCurrentUser();
       const rows = getFilteredDossiers();
       const tbody = document.getElementById("dossiersTableBody");
 
       if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--muted);">Aucun dossier trouvé.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--muted);">Aucun dossier trouvé.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = rows.map((d) => {
-        const circuitClass = (d.circuit || "VERT").toLowerCase();
-        const checked = selectedIds.has(d.id) ? "checked" : "";
-        const cCount = (d.containers || []).length;
-        const routeText = [d.paysProvenance, d.paysDestination || d.destination].filter(Boolean).join(" → ");
-        const alerts72 = getDossierAlerts72h(d);
-        const waitTruck = isDossierWaitingForTruck(d);
-
+        const cls = (d.circuit || "VERT").toLowerCase();
+        const editable = canEditDossier(user, d);
         return `
           <tr>
-            <td><input type="checkbox" ${checked} onchange="toggleSelect('${d.id}', this.checked)" /></td>
             <td>
               <strong>${escapeHtml(d.repertoire)}</strong>
-              ${d.closed ? '<span class="pill cloture" style="margin-left:4px;">Clôturé</span>' : ""}
-              ${alerts72.length ? '<span class="pill rouge" style="margin-left:4px;">&lt;72h</span>' : ""}
-              ${waitTruck ? '<span class="pill jaune" style="margin-left:4px;">Camion</span>' : ""}
+              ${d.closed ? '<span class="pill cloture" style="margin-left:6px;">Clôturé</span>' : ""}
             </td>
-            <td>${escapeHtml(d.bl)}</td>
-            <td>${escapeHtml(d.client)}</td>
-            <td>
-              ${escapeHtml(d.navire)}
-              <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(routeText || "-")}</div>
-            </td>
-            <td>
-              <div style="font-size:12.5px;"><strong>${escapeHtml(d.poids || "-")}</strong> • ${escapeHtml(d.quantite || "-")}</div>
-              <div style="font-size:11.5px; color:var(--muted);">${escapeHtml(d.containerType || "-")} (${cCount} cont.)</div>
-            </td>
-            <td>
-              <span class="pill ${circuitClass}">${escapeHtml(d.circuit)}</span> ${escapeHtml(d.statut)}
-              ${d.emptyReturn?.date ? `<div style="font-size:11.5px; color:var(--success);">Retour vide : ${escapeHtml(d.emptyReturn.date)}</div>` : ""}
-            </td>
+            <td>${escapeHtml(d.bl || "-")}</td>
+            <td>${escapeHtml(d.client || "-")}</td>
+            <td><span class="pill ${cls}">${escapeHtml(d.circuit)}</span> ${escapeHtml(d.statut || "-")}</td>
+            <td>${escapeHtml(d.createdBy || "-")}</td>
             <td>
               <div class="row-actions">
-                <button class="sm" onclick="openDossierModal('${d.id}')">Ouvrir / Évolution</button>
-                <button class="sm" onclick="exportSingleBordereauPdf('${d.id}')">Bordereau PDF</button>
+                <button class="sm" onclick="openDossierModal('${d.id}')">${editable ? "Modifier / Ouvrir" : "Consulter"}</button>
+                ${isAdmin(user) ? `<button class="sm danger" onclick="deleteDossierById('${d.id}')">Supprimer</button>` : ""}
               </div>
             </td>
           </tr>
@@ -2477,594 +973,90 @@
       }).join("");
     }
 
-    function toggleSelect(id, checked) {
-      if (checked) selectedIds.add(id);
-      else selectedIds.delete(id);
-    }
-
-    function toggleSelectAll(checked) {
-      const visible = getFilteredDossiers();
-      selectedIds.clear();
-      if (checked) {
-        visible.forEach((d) => selectedIds.add(d.id));
-      }
-      renderDossiers();
-    }
-
-    function setSectionLock(sectionId, allowed) {
-      const sec = document.getElementById(sectionId);
-      if (!sec) return;
-      sec.classList.toggle("locked-section", !allowed);
-      sec.querySelectorAll("input, select, textarea, button").forEach((el) => {
-        el.disabled = !allowed;
-      });
-    }
-
-    function applyRolePermissionsToModal() {
-      const perms = getPermissions(getCurrentUser());
-      setSectionLock("secGeneral", perms.canEditGeneral);
-      setSectionLock("secContainers", perms.canEditContainers);
-      setSectionLock("secExchange", perms.canEditExchange);
-      setSectionLock("secDdu", perms.canEditDdu);
-      setSectionLock("secPassation", perms.canEditPassation);
-      setSectionLock("secManutention", perms.canEditManutention);
-      setSectionLock("emptyReturnSection", perms.canEditEmptyReturn);
-      setSectionLock("secEvolution", perms.canEditEvolution);
-      setSectionLock("secPoints", perms.canEditPoints);
-
-      const anyEditable =
-        perms.canEditGeneral ||
-        perms.canEditContainers ||
-        perms.canEditExchange ||
-        perms.canEditDdu ||
-        perms.canEditPassation ||
-        perms.canEditManutention ||
-        perms.canEditEmptyReturn ||
-        perms.canEditEvolution ||
-        perms.canEditPoints;
-
-      document.getElementById("btnSaveDossier").disabled = !anyEditable;
-      document.getElementById("badgeGeneralAccess").textContent = perms.canEditGeneral ? "Édition autorisée" : "Lecture seule";
-    }
-
-    function renderContainerFields(values = []) {
-      const list = Array.isArray(values) && values.length ? values : [""];
-      const grid = document.getElementById("containersFieldsGrid");
-      grid.innerHTML = list.map((val, idx) => `
-        <div class="container-slot">
-          <label for="containerInput_${idx}">Conteneur ${idx + 1}</label>
-          <input
-            type="text"
-            id="containerInput_${idx}"
-            class="container-field-input"
-            value="${escapeHtml(val)}"
-            placeholder="Ex: MSCU1234567"
-            oninput="handleContainerInput(${idx}, this.value)"
-            onpaste="handleContainerPaste(event, ${idx})"
-          />
-        </div>
-      `).join("");
-    }
-
-    function addContainerField(initialValue = "") {
-      const current = getContainerFieldValues();
-      current.push(initialValue);
-      renderContainerFields(current);
-      applyRolePermissionsToModal();
-      const inputs = document.querySelectorAll(".container-field-input");
-      if (inputs.length) inputs[inputs.length - 1].focus();
-    }
-
-    function getContainerFieldValues() {
-      return Array.from(document.querySelectorAll(".container-field-input")).map((el) => el.value.trim().toUpperCase());
-    }
-
-    function extractContainers4L7N(rawText) {
-      const upper = String(rawText || "").toUpperCase();
-      const matches = upper.match(/[A-Z]{4}\d{7}/g) || [];
-      return Array.from(new Set(matches));
-    }
-
-    function handleContainerPaste(event, index) {
-      if (index !== 0) return;
-      const clipboardData = event.clipboardData || window.clipboardData;
-      if (!clipboardData) return;
-      const pastedText = clipboardData.getData("text") || "";
-      const extracted = extractContainers4L7N(pastedText);
-      if (extracted.length > 1) {
-        event.preventDefault();
-        renderContainerFields(extracted);
-        applyRolePermissionsToModal();
-        showToast(`${extracted.length} conteneurs répartis dans leurs champs.`);
-      }
-    }
-
-    function handleContainerInput(index, value) {
-      if (index !== 0) return;
-      const extracted = extractContainers4L7N(value);
-      if (extracted.length > 1) {
-        renderContainerFields(extracted);
-        applyRolePermissionsToModal();
-        showToast(`${extracted.length} conteneurs répartis dans leurs champs.`);
-      }
-    }
-
-    function handleSectionFiles(sectionKey, fileList) {
-      if (!fileList || !fileList.length) return;
-      const names = Array.from(fileList).map((f) => f.name);
-      workingFiles[sectionKey] = Array.from(new Set([...(workingFiles[sectionKey] || []), ...names]));
-      renderSectionFiles(sectionKey);
-      showToast(`${names.length} fichier(s) ajouté(s) (${sectionKey}).`);
-    }
-
-    function removeSectionFile(sectionKey, index) {
-      workingFiles[sectionKey].splice(index, 1);
-      renderSectionFiles(sectionKey);
-    }
-
-    function renderSectionFiles(sectionKey) {
-      const mapEl = {
-        exchange: "exchangeFilesList",
-        ddu: "dduFilesList",
-        passation: "passationFilesList",
-        manutention: "manutentionFilesList"
-      };
-      const el = document.getElementById(mapEl[sectionKey]);
-      if (!el) return;
-      const list = workingFiles[sectionKey] || [];
-      if (!list.length) {
-        el.innerHTML = "";
-        return;
-      }
-      el.innerHTML = list.map((fname, idx) => `
-        <span class="file-chip">
-          📎 ${escapeHtml(fname)}
-          <button type="button" class="sm" style="padding:1px 5px;" onclick="removeSectionFile('${sectionKey}', ${idx})">✕</button>
-        </span>
-      `).join("");
-    }
-
-    function toggleTruckSections() {
-      const mode = document.getElementById("fTransportMode").value;
-      document.getElementById("surCamionSection").style.display = mode === "SUR_CAMION" ? "block" : "none";
-      document.getElementById("depotageSection").style.display = mode === "DEPOTAGE" ? "block" : "none";
-      document.getElementById("emptyReturnSection").style.display = mode === "SUR_CAMION" ? "block" : "none";
-    }
-
-    function addTruckAssignmentRow(mode) {
-      workingTruckAssignments.push({
-        mode: mode || document.getElementById("fTransportMode").value,
-        truck: "",
-        containers: "",
-        poids: "",
-        quantite: ""
-      });
-      renderTruckAssignmentRows();
-      applyRolePermissionsToModal();
-    }
-
-    function removeTruckAssignmentRow(idx) {
-      workingTruckAssignments.splice(idx, 1);
-      renderTruckAssignmentRows();
-      applyRolePermissionsToModal();
-    }
-
-    function renderTruckAssignmentRows() {
-      const mode = document.getElementById("fTransportMode").value;
-      const targetId = mode === "DEPOTAGE" ? "depotageRows" : "surCamionRows";
-      const container = document.getElementById(targetId);
-      if (!container) return;
-
-      if (!workingTruckAssignments.length) {
-        container.innerHTML = `<div style="font-size:12px; color:var(--muted); margin-top:6px;">Aucun camion affecté pour le moment.</div>`;
-        return;
-      }
-
-      container.innerHTML = workingTruckAssignments.map((row, idx) => {
-        if (mode === "DEPOTAGE") {
-          return `
-            <div class="grid-3" style="margin-top:8px; align-items:end;">
-              <div class="field" style="margin-bottom:0;">
-                <label>Camion</label>
-                <input type="text" value="${escapeHtml(row.truck)}" placeholder="Ex: TG-1102-AB" oninput="workingTruckAssignments[${idx}].truck = this.value" />
-              </div>
-              <div class="field" style="margin-bottom:0;">
-                <label>Poids attribué</label>
-                <input type="text" value="${escapeHtml(row.poids)}" placeholder="Ex: 10 000 kg" oninput="workingTruckAssignments[${idx}].poids = this.value" />
-              </div>
-              <div class="field" style="margin-bottom:0;">
-                <label>Quantité attribuée</label>
-                <div style="display:flex; gap:6px;">
-                  <input type="text" value="${escapeHtml(row.quantite)}" placeholder="Ex: 40 colis" oninput="workingTruckAssignments[${idx}].quantite = this.value" />
-                  <button type="button" class="sm danger" onclick="removeTruckAssignmentRow(${idx})">✕</button>
-                </div>
-              </div>
-            </div>
-          `;
-        }
-        return `
-          <div class="grid-2" style="margin-top:8px; align-items:end;">
-            <div class="field" style="margin-bottom:0;">
-              <label>Camion</label>
-              <input type="text" value="${escapeHtml(row.truck)}" placeholder="Ex: TG-4512-MD" oninput="workingTruckAssignments[${idx}].truck = this.value" />
-            </div>
-            <div class="field" style="margin-bottom:0;">
-              <label>Conteneur(s) affecté(s)</label>
-              <div style="display:flex; gap:6px;">
-                <input type="text" value="${escapeHtml(row.containers)}" placeholder="Ex: MSCU1234567" oninput="workingTruckAssignments[${idx}].containers = this.value.toUpperCase()" />
-                <button type="button" class="sm danger" onclick="removeTruckAssignmentRow(${idx})">✕</button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function renderTruckDemandPreview() {
-      const checked = document.getElementById("fManTruckRequested").checked;
-      document.getElementById("truckRequestBadge").style.display = checked ? "inline-block" : "none";
-    }
-
-    function handleEmptyReturnFile(fileList) {
-      if (!fileList || !fileList.length) return;
-      workingEmptyReturnFile = fileList[0].name;
-      renderEmptyReturnFile();
-      showToast("Bordereau de retour vide joint : " + workingEmptyReturnFile);
-    }
-
-    function renderEmptyReturnFile() {
-      const el = document.getElementById("emptyReturnFileInfo");
-      if (!el) return;
-      el.innerHTML = workingEmptyReturnFile
-        ? `<span class="file-chip">📄 Bordereau retour vide : <strong>${escapeHtml(workingEmptyReturnFile)}</strong></span>`
-        : "";
-    }
-
-    function triggerEmptyReturnAction() {
-      const dateInput = document.getElementById("fEmptyReturnDate");
-      if (!dateInput.value) {
-        dateInput.value = new Date().toISOString().slice(0, 10);
-      }
-      workingEvolutions.unshift({
-        date: new Date().toLocaleString("fr-FR"),
-        stage: "Retour vide",
-        note: `Retour vide enregistré à la date du ${dateInput.value}${workingEmptyReturnFile ? " (bordereau : " + workingEmptyReturnFile + ")" : ""}`,
-        author: getCurrentUser()?.username || "agent"
-      });
-      renderEvolutionList();
-      showToast("Retour vide renseigné.");
-    }
-
-    function renderEvolutionList() {
-      const box = document.getElementById("evolutionHistoryList");
-      if (!workingEvolutions.length) {
-        box.innerHTML = `<div style="font-size:12.5px; color:var(--muted);">Aucune évolution enregistrée pour le moment.</div>`;
-        return;
-      }
-      box.innerHTML = workingEvolutions.map((ev) => `
-        <div class="evolution-item">
-          <div class="evolution-meta">
-            <strong>${escapeHtml(ev.stage || "Mise à jour")}</strong>
-            <span>${escapeHtml(ev.date || "")} ${ev.author ? "• " + escapeHtml(ev.author) : ""}</span>
-          </div>
-          <div>${escapeHtml(ev.note || "")}</div>
-        </div>
-      `).join("");
-    }
-
-    function addEvolutionEntry() {
-      const stage = (document.getElementById("fEvoStage").value || "").trim();
-      const note = (document.getElementById("fEvoNote").value || "").trim();
-      if (!stage && !note) {
-        showToast("Saisissez une étape ou un détail d'évolution.");
-        return;
-      }
-      const user = getCurrentUser();
-      const perms = getPermissions(user);
-      workingEvolutions.unshift({
-        date: new Date().toLocaleString("fr-FR"),
-        stage: stage || (document.getElementById("fStatut").value || "").trim() || "Suivi",
-        note: note || "Étape renseignée",
-        author: user ? user.username : "agent"
-      });
-      if (stage && perms.canEditGeneral) {
-        document.getElementById("fStatut").value = stage;
-      }
-      document.getElementById("fEvoStage").value = "";
-      document.getElementById("fEvoNote").value = "";
-      renderEvolutionList();
-      showToast("Évolution ajoutée au dossier.");
-    }
-
     function openDossierModal(id = null) {
-      const modal = document.getElementById("dossierModal");
       const user = getCurrentUser();
-      document.getElementById("fEvoStage").value = "";
-      document.getElementById("fEvoNote").value = "";
+      if (!id && !canCreateDossier(user)) {
+        showToast("Seuls les agents d'échange, agents de transit et superviseurs peuvent créer un dossier.");
+        return;
+      }
 
+      const modal = document.getElementById("dossierModal");
       if (!id) {
         const nextNum = String(state.dossiers.length + 1).padStart(5, "0");
-        document.getElementById("dossierModalTitle").textContent = "Créer un nouveau dossier";
+        document.getElementById("dossierModalTitle").textContent = "Nouveau Dossier — GEO SUIVI TRANSIT";
         document.getElementById("editDossierId").value = "";
-        document.getElementById("btnCloseDossierSupervisor").style.display = "none";
-        document.getElementById("dossierStatusBanner").style.display = "none";
         document.getElementById("fRepertoire").value = `GEO${nextNum}`;
         document.getElementById("fBl").value = "";
         document.getElementById("fClient").value = "";
-        document.getElementById("fNavire").value = "";
-        document.getElementById("fPaysProvenance").value = "";
-        document.getElementById("fPaysDestination").value = "";
-        document.getElementById("fDestination").value = "";
-        document.getElementById("fContainerType").value = "40'HC";
-        document.getElementById("fPoids").value = "";
-        document.getElementById("fQuantite").value = "";
-        document.getElementById("fTransportMode").value = "SUR_CAMION";
-        document.getElementById("fFlux").value = "HINTERLAND";
         document.getElementById("fCircuit").value = "VERT";
-        document.getElementById("fStatut").value = "En cours";
-        document.getElementById("fIsDdu").value = "true";
-
-        document.getElementById("fBadEndDate").value = "";
-        document.getElementById("fDocType").value = "TELEX";
-        document.getElementById("fExchangeComment").value = "";
-
-        document.getElementById("fDduLevee").checked = false;
-        document.getElementById("fDeclarationNum").value = "";
-        document.getElementById("fT1Num").value = "";
-        document.getElementById("fT1ValidityDate").value = "";
-
-        document.getElementById("fPassationBon").value = "AUCUN";
-        document.getElementById("fPassationConsigne").value = "";
-
-        document.getElementById("fManFactureRecue").checked = false;
-        document.getElementById("fManFacturePayee").checked = false;
-        document.getElementById("fManDfuPaye").checked = false;
-        document.getElementById("fManBactFait").checked = false;
-        document.getElementById("fManGatePassDemande").checked = false;
-        document.getElementById("fManGatePassRecu").checked = false;
-        document.getElementById("fManTruckRequested").checked = false;
-
-        document.getElementById("fEmptyReturnDate").value = "";
-        workingEmptyReturnFile = "";
-        workingFiles = { exchange: [], ddu: [], passation: [], manutention: [] };
-        workingTruckAssignments = [];
-        workingEvolutions = [{
-          date: new Date().toLocaleString("fr-FR"),
-          stage: "Enregistrement",
-          note: "Création et enregistrement initial du dossier",
-          author: user?.username || "agent"
-        }];
-        renderContainerFields([""]);
-        document.getElementById("fPoints").value = "";
+        document.getElementById("fStatut").value = "Nouveau dossier";
+        document.getElementById("fNotes").value = "";
+        document.getElementById("btnCloseDossier").style.display = "none";
+        document.getElementById("btnDeleteDossier").style.display = "none";
+        setDossierInputsDisabled(false);
+        document.getElementById("badgeDossierAccess").textContent = "Création autorisée";
       } else {
         const d = state.dossiers.find((item) => item.id === id);
         if (!d) return;
-        document.getElementById("dossierModalTitle").textContent = `Dossier ${d.repertoire} — Suivi & Évolution`;
+        const canEdit = canEditDossier(user, d);
+        document.getElementById("dossierModalTitle").textContent = `Dossier ${d.repertoire}`;
         document.getElementById("editDossierId").value = d.id;
-        document.getElementById("btnCloseDossierSupervisor").style.display = isSupervisor(user) && !d.closed ? "inline-block" : "none";
-
-        const alerts = getDossierAlerts72h(d);
-        const banner = document.getElementById("dossierStatusBanner");
-        if (d.closed || alerts.length || isDossierWaitingForTruck(d)) {
-          banner.style.display = "flex";
-          banner.innerHTML = `
-            <div>
-              ${d.closed ? "<strong>🔒 Dossier clôturé par le Superviseur.</strong> " : ""}
-              ${alerts.length ? `<span class="pill rouge">${escapeHtml(alerts.join(" • "))}</span> ` : ""}
-              ${isDossierWaitingForTruck(d) ? `<span class="pill jaune">Dossier en attente de camion</span>` : ""}
-            </div>
-          `;
-        } else {
-          banner.style.display = "none";
-        }
-
         document.getElementById("fRepertoire").value = d.repertoire || "";
         document.getElementById("fBl").value = d.bl || "";
         document.getElementById("fClient").value = d.client || "";
-        document.getElementById("fNavire").value = d.navire || "";
-        document.getElementById("fPaysProvenance").value = d.paysProvenance || "";
-        document.getElementById("fPaysDestination").value = d.paysDestination || "";
-        document.getElementById("fDestination").value = d.destination || "";
-        document.getElementById("fContainerType").value = d.containerType || "40'HC";
-        document.getElementById("fPoids").value = d.poids || "";
-        document.getElementById("fQuantite").value = d.quantite || "";
-        document.getElementById("fTransportMode").value = d.transportMode || "SUR_CAMION";
-        document.getElementById("fFlux").value = d.flux || "HINTERLAND";
         document.getElementById("fCircuit").value = d.circuit || "VERT";
         document.getElementById("fStatut").value = d.statut || "";
-        document.getElementById("fIsDdu").value = d.isDdu ? "true" : "false";
+        document.getElementById("fNotes").value = d.notes || "";
 
-        document.getElementById("fBadEndDate").value = d.exchange?.badEndDate || "";
-        document.getElementById("fDocType").value = d.exchange?.docType || "TELEX";
-        document.getElementById("fExchangeComment").value = d.exchange?.comment || "";
-
-        document.getElementById("fDduLevee").checked = !!d.ddu?.levee;
-        document.getElementById("fDeclarationNum").value = d.ddu?.declarationNum || "";
-        document.getElementById("fT1Num").value = d.ddu?.t1Num || "";
-        document.getElementById("fT1ValidityDate").value = d.ddu?.t1ValidityDate || "";
-
-        document.getElementById("fPassationBon").value = d.passation?.bon || "AUCUN";
-        document.getElementById("fPassationConsigne").value = d.passation?.consigne || "";
-
-        document.getElementById("fManFactureRecue").checked = !!d.manutention?.factureRecue;
-        document.getElementById("fManFacturePayee").checked = !!d.manutention?.facturePayee;
-        document.getElementById("fManDfuPaye").checked = !!d.manutention?.dfuPaye;
-        document.getElementById("fManBactFait").checked = !!d.manutention?.bactFait;
-        document.getElementById("fManGatePassDemande").checked = !!d.manutention?.gatePassDemande;
-        document.getElementById("fManGatePassRecu").checked = !!d.manutention?.gatePassRecu;
-        document.getElementById("fManTruckRequested").checked = !!d.manutention?.truckRequested;
-
-        document.getElementById("fEmptyReturnDate").value = d.emptyReturn?.date || "";
-        workingEmptyReturnFile = d.emptyReturn?.fileName || "";
-
-        workingFiles = {
-          exchange: [...(d.exchange?.files || [])],
-          ddu: [...(d.ddu?.files || [])],
-          passation: [...(d.passation?.files || [])],
-          manutention: [...(d.manutention?.files || [])]
-        };
-        workingTruckAssignments = JSON.parse(JSON.stringify(d.passation?.truckAssignments || []));
-        workingEvolutions = JSON.parse(JSON.stringify(d.evolutions || []));
-        renderContainerFields(d.containers && d.containers.length ? d.containers : [""]);
-        document.getElementById("fPoints").value = d.points || "";
+        document.getElementById("btnCloseDossier").style.display = isSupervisor(user) && !d.closed ? "inline-block" : "none";
+        document.getElementById("btnDeleteDossier").style.display = isAdmin(user) ? "inline-block" : "none";
+        setDossierInputsDisabled(!canEdit);
+        document.getElementById("badgeDossierAccess").textContent = canEdit ? "Modification autorisée" : "Lecture seule";
       }
 
-      toggleTruckSections();
-      renderTruckAssignmentRows();
-      renderTruckDemandPreview();
-      renderEmptyReturnFile();
-      ["exchange", "ddu", "passation", "manutention"].forEach(renderSectionFiles);
-      renderEvolutionList();
-      applyRolePermissionsToModal();
       modal.classList.add("open");
     }
 
-    function collectDossierPayload(existingObj = null) {
-      const base = existingObj ? JSON.parse(JSON.stringify(existingObj)) : {
-        id: "d_" + Date.now(),
-        repertoire: "",
-        bl: "",
-        client: "",
-        navire: "",
-        paysProvenance: "",
-        paysDestination: "",
-        destination: "",
-        containerType: "40'HC",
-        poids: "",
-        quantite: "",
-        transportMode: "SUR_CAMION",
-        flux: "HINTERLAND",
-        circuit: "VERT",
-        statut: "En cours",
-        isDdu: true,
-        closed: false,
-        containers: [],
-        exchange: { badEndDate: "", docType: "TELEX", comment: "", files: [] },
-        ddu: { levee: false, declarationNum: "", t1Num: "", t1ValidityDate: "", files: [] },
-        passation: { bon: "AUCUN", consigne: "", truckAssignments: [], files: [] },
-        manutention: {
-          factureRecue: false,
-          facturePayee: false,
-          dfuPaye: false,
-          bactFait: false,
-          gatePassDemande: false,
-          gatePassRecu: false,
-          truckRequested: false,
-          files: []
-        },
-        emptyReturn: { date: "", fileName: "" },
-        evolutions: [],
-        points: ""
-      };
-
-      const user = getCurrentUser();
-      const perms = getPermissions(user);
-      const pendingStage = (document.getElementById("fEvoStage").value || "").trim();
-      const pendingNote = (document.getElementById("fEvoNote").value || "").trim();
-      if (perms.canEditEvolution && (pendingStage || pendingNote)) {
-        workingEvolutions.unshift({
-          date: new Date().toLocaleString("fr-FR"),
-          stage: pendingStage || (document.getElementById("fStatut").value || "").trim() || "Suivi",
-          note: pendingNote || "Étape renseignée",
-          author: user ? user.username : "agent"
-        });
-      }
-
-      if (perms.canEditGeneral) {
-        base.repertoire = document.getElementById("fRepertoire").value.trim().toUpperCase();
-        base.bl = document.getElementById("fBl").value.trim().toUpperCase();
-        base.client = document.getElementById("fClient").value.trim();
-        base.navire = document.getElementById("fNavire").value.trim().toUpperCase();
-        base.paysProvenance = document.getElementById("fPaysProvenance").value.trim();
-        base.paysDestination = document.getElementById("fPaysDestination").value.trim();
-        base.destination = document.getElementById("fDestination").value.trim().toUpperCase();
-        base.containerType = document.getElementById("fContainerType").value;
-        base.poids = document.getElementById("fPoids").value.trim();
-        base.quantite = document.getElementById("fQuantite").value.trim();
-        base.transportMode = document.getElementById("fTransportMode").value;
-        base.flux = document.getElementById("fFlux").value;
-        base.circuit = document.getElementById("fCircuit").value;
-        base.statut = document.getElementById("fStatut").value.trim();
-        base.isDdu = document.getElementById("fIsDdu").value === "true";
-      } else if (!existingObj) {
-        base.repertoire = document.getElementById("fRepertoire").value.trim().toUpperCase();
-      }
-
-      if (perms.canEditContainers) {
-        const rawContainers = getContainerFieldValues().filter(Boolean);
-        base.containers = Array.from(new Set(rawContainers));
-      }
-
-      if (perms.canEditExchange) {
-        base.exchange = {
-          badEndDate: document.getElementById("fBadEndDate").value,
-          docType: document.getElementById("fDocType").value,
-          comment: document.getElementById("fExchangeComment").value.trim(),
-          files: [...workingFiles.exchange]
-        };
-      }
-
-      if (perms.canEditDdu) {
-        base.ddu = {
-          levee: document.getElementById("fDduLevee").checked,
-          declarationNum: document.getElementById("fDeclarationNum").value.trim().toUpperCase(),
-          t1Num: document.getElementById("fT1Num").value.trim().toUpperCase(),
-          t1ValidityDate: document.getElementById("fT1ValidityDate").value,
-          files: [...workingFiles.ddu]
-        };
-      }
-
-      if (perms.canEditPassation) {
-        base.passation = {
-          bon: document.getElementById("fPassationBon").value,
-          consigne: document.getElementById("fPassationConsigne").value.trim(),
-          truckAssignments: JSON.parse(JSON.stringify(workingTruckAssignments)),
-          files: [...workingFiles.passation]
-        };
-      }
-
-      if (perms.canEditManutention) {
-        base.manutention = {
-          factureRecue: document.getElementById("fManFactureRecue").checked,
-          facturePayee: document.getElementById("fManFacturePayee").checked,
-          dfuPaye: document.getElementById("fManDfuPaye").checked,
-          bactFait: document.getElementById("fManBactFait").checked,
-          gatePassDemande: document.getElementById("fManGatePassDemande").checked,
-          gatePassRecu: document.getElementById("fManGatePassRecu").checked,
-          truckRequested: document.getElementById("fManTruckRequested").checked,
-          files: [...workingFiles.manutention]
-        };
-      }
-
-      if (perms.canEditEmptyReturn) {
-        base.emptyReturn = {
-          date: document.getElementById("fEmptyReturnDate").value,
-          fileName: workingEmptyReturnFile
-        };
-      }
-
-      if (perms.canEditEvolution) {
-        base.evolutions = JSON.parse(JSON.stringify(workingEvolutions));
-      }
-
-      if (perms.canEditPoints) {
-        base.points = document.getElementById("fPoints").value.trim();
-      }
-
-      return base;
+    function setDossierInputsDisabled(disabled) {
+      ["fRepertoire", "fBl", "fClient", "fCircuit", "fStatut", "fNotes", "btnSaveDossier"].forEach((elId) => {
+        const el = document.getElementById(elId);
+        if (el) el.disabled = disabled;
+      });
     }
 
     function saveDossier() {
+      const user = getCurrentUser();
       const id = document.getElementById("editDossierId").value;
       const existing = id ? state.dossiers.find((d) => d.id === id) : null;
-      const payload = collectDossierPayload(existing);
 
-      if (!payload.repertoire) {
+      if (!existing && !canCreateDossier(user)) {
+        showToast("Accès refusé pour la création de dossier.");
+        return;
+      }
+      if (existing && !canEditDossier(user, existing)) {
+        showToast("Vous n'avez pas la permission de modifier ce dossier.");
+        return;
+      }
+
+      const repertoire = (document.getElementById("fRepertoire").value || "").trim().toUpperCase();
+      if (!repertoire) {
         showToast("Le numéro de répertoire est obligatoire.");
         return;
       }
 
-      if (id) {
+      const payload = {
+        id: existing ? existing.id : "d_" + Date.now(),
+        repertoire,
+        bl: (document.getElementById("fBl").value || "").trim().toUpperCase(),
+        client: (document.getElementById("fClient").value || "").trim(),
+        circuit: document.getElementById("fCircuit").value,
+        statut: (document.getElementById("fStatut").value || "").trim(),
+        notes: (document.getElementById("fNotes").value || "").trim(),
+        createdBy: existing ? existing.createdBy : (user?.username || "agent"),
+        closed: existing ? !!existing.closed : false
+      };
+
+      if (existing) {
         const idx = state.dossiers.findIndex((d) => d.id === id);
         if (idx >= 0) state.dossiers[idx] = payload;
       } else {
@@ -3074,585 +1066,171 @@
       saveState();
       closeModal("dossierModal");
       renderApp();
-      showToast(`Dossier ${payload.repertoire} enregistré et partagé.`);
+      showToast(`Dossier ${payload.repertoire} enregistré.`);
     }
 
-    function closeDossierBySupervisor() {
-      if (!isSupervisor(getCurrentUser())) {
-        showToast("Seul le Superviseur peut clôturer le dossier.");
+    function closeDossier() {
+      const user = getCurrentUser();
+      if (!isSupervisor(user)) {
+        showToast("Action réservée au Superviseur ou à l'Administrateur.");
         return;
       }
       const id = document.getElementById("editDossierId").value;
-      const existing = id ? state.dossiers.find((d) => d.id === id) : null;
-      const payload = collectDossierPayload(existing);
-      payload.closed = true;
-      payload.statut = payload.statut || "Clôturé";
-      payload.evolutions.unshift({
-        date: new Date().toLocaleString("fr-FR"),
-        stage: "Clôture dossier",
-        note: "Circuit terminé — dossier clôturé par le Superviseur",
-        author: getCurrentUser()?.username || "superviseur"
-      });
-
-      if (id) {
-        const idx = state.dossiers.findIndex((d) => d.id === id);
-        if (idx >= 0) state.dossiers[idx] = payload;
-      } else {
-        state.dossiers.unshift(payload);
-      }
-
+      const d = state.dossiers.find((item) => item.id === id);
+      if (!d) return;
+      d.closed = true;
+      d.statut = d.statut || "Clôturé";
       saveState();
       closeModal("dossierModal");
       renderApp();
-      showToast(`Dossier ${payload.repertoire} clôturé.`);
+      showToast(`Dossier ${d.repertoire} clôturé.`);
     }
 
-    function formatTruckAssignmentsForBordereau(d) {
-      const list = d.passation?.truckAssignments || [];
-      if (!list.length) return "Aucun camion renseigné";
-      return list.map((row) => {
-        if (d.transportMode === "DEPOTAGE") {
-          return `${row.truck || "Camion"} (Poids : ${row.poids || "-"}, Qté : ${row.quantite || "-"})`;
-        }
-        return `${row.truck || "Camion"} (TC : ${row.containers || "-"})`;
-      }).join(" ; ");
-    }
-
-    function buildBordereauHtml(dossiersList, titleText) {
-      const nowStr = new Date().toLocaleString("fr-FR");
-      const cards = dossiersList.map((d) => {
-        const isSurCamion = (d.transportMode || "SUR_CAMION") === "SUR_CAMION";
-        const modeLabel = isSurCamion ? "SUR CAMION" : "DÉPOTAGE";
-        const pointsLines = (d.points || "Aucun point renseigné.")
-          .split("\n")
-          .filter(Boolean)
-          .map((line) => `<li>${escapeHtml(line.replace(/^[-•*]\s*/, ""))}</li>`)
-          .join("");
-        const containersText = (d.containers && d.containers.length) ? d.containers.join(", ") : "Non précisé";
-        const evoHtml = (d.evolutions && d.evolutions.length)
-          ? `<div style="margin-top:8px;"><strong>ÉVOLUTION COMPLÈTE DU DOSSIER (ENREGISTREMENT → SORTIE CAMION / RETOUR VIDE) :</strong><ul style="margin:4px 0 0 18px; padding:0;">${
-              d.evolutions.slice().reverse().map((e) => `<li><strong>${escapeHtml(e.date)}</strong> — <strong>${escapeHtml(e.stage)}</strong> : ${escapeHtml(e.note)} ${e.author ? "(" + escapeHtml(e.author) + ")" : ""}</li>`).join("")
-            }</ul></div>`
-          : `<div style="margin-top:8px;"><strong>ÉVOLUTION DU DOSSIER :</strong> Aucune modification d'évolution enregistrée.</div>`;
-
-        const returnVideText = d.emptyReturn?.date
-          ? `Effectué le ${escapeHtml(d.emptyReturn.date)}${d.emptyReturn.fileName ? " — Bordereau : " + escapeHtml(d.emptyReturn.fileName) : ""}`
-          : (isSurCamion ? "En attente / Non encore renseigné (Dossier sur camion)" : "Non applicable (Dossier en dépotage)");
-
-        return `
-          <div style="border:1px solid #334155; border-radius:8px; padding:14px; margin-bottom:16px; page-break-inside:avoid;">
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #cbd5e1; padding-bottom:6px; margin-bottom:10px;">
-              <strong>RÉPERTOIRE : ${escapeHtml(d.repertoire)}</strong>
-              <span><strong>MODE :</strong> ${escapeHtml(modeLabel)} &nbsp;|&nbsp; <strong>STATUT :</strong> ${escapeHtml(d.statut || "N/A")} (${escapeHtml(d.circuit)})</span>
-            </div>
-            <p style="margin:4px 0;"><strong>N° BL :</strong> ${escapeHtml(d.bl || "-")} &nbsp;|&nbsp; <strong>CLIENT :</strong> ${escapeHtml(d.client || "-")} &nbsp;|&nbsp; <strong>FLUX :</strong> ${escapeHtml(d.flux || "-")}</p>
-            <p style="margin:4px 0;"><strong>NAVIRE :</strong> ${escapeHtml(d.navire || "-")} &nbsp;|&nbsp; <strong>PROVENANCE :</strong> ${escapeHtml(d.paysProvenance || "-")} &nbsp;|&nbsp; <strong>DESTINATION :</strong> ${escapeHtml(d.paysDestination || d.destination || "-")}</p>
-            <p style="margin:4px 0;"><strong>POIDS :</strong> ${escapeHtml(d.poids || "-")} &nbsp;|&nbsp; <strong>QUANTITÉ :</strong> ${escapeHtml(d.quantite || "-")} &nbsp;|&nbsp; <strong>TYPE CONTENEUR :</strong> ${escapeHtml(d.containerType || "-")}</p>
-            <p style="margin:4px 0;"><strong>CONTENEURS :</strong> ${escapeHtml(containersText)}</p>
-            <p style="margin:4px 0;"><strong>ÉCHANGE / DOUANE :</strong> Doc ${escapeHtml(d.exchange?.docType || "-")} | Déclaration : ${escapeHtml(d.ddu?.declarationNum || "-")} | T1 : ${escapeHtml(d.ddu?.t1Num || "-")} | Bon : ${escapeHtml(d.passation?.bon || "-")}</p>
-            <p style="margin:4px 0;"><strong>CAMIONS / SORTIE :</strong> ${escapeHtml(formatTruckAssignmentsForBordereau(d))}</p>
-            <p style="margin:4px 0;"><strong>RETOUR VIDE (${escapeHtml(modeLabel)}) :</strong> ${returnVideText}</p>
-            <div style="margin-top:8px;">
-              <strong>POINTS / ÉTAPES D'AVANCEMENT :</strong>
-              <ul style="margin:6px 0 0 18px; padding:0;">${pointsLines}</ul>
-            </div>
-            ${evoHtml}
-          </div>
-        `;
-      }).join("");
-
-      return `
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #0f172a; padding-bottom:10px; margin-bottom:16px;">
-            <div>
-              <h1 style="margin:0; font-size:20px;">GEO SUIVI TRANSIT — ${escapeHtml(titleText)}</h1>
-              <div style="font-size:12px; color:#475569;">Bordereau détaillé d'exploitation et d'évolution du dossier</div>
-            </div>
-            <div style="font-size:12px; text-align:right;">Édité le ${escapeHtml(nowStr)}</div>
-          </div>
-          ${cards}
-        </div>
-      `;
-    }
-
-    function triggerPrintHtml(htmlContent) {
-      const area = document.getElementById("printArea");
-      area.innerHTML = htmlContent;
-      window.print();
-    }
-
-    function exportSingleBordereauPdf(id = null) {
-      const targetId = id || document.getElementById("editDossierId").value;
-      const d = state.dossiers.find((item) => item.id === targetId);
-      if (!d) {
-        showToast("Dossier introuvable pour le bordereau.");
-        return;
-      }
-      triggerPrintHtml(buildBordereauHtml([d], `BORDEREAU DÉTAILLÉ ${d.repertoire}`));
-    }
-
-    function printSingleBordereauPdf() {
-      exportSingleBordereauPdf(document.getElementById("editDossierId").value);
-    }
-
-    function exportBulkBordereauPdf() {
-      const selected = state.dossiers.filter((d) => selectedIds.has(d.id));
-      const list = selected.length ? selected : getFilteredDossiers();
-      if (!list.length) {
-        showToast("Aucun dossier à exporter en bordereau PDF.");
-        return;
-      }
-      triggerPrintHtml(buildBordereauHtml(list, `BORDEREAUX DÉTAILLÉS GROUPÉS (${list.length})`));
-    }
-
-    function formatInvoiceNumber(counterNum, year) {
-      const seq = String(counterNum || 1).padStart(3, "0");
-      return `GE${seq}/FA/${year}`;
-    }
-
-    function getSortedDossiersByRep() {
-      return state.dossiers
-        .slice()
-        .filter((d) => (d.repertoire || "").trim())
-        .sort((a, b) => compareRepertoires(a.repertoire, b.repertoire));
-    }
-
-    function getNextUnbilledRepValue() {
-      const sorted = getSortedDossiersByRep();
-      if (!sorted.length) return "";
-      const lastBilled = (state.settings.lastBilledRep || "").trim().toUpperCase();
-      if (!lastBilled) {
-        return sorted[0].repertoire;
-      }
-      const afterLast = sorted.find((d) => compareRepertoires(d.repertoire, lastBilled) > 0);
-      if (afterLast) return afterLast.repertoire;
-
-      const lastNum = parseRepNumber(lastBilled);
-      if (lastNum !== null) {
-        return formatRepLike(lastBilled, lastNum + 1);
-      }
-      return sorted[sorted.length - 1].repertoire;
-    }
-
-    function applyNextUnbilledStart() {
-      const nextRep = getNextUnbilledRepValue();
-      const sorted = getSortedDossiersByRep();
-      if (nextRep) {
-        document.getElementById("billRepStart").value = nextRep;
-      }
-      if (sorted.length) {
-        document.getElementById("billRepEnd").value = sorted[sorted.length - 1].repertoire;
-      }
-      computeDduInvoice();
-    }
-
-    function openDduBillingModal() {
-      const user = getCurrentUser();
-      if (!canAccessDduBilling(user)) {
-        showToast("Accès réservé à l'Agent DDU, l'Administrateur et le Superviseur.");
-        return;
-      }
-      const year = new Date().getFullYear();
-      currentInvoiceNumberPreview = formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
-      document.getElementById("billUnitPrice").value = state.settings.dduUnitPrice ?? 10000;
-      document.getElementById("billRecipientEmail").value = state.settings.emailK || "k@geosuvitransit.tg";
-
-      const adminUser = isAdmin(user);
-      const startInput = document.getElementById("billRepStart");
-      const lockNotice = document.getElementById("billStartLockNotice");
-      const btnMinMax = document.getElementById("btnPrefillMinMax");
-
-      startInput.disabled = !adminUser;
-      lockNotice.style.display = adminUser ? "none" : "block";
-      btnMinMax.style.display = adminUser ? "inline-block" : "none";
-
-      applyNextUnbilledStart();
-      computeDduInvoice();
-      document.getElementById("billingModal").classList.add("open");
-    }
-
-    function prefillRangeFromDossiers() {
+    function deleteDossierById(id) {
       if (!isAdmin(getCurrentUser())) {
-        showToast("Seul l'Administrateur peut réinitialiser le répertoire de départ.");
+        showToast("Seul l'Administrateur peut supprimer un dossier.");
         return;
       }
-      const sortedReps = getSortedDossiersByRep().map((d) => d.repertoire.trim().toUpperCase());
-      if (sortedReps.length) {
-        document.getElementById("billRepStart").value = sortedReps[0];
-        document.getElementById("billRepEnd").value = sortedReps[sortedReps.length - 1];
-      }
-      computeDduInvoice();
+      const d = state.dossiers.find((item) => item.id === id);
+      if (!d) return;
+      if (!confirm(`Supprimer définitivement le dossier ${d.repertoire} ?`)) return;
+      state.dossiers = state.dossiers.filter((item) => item.id !== id);
+      saveState();
+      renderApp();
+      showToast(`Dossier ${d.repertoire} supprimé.`);
     }
 
-    function getDduRangeMatches() {
-      const startVal = (document.getElementById("billRepStart").value || "").trim().toUpperCase();
-      const endVal = (document.getElementById("billRepEnd").value || "").trim().toUpperCase();
-
-      return state.dossiers
-        .filter((d) => {
-          const rep = (d.repertoire || "").trim().toUpperCase();
-          if (!rep) return false;
-          if (startVal && compareRepertoires(rep, startVal) < 0) return false;
-          if (endVal && compareRepertoires(rep, endVal) > 0) return false;
-          return true;
-        })
-        .sort((a, b) => compareRepertoires(a.repertoire, b.repertoire));
-    }
-
-    function renderInvoiceDocumentHtml(invoiceObj) {
-      const linesHtml = (invoiceObj.lines && invoiceObj.lines.length)
-        ? invoiceObj.lines.map((d, idx) => `
-            <tr>
-              <td>${idx + 1}</td>
-              <td><strong>${escapeHtml(d.repertoire)}</strong></td>
-              <td>${escapeHtml(d.bl || "-")}</td>
-              <td>${escapeHtml(d.client || "-")}</td>
-              <td>${escapeHtml(d.declarationNum || "-")}</td>
-              <td>${escapeHtml(d.poidsQuantite || "-")}</td>
-              <td style="text-align:right;">${Number(invoiceObj.unitPrice || 0).toLocaleString("fr-FR")} ${escapeHtml(invoiceObj.currency || "FCFA")}</td>
-            </tr>
-          `).join("")
-        : `<tr><td colspan="7" style="text-align:center; color:var(--muted);">Aucun répertoire trouvé dans cette plage.</td></tr>`;
-
-      const statusBadge = invoiceObj.status === "PAYEE"
-        ? `<div class="paid-stamp">PAYÉE${invoiceObj.paidAt ? " • " + escapeHtml(invoiceObj.paidAt) : ""}</div>`
-        : `<span class="pill jaune">FACTURE DDU ÉMISE — DEMANDE DE PAIEMENT SUPERVISEUR</span>`;
-
-      return `
-        <div class="invoice-banner">
-          <div>
-            <p class="invoice-doc-title">FACTURE DDU</p>
-            <div style="font-size:13px;"><strong>Destinataire :</strong> STE GEO (${escapeHtml(invoiceObj.recipient || "Non défini")})</div>
-            <div style="font-size:12.5px; color:var(--muted);">Plage répertoires : <strong>${escapeHtml(invoiceObj.repStart)}</strong> → <strong>${escapeHtml(invoiceObj.repEnd)}</strong></div>
-            <div style="margin-top:6px;">${statusBadge}</div>
-          </div>
-          <div style="text-align:right; font-size:12.5px;">
-            <div><strong>N° Facture :</strong> <span style="font-size:14px; font-weight:800;">${escapeHtml(invoiceObj.invoiceNumber)}</span></div>
-            <div><strong>Date :</strong> ${escapeHtml(invoiceObj.createdAt)}</div>
-            <div><strong>Tarif unitaire :</strong> ${Number(invoiceObj.unitPrice || 0).toLocaleString("fr-FR")} ${escapeHtml(invoiceObj.currency || "FCFA")}</div>
-            ${invoiceObj.paidBy ? `<div style="color:var(--success); font-weight:600; margin-top:4px;">Payée par : ${escapeHtml(invoiceObj.paidBy)}</div>` : ""}
-          </div>
-        </div>
-        <table style="min-width:100%; margin-bottom:12px;">
-          <thead>
-            <tr>
-              <th style="width:38px;">#</th>
-              <th>Répertoire</th>
-              <th>N° BL</th>
-              <th>Client</th>
-              <th>N° Déclaration</th>
-              <th>Poids / Qté</th>
-              <th style="text-align:right;">Montant DDU</th>
-            </tr>
-          </thead>
-          <tbody>${linesHtml}</tbody>
-        </table>
-        <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:700; padding-top:10px; border-top:2px solid #0f172a;">
-          <span>Total DDU facturés : ${invoiceObj.count}</span>
-          <span>MONTANT TOTAL : ${Number(invoiceObj.totalAmount || 0).toLocaleString("fr-FR")} ${escapeHtml(invoiceObj.currency || "FCFA")}</span>
-        </div>
-      `;
-    }
-
-    function computeDduInvoice() {
-      const unitPrice = Number(document.getElementById("billUnitPrice").value) || 0;
-      const currency = state.settings.currency || "FCFA";
-      const recipient = (document.getElementById("billRecipientEmail").value || state.settings.emailK || "").trim();
-      const matches = getDduRangeMatches();
-      const totalAmount = matches.length * unitPrice;
-
-      const startLabel = document.getElementById("billRepStart").value.trim().toUpperCase() || "DÉBUT";
-      const endLabel = document.getElementById("billRepEnd").value.trim().toUpperCase() || "FIN";
-      const year = new Date().getFullYear();
-      const invoiceRef = currentInvoiceNumberPreview || formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
-
-      const previewObj = {
-        invoiceNumber: invoiceRef,
-        createdAt: new Date().toLocaleDateString("fr-FR"),
-        recipient,
-        repStart: startLabel,
-        repEnd: endLabel,
-        unitPrice,
-        currency,
-        count: matches.length,
-        totalAmount,
-        status: "BROUILLON",
-        lines: matches.map((d) => ({
-          repertoire: d.repertoire,
-          bl: d.bl,
-          client: d.client,
-          declarationNum: d.ddu?.declarationNum || "-",
-          poidsQuantite: `${d.poids || "-"} / ${d.quantite || "-"}`
-        }))
-      };
-
-      document.getElementById("invoicePreviewBox").innerHTML = renderInvoiceDocumentHtml(previewObj);
-    }
-
-    function printInvoicePdf() {
-      if (!canAccessDduBilling(getCurrentUser())) {
-        showToast("Accès réservé à l'Agent DDU, l'Administrateur et le Superviseur.");
+    function deleteCurrentDossier() {
+      const id = document.getElementById("editDossierId").value;
+      if (!id) return;
+      if (!isAdmin(getCurrentUser())) {
+        showToast("Seul l'Administrateur peut supprimer un dossier.");
         return;
       }
-      const content = document.getElementById("invoicePreviewBox").innerHTML;
-      triggerPrintHtml(`<div style="padding:16px;">${content}</div>`);
+      const d = state.dossiers.find((item) => item.id === id);
+      if (!d) return;
+      if (!confirm(`Supprimer définitivement le dossier ${d.repertoire} ?`)) return;
+      state.dossiers = state.dossiers.filter((item) => item.id !== id);
+      saveState();
+      closeModal("dossierModal");
+      renderApp();
+      showToast(`Dossier ${d.repertoire} supprimé.`);
     }
 
-    function openConfirmEmitModal() {
+    function openProfileModal() {
       const user = getCurrentUser();
-      if (!canAccessDduBilling(user)) {
-        showToast("Accès réservé à l'Agent DDU, l'Administrateur et le Superviseur.");
-        return;
-      }
-      const recipient = (document.getElementById("billRecipientEmail").value || state.settings.emailK || "").trim();
-      const unitPrice = Number(document.getElementById("billUnitPrice").value) || 0;
-      const currency = state.settings.currency || "FCFA";
-      const matches = getDduRangeMatches();
-      const totalAmount = matches.length * unitPrice;
-      const startLabel = document.getElementById("billRepStart").value.trim().toUpperCase() || "A";
-      const endLabel = document.getElementById("billRepEnd").value.trim().toUpperCase() || "X";
-      const year = new Date().getFullYear();
-      const invoiceRef = currentInvoiceNumberPreview || formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
-
-      if (!recipient) {
-        showToast("Veuillez renseigner l'adresse e-mail de destination STE GEO (k).");
-        return;
-      }
-      if (!matches.length) {
-        showToast("Aucun répertoire trouvé dans cette plage pour émettre la facture.");
-        return;
-      }
-
-      document.getElementById("confirmEmitSummary").innerHTML = `
-        <div style="font-size:13px; line-height:1.6;">
-          <div><strong>N° Facture :</strong> ${escapeHtml(invoiceRef)}</div>
-          <div><strong>Plage répertoires :</strong> ${escapeHtml(startLabel)} → ${escapeHtml(endLabel)}</div>
-          <div><strong>Nombre de DDU :</strong> ${matches.length}</div>
-          <div><strong>Montant total :</strong> ${totalAmount.toLocaleString("fr-FR")} ${escapeHtml(currency)}</div>
-          <div><strong>Destinataire :</strong> ${escapeHtml(recipient)}</div>
-        </div>
-      `;
-      document.getElementById("confirmEmitModal").classList.add("open");
+      if (!user) return;
+      pendingProfilePhoto = user.photoDataUrl || "";
+      document.getElementById("profilePhotoInput").value = "";
+      document.getElementById("currentPasswordInput").value = "";
+      document.getElementById("newPasswordInput").value = "";
+      document.getElementById("confirmPasswordInput").value = "";
+      renderProfileAvatarPreview(user, pendingProfilePhoto);
+      document.getElementById("profileModal").classList.add("open");
     }
 
-    function confirmAndEmitInvoice() {
+    function renderProfileAvatarPreview(user, photoUrl) {
+      const tempUser = { ...user, photoDataUrl: photoUrl };
+      document.getElementById("profileAvatarPreview").innerHTML = renderAvatarHtml(tempUser, "avatar-lg");
+    }
+
+    function handleProfilePhotoChange(files) {
       const user = getCurrentUser();
-      if (!canAccessDduBilling(user)) return;
-
-      const recipient = (document.getElementById("billRecipientEmail").value || state.settings.emailK || "").trim();
-      const unitPrice = Number(document.getElementById("billUnitPrice").value) || 0;
-      const currency = state.settings.currency || "FCFA";
-      const matches = getDduRangeMatches();
-      const totalAmount = matches.length * unitPrice;
-      const startLabel = document.getElementById("billRepStart").value.trim().toUpperCase() || "A";
-      const endLabel = document.getElementById("billRepEnd").value.trim().toUpperCase() || "X";
-      const year = new Date().getFullYear();
-      const invoiceRef = currentInvoiceNumberPreview || formatInvoiceNumber(state.settings.invoiceCounter || 1, year);
-      const nowStr = new Date().toLocaleString("fr-FR");
-
-      const archivedInvoice = {
-        id: "inv_" + Date.now(),
-        invoiceNumber: invoiceRef,
-        createdAt: nowStr,
-        createdBy: user?.username || "agent_ddu",
-        recipient,
-        repStart: startLabel,
-        repEnd: endLabel,
-        unitPrice,
-        currency,
-        count: matches.length,
-        totalAmount,
-        status: "ENVOYEE_SUPERVISEUR",
-        paidAt: "",
-        paidBy: "",
-        lines: matches.map((d) => ({
-          repertoire: d.repertoire,
-          bl: d.bl,
-          client: d.client,
-          declarationNum: d.ddu?.declarationNum || "-",
-          poidsQuantite: `${d.poids || "-"} / ${d.quantite || "-"}`
-        }))
+      if (!user || !files || !files.length) return;
+      const file = files[0];
+      if (!file.type.startsWith("image/")) {
+        showToast("Veuillez sélectionner un fichier image.");
+        return;
+      }
+      if (file.size > 1500000) {
+        showToast("Image trop volumineuse (maximum 1,5 Mo).");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        pendingProfilePhoto = String(ev.target.result || "");
+        renderProfileAvatarPreview(user, pendingProfilePhoto);
+        showToast("Aperçu de la photo mis à jour.");
       };
+      reader.readAsDataURL(file);
+    }
 
-      state.invoicesArchive.unshift(archivedInvoice);
-      state.supervisorMessages.unshift({
-        id: "msg_" + Date.now(),
-        invoiceId: archivedInvoice.id,
-        invoiceNumber: invoiceRef,
-        title: "Facture DDU émise — demande de paiement",
-        createdAt: nowStr,
-        from: user?.name || user?.username || "Agent DDU",
-        read: false
-      });
+    function clearProfilePhoto() {
+      const user = getCurrentUser();
+      if (!user) return;
+      pendingProfilePhoto = "";
+      document.getElementById("profilePhotoInput").value = "";
+      renderProfileAvatarPreview(user, "");
+    }
 
-      state.settings.invoiceCounter = (Number(state.settings.invoiceCounter) || 1) + 1;
-      if (matches.length) {
-        const maxRep = matches[matches.length - 1].repertoire;
-        if (!state.settings.lastBilledRep || compareRepertoires(maxRep, state.settings.lastBilledRep) > 0) {
-          state.settings.lastBilledRep = maxRep;
+    function saveProfileChanges() {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const currentPass = document.getElementById("currentPasswordInput").value || "";
+      const newPass = document.getElementById("newPasswordInput").value || "";
+      const confirmPass = document.getElementById("confirmPasswordInput").value || "";
+
+      if (currentPass || newPass || confirmPass) {
+        if (encodePass(currentPass) !== user.passwordHash) {
+          showToast("Le mot de passe actuel est incorrect.");
+          return;
         }
+        if (newPass.length < 4) {
+          showToast("Le nouveau mot de passe doit contenir au moins 4 caractères.");
+          return;
+        }
+        if (newPass !== confirmPass) {
+          showToast("La confirmation du mot de passe ne correspond pas.");
+          return;
+        }
+        user.passwordHash = encodePass(newPass);
       }
 
+      user.photoDataUrl = pendingProfilePhoto;
       saveState();
-      closeModal("confirmEmitModal");
-      closeModal("billingModal");
+      closeModal("profileModal");
       renderApp();
-
-      triggerPrintHtml(`<div style="padding:16px;">${renderInvoiceDocumentHtml(archivedInvoice)}</div>`);
-
-      const subject = encodeURIComponent(`Facture ${invoiceRef} - DDU STE GEO (${startLabel} à ${endLabel})`);
-      const body = encodeURIComponent(
-        `FACTURE N° : ${invoiceRef}\n` +
-        `Destinataire : STE GEO\n` +
-        `Plage répertoires : ${startLabel} à ${endLabel}\n` +
-        `Nombre de DDU : ${matches.length}\n` +
-        `Tarif unitaire : ${unitPrice.toLocaleString("fr-FR")} ${currency}\n` +
-        `Montant total : ${totalAmount.toLocaleString("fr-FR")} ${currency}\n` +
-        `Détails : ${matches.map((m) => `${m.repertoire} (BL ${m.bl || "-"}, ${m.client || "-"})`).join(" | ") || "Aucun"}\n\n` +
-        `Facture DDU émise — demande de paiement transmise au Superviseur.`
-      );
-
-      showToast(`Facture ${invoiceRef} confirmée, générée en PDF et envoyée au Superviseur.`);
-      setTimeout(() => {
-        window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${subject}&body=${body}`;
-      }, 300);
+      showToast("Profil mis à jour.");
     }
 
-    function openSupervisorInvoiceFromMessage(invoiceId) {
-      const user = getCurrentUser();
-      if (!isSupervisor(user)) {
-        showToast("Accès réservé au Superviseur.");
+    // RÉINITIALISATION DIRECTE DU MOT DE PASSE D'UN AGENT PAR L'ADMIN
+    function openResetPasswordModal(userId) {
+      if (!isAdmin(getCurrentUser())) {
+        showToast("Action réservée à l'Administrateur.");
         return;
       }
-      const inv = (state.invoicesArchive || []).find((item) => item.id === invoiceId);
-      if (!inv) return;
+      const target = state.users.find((u) => u.id === userId);
+      if (!target) return;
 
-      activeReaderInvoiceId = invoiceId;
-      activeReaderViaSupervisorMessage = true;
-
-      document.getElementById("readerInvoiceTitle").textContent = `📄 Facture PDF ${inv.invoiceNumber} — Demande de paiement`;
-      document.getElementById("readerInvoiceMessageBanner").innerHTML = `
-        <div><strong>📩 Message automatique :</strong> Facture DDU émise — demande de paiement (émise le ${escapeHtml(inv.createdAt)} par ${escapeHtml(inv.createdBy || "Agent DDU")}).</div>
-      `;
-      document.getElementById("readerInvoiceContent").innerHTML = renderInvoiceDocumentHtml(inv);
-
-      const btnPay = document.getElementById("btnPayFromSupervisorMessage");
-      btnPay.style.display = inv.status !== "PAYEE" ? "inline-block" : "none";
-
-      document.getElementById("supervisorInvoiceReaderModal").classList.add("open");
+      document.getElementById("resetTargetUserId").value = target.id;
+      document.getElementById("resetTargetUserLabel").innerHTML =
+        `Agent concerné : <strong>${escapeHtml(target.name)}</strong> (<code>${escapeHtml(target.username)}</code>)`;
+      document.getElementById("adminResetPasswordInput").value = "";
+      document.getElementById("resetPasswordModal").classList.add("open");
+      setTimeout(() => document.getElementById("adminResetPasswordInput").focus(), 60);
     }
 
-    function openArchivedInvoicePdfViewer(invoiceId) {
-      const inv = (state.invoicesArchive || []).find((item) => item.id === invoiceId);
-      if (!inv) return;
-
-      activeReaderInvoiceId = invoiceId;
-      activeReaderViaSupervisorMessage = false;
-
-      document.getElementById("readerInvoiceTitle").textContent = `📄 Facture Archivée PDF ${inv.invoiceNumber}`;
-      document.getElementById("readerInvoiceMessageBanner").innerHTML = inv.status === "PAYEE"
-        ? `<div><strong>✅ Facture archivée et PAYÉE</strong> le ${escapeHtml(inv.paidAt || "-")} par ${escapeHtml(inv.paidBy || "Superviseur")}.</div>`
-        : `<div><strong>ℹ️ Facture en attente :</strong> Pour régler cette facture, le Superviseur doit l'ouvrir depuis le <strong>message automatique de demande de paiement</strong> sur l'accueil.</div>`;
-      document.getElementById("readerInvoiceContent").innerHTML = renderInvoiceDocumentHtml(inv);
-      document.getElementById("btnPayFromSupervisorMessage").style.display = "none";
-
-      document.getElementById("supervisorInvoiceReaderModal").classList.add("open");
-    }
-
-    function payInvoiceFromReader() {
-      const user = getCurrentUser();
-      if (!isSupervisor(user) || !activeReaderViaSupervisorMessage || !activeReaderInvoiceId) {
-        showToast("Seul le Superviseur peut payer en ouvrant le message automatique de demande de paiement.");
+    function confirmAdminPasswordReset() {
+      if (!isAdmin(getCurrentUser())) {
+        showToast("Action réservée à l'Administrateur.");
         return;
       }
-      const inv = (state.invoicesArchive || []).find((item) => item.id === activeReaderInvoiceId);
-      if (!inv) return;
+      const targetId = document.getElementById("resetTargetUserId").value;
+      const newPass = document.getElementById("adminResetPasswordInput").value || "";
 
-      inv.status = "PAYEE";
-      inv.paidAt = new Date().toLocaleString("fr-FR");
-      inv.paidBy = user.name || user.username;
+      if (newPass.length < 4) {
+        showToast("Le nouveau mot de passe doit contenir au moins 4 caractères.");
+        return;
+      }
 
-      (state.supervisorMessages || []).forEach((m) => {
-        if (m.invoiceId === inv.id) m.read = true;
-      });
+      const target = state.users.find((u) => u.id === targetId);
+      if (!target) return;
 
+      target.passwordHash = encodePass(newPass);
       saveState();
-      document.getElementById("readerInvoiceContent").innerHTML = renderInvoiceDocumentHtml(inv);
-      document.getElementById("btnPayFromSupervisorMessage").style.display = "none";
-      renderApp();
-      if (document.getElementById("invoiceArchiveModal").classList.contains("open")) {
-        renderInvoiceArchiveList();
-      }
-      showToast(`Facture ${inv.invoiceNumber} enregistrée avec la mention PAYÉE (en vert).`);
-    }
-
-    function printReaderInvoicePdf() {
-      const content = document.getElementById("readerInvoiceContent").innerHTML;
-      triggerPrintHtml(`<div style="padding:16px;">${content}</div>`);
-    }
-
-    function openInvoiceArchiveModal() {
-      if (!canAccessInvoiceArchive(getCurrentUser())) {
-        showToast("Accès réservé au Superviseur, à l'Administrateur et à l'Agent DDU.");
-        return;
-      }
-      renderInvoiceArchiveList();
-      document.getElementById("invoiceArchiveModal").classList.add("open");
-    }
-
-    function renderInvoiceArchiveList() {
-      const container = document.getElementById("invoiceArchiveListContainer");
-      const q = (document.getElementById("invoiceSearchInput")?.value || "").trim().toLowerCase();
-      const statusFilter = document.getElementById("invoiceStatusFilter")?.value || "TOUTES";
-
-      const list = (state.invoicesArchive || []).filter((inv) => {
-        if (statusFilter === "PAYEE" && inv.status !== "PAYEE") return false;
-        if (statusFilter === "EN_ATTENTE" && inv.status === "PAYEE") return false;
-        if (!q) return true;
-        const linesHay = (inv.lines || []).map((l) => `${l.repertoire} ${l.bl} ${l.client}`).join(" ");
-        const hay = `${inv.invoiceNumber} ${inv.repStart} ${inv.repEnd} ${inv.createdAt} ${inv.paidAt || ""} ${inv.status} ${linesHay}`.toLowerCase();
-        return hay.includes(q);
-      });
-
-      if (!list.length) {
-        container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--muted);">Aucune facture trouvée dans l'archive.</div>`;
-        return;
-      }
-
-      container.innerHTML = list.map((inv) => {
-        const isPaid = inv.status === "PAYEE";
-        const badgeHtml = isPaid
-          ? `<span class="paid-stamp">PAYÉE${inv.paidAt ? " • " + escapeHtml(inv.paidAt) : ""}</span>`
-          : `<span class="pill jaune">En attente de paiement</span>`;
-
-        return `
-          <div class="archive-card">
-            <div>
-              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                <strong>${escapeHtml(inv.invoiceNumber)}</strong>
-                <span style="font-size:12.5px; color:var(--muted);">${escapeHtml(inv.repStart)} → ${escapeHtml(inv.repEnd)} (${inv.count} DDU)</span>
-                ${badgeHtml}
-              </div>
-              <div style="font-size:12.5px; margin-top:4px;">
-                Montant : <strong>${Number(inv.totalAmount || 0).toLocaleString("fr-FR")} ${escapeHtml(inv.currency || "FCFA")}</strong>
-                • Émise le ${escapeHtml(inv.createdAt)}
-                ${inv.paidBy ? ` • Payée par <strong>${escapeHtml(inv.paidBy)}</strong>` : ""}
-              </div>
-            </div>
-            <div class="row-actions">
-              <button type="button" class="sm" onclick="openArchivedInvoicePdfViewer('${inv.id}')">👁️ Voir PDF</button>
-              <button type="button" class="sm" onclick="printArchivedInvoicePdf('${inv.id}')">🖨️ Imprimer PDF</button>
-              ${isAdmin(getCurrentUser()) ? `<button type="button" class="sm primary" onclick="openEditArchivedInvoiceModal('${inv.id}')">✏️ Modifier / Corriger</button>` : ""}
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function printArchivedInvoicePdf(invoiceId) {
-      const inv = (state.invoicesArchive || []).find((item) => item.id === invoiceId);
-      if (!inv) return;
-      triggerPrintHtml(`<div style="padding:16px;">${renderInvoiceDocumentHtml(inv)}</div>`);
+      closeModal("resetPasswordModal");
+      showToast(`Mot de passe réinitialisé pour ${target.username}.`);
     }
 
     function openAdminModal() {
@@ -3662,20 +1240,16 @@
         return;
       }
 
-      document.getElementById("adminLastBilledRepInput").value = state.settings.lastBilledRep || "";
-
-      document.getElementById("adminSessionsBody").innerHTML = state.users.map((u) => `
-        <tr>
-          <td><strong>${escapeHtml(u.name)}</strong></td>
-          <td>${escapeHtml(u.username)}</td>
-          <td>${escapeHtml(u.roles.join(", "))}</td>
-          <td>${u.online ? '<span class="pill vert">En ligne</span>' : '<span class="pill" style="background:#e2e8f0; color:#334155;">Hors ligne</span>'}</td>
-          <td>${escapeHtml(u.lastSeen || "-")}</td>
-        </tr>
+      document.getElementById("newAgentRoles").innerHTML = AVAILABLE_ROLES.map((role) => `
+        <label class="role-chip">
+          <input type="checkbox" class="new-agent-role-cb" value="${role}" ${role === "AGENT_TRANSIT" ? "checked" : ""} />
+          ${role}
+        </label>
       `).join("");
 
       document.getElementById("adminUsersList").innerHTML = state.users.map((u) => {
-        const checkboxes = AVAILABLE_ROLES.map((r) => {
+        const isSelf = u.id === user.id;
+        const roleBoxes = AVAILABLE_ROLES.map((r) => {
           const checked = u.roles.includes(r) ? "checked" : "";
           return `
             <label class="role-chip">
@@ -3684,64 +1258,47 @@
             </label>
           `;
         }).join("");
+
         return `
-          <div style="padding:10px 0; border-bottom:1px solid var(--border);">
-            <div style="font-weight:600; margin-bottom:6px;">${escapeHtml(u.name)} (${escapeHtml(u.username)})</div>
-            <div class="role-grid">${checkboxes}</div>
+          <div style="padding:12px 0; border-bottom:1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                ${renderAvatarHtml(u, "avatar-sm")}
+                <div>
+                  <strong>${escapeHtml(u.name)}</strong> <span style="color:var(--muted);">(${escapeHtml(u.username)})</span>
+                </div>
+              </div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button type="button" class="sm warning" onclick="openResetPasswordModal('${u.id}')">
+                  🔑 Réinitialiser mot de passe
+                </button>
+                <button type="button" class="sm danger" ${isSelf ? "disabled title='Impossible de supprimer votre propre compte actif'" : `onclick="deleteUserAccount('${u.id}')"`}>
+                  🗑️ Supprimer le compte
+                </button>
+              </div>
+            </div>
+            <div class="role-grid">${roleBoxes}</div>
           </div>
         `;
       }).join("");
 
-      document.getElementById("newAgentRoles").innerHTML = AVAILABLE_ROLES.map((r) => `
-        <label class="role-chip">
-          <input type="checkbox" class="new-agent-role-cb" value="${r}" ${r === "AGENT_DDU_T1" ? "checked" : ""} />
-          ${r}
-        </label>
-      `).join("");
-
       document.getElementById("adminModal").classList.add("open");
     }
 
-    function saveAdminLastBilledRep() {
-      if (!isAdmin(getCurrentUser())) return;
-      state.settings.lastBilledRep = (document.getElementById("adminLastBilledRepInput").value || "").trim().toUpperCase();
-      saveState();
-      const nextRep = getNextUnbilledRepValue();
-      showToast(`Répertoire mis à jour. La prochaine facture DDU démarrera sur : ${nextRep || "le début"}.`);
-    }
-
-    function resetAdminLastBilledRep() {
-      if (!isAdmin(getCurrentUser())) return;
-      state.settings.lastBilledRep = "";
-      document.getElementById("adminLastBilledRepInput").value = "";
-      saveState();
-      showToast("Répertoire DDU réinitialisé au tout premier dossier.");
-    }
-
-    function toggleUserRole(userId, role, enabled) {
-      const target = state.users.find((u) => u.id === userId);
-      if (!target) return;
-      const set = new Set(target.roles);
-      if (enabled) set.add(role);
-      else set.delete(role);
-      target.roles = Array.from(set);
-      saveState();
-      renderApp();
-      showToast(`Rôles attribués mis à jour pour ${target.username}.`);
-    }
-
     function createNewAgent() {
-      const name = document.getElementById("newAgentName").value.trim();
-      const username = document.getElementById("newAgentUser").value.trim().toLowerCase();
-      const password = document.getElementById("newAgentPass").value;
+      if (!isAdmin(getCurrentUser())) return;
+
+      const name = (document.getElementById("newAgentName").value || "").trim();
+      const username = (document.getElementById("newAgentUser").value || "").trim().toLowerCase();
+      const password = document.getElementById("newAgentPass").value || "";
       const roles = Array.from(document.querySelectorAll(".new-agent-role-cb:checked")).map((cb) => cb.value);
 
       if (!name || !username || !password) {
-        showToast("Veuillez remplir nom, identifiant et mot de passe.");
+        showToast("Veuillez renseigner le nom, l'identifiant et le mot de passe.");
         return;
       }
 
-      if (state.users.some((u) => u.username.toLowerCase() === username)) {
+      if (state.users.some((u) => String(u.username || "").trim().toLowerCase() === username)) {
         showToast("Cet identifiant existe déjà.");
         return;
       }
@@ -3750,10 +1307,11 @@
         id: "u_" + Date.now(),
         name,
         username,
-        passwordHash: btoa(password),
-        roles: roles.length ? roles : ["AGENT_TRANSIT"],
+        passwordHash: encodePass(password),
+        roles,
+        photoDataUrl: "",
         online: false,
-        lastSeen: "Jamais connecté"
+        lastSeen: "Jamais"
       });
 
       saveState();
@@ -3761,234 +1319,41 @@
       document.getElementById("newAgentUser").value = "";
       document.getElementById("newAgentPass").value = "";
       openAdminModal();
-      showToast(`Agent ${username} ajouté avec ses rôles.`);
-    }
-
-    function openSettingsModal() {
-      if (!isSupervisor(getCurrentUser())) {
-        showToast("Accès réservé au Superviseur et à l'Administrateur.");
-        return;
-      }
-      document.getElementById("settingEmailK").value = state.settings.emailK || "k@geosuvitransit.tg";
-      document.getElementById("settingDefaultDduPrice").value = state.settings.dduUnitPrice ?? 10000;
-      document.getElementById("settingCurrency").value = state.settings.currency || "FCFA";
-      document.getElementById("settingsModal").classList.add("open");
-    }
-
-    function saveSettings() {
-      if (!isSupervisor(getCurrentUser())) return;
-      state.settings.emailK = (document.getElementById("settingEmailK").value || "").trim() || "k@geosuvitransit.tg";
-      state.settings.dduUnitPrice = Number(document.getElementById("settingDefaultDduPrice").value) || 0;
-      state.settings.currency = (document.getElementById("settingCurrency").value || "").trim() || "FCFA";
-      saveState();
-      closeModal("settingsModal");
-      showToast("Paramètres enregistrés.");
-    }
-
-    function handleEditInvoiceStatusChange() {
-      const statusVal = document.getElementById("editInvStatus")?.value;
-      const unlockBox = document.getElementById("paidUnlockNoticeBox");
-      if (unlockBox && statusVal === "PAYEE") {
-        unlockBox.style.display = "block";
-      }
-    }
-
-    let workingEditInvoiceLines = [];
-
-    function openEditArchivedInvoiceModal(invoiceId) {
-      const user = getCurrentUser();
-      if (!isAdmin(user)) {
-        showToast("Seul l'Administrateur peut modifier ou corriger une facture archivée.");
-        return;
-      }
-      const inv = (state.invoicesArchive || []).find((item) => item.id === invoiceId);
-      if (!inv) return;
-
-      document.getElementById("editInvoiceId").value = inv.id;
-      document.getElementById("editInvoiceModalTitle").textContent = `✏️ Corriger la Facture ${inv.invoiceNumber}`;
-      document.getElementById("editInvNumber").value = inv.invoiceNumber || "";
-      document.getElementById("editInvRecipient").value = inv.recipient || "";
-      document.getElementById("editInvStatus").value = inv.status === "PAYEE" ? "PAYEE" : "ENVOYEE_SUPERVISEUR";
-      document.getElementById("editInvRepStart").value = inv.repStart || "";
-      document.getElementById("editInvRepEnd").value = inv.repEnd || "";
-      document.getElementById("editInvUnitPrice").value = Number(inv.unitPrice ?? state.settings.dduUnitPrice ?? 10000);
-      document.getElementById("editInvReason").value = "";
-      document.getElementById("editInvNotifySupervisor").checked = true;
-      const unlockBox = document.getElementById("paidUnlockNoticeBox");
-      if (unlockBox) {
-        unlockBox.style.display = inv.status === "PAYEE" ? "block" : "none";
-      }
-
-      workingEditInvoiceLines = JSON.parse(JSON.stringify(inv.lines || []));
-      if (!workingEditInvoiceLines.length) {
-        workingEditInvoiceLines.push({ repertoire: "", bl: "", client: "", declarationNum: "-", poidsQuantite: "-" });
-      }
-
-      renderEditInvoiceLines();
-      recalcEditInvoiceLines();
-      renderEditInvoiceAuditHistory(inv.editHistory || []);
-      document.getElementById("editInvoiceModal").classList.add("open");
-    }
-
-    function renderEditInvoiceLines() {
-      const tbody = document.getElementById("editInvLinesBody");
-      if (!tbody) return;
-      tbody.innerHTML = workingEditInvoiceLines.map((line, idx) => `
-        <tr>
-          <td><input type="text" value="${escapeHtml(line.repertoire || "")}" placeholder="GEO00001" oninput="workingEditInvoiceLines[${idx}].repertoire = this.value.trim().toUpperCase()" /></td>
-          <td><input type="text" value="${escapeHtml(line.bl || "")}" placeholder="N° BL" oninput="workingEditInvoiceLines[${idx}].bl = this.value.trim().toUpperCase()" /></td>
-          <td><input type="text" value="${escapeHtml(line.client || "")}" placeholder="Client" oninput="workingEditInvoiceLines[${idx}].client = this.value" /></td>
-          <td><input type="text" value="${escapeHtml(line.declarationNum || "")}" placeholder="Déclaration" oninput="workingEditInvoiceLines[${idx}].declarationNum = this.value.trim().toUpperCase()" /></td>
-          <td><input type="text" value="${escapeHtml(line.poidsQuantite || "")}" placeholder="Poids / Qté" oninput="workingEditInvoiceLines[${idx}].poidsQuantite = this.value" /></td>
-          <td><button type="button" class="sm danger" onclick="removeEditInvoiceLine(${idx})">✕</button></td>
-        </tr>
-      `).join("");
-    }
-
-    function addEditInvoiceLine() {
-      workingEditInvoiceLines.push({ repertoire: "", bl: "", client: "", declarationNum: "-", poidsQuantite: "-" });
-      renderEditInvoiceLines();
-      recalcEditInvoiceLines();
-    }
-
-    function removeEditInvoiceLine(idx) {
-      workingEditInvoiceLines.splice(idx, 1);
-      renderEditInvoiceLines();
-      recalcEditInvoiceLines();
-    }
-
-    function recalcEditInvoiceLines() {
-      const unitPrice = Number(document.getElementById("editInvUnitPrice")?.value) || 0;
-      const currency = state.settings.currency || "FCFA";
-      const validLines = workingEditInvoiceLines.filter((l) =>
-        [l.repertoire, l.bl, l.client].some((v) => String(v || "").trim() !== "")
-      );
-      const count = validLines.length;
-      const totalAmount = count * unitPrice;
-      const summaryEl = document.getElementById("editInvTotalSummary");
-      if (summaryEl) {
-        summaryEl.textContent = `Total DDU : ${count} • Montant total recalculé : ${totalAmount.toLocaleString("fr-FR")} ${currency}`;
-      }
-      return { validLines, count, totalAmount, unitPrice, currency };
-    }
-
-    function renderEditInvoiceAuditHistory(historyList) {
-      const box = document.getElementById("editInvAuditHistory");
-      if (!box) return;
-      if (!Array.isArray(historyList) || !historyList.length) {
-        box.innerHTML = `<div style="font-size:12.5px; color:var(--muted);">Aucune correction enregistrée sur cette facture.</div>`;
-        return;
-      }
-      box.innerHTML = historyList.map((h) => `
-        <div class="evolution-item">
-          <div class="evolution-meta">
-            <strong>${escapeHtml(h.reason || "Correction facture")}</strong>
-            <span>${escapeHtml(h.date || "")} • ${escapeHtml(h.author || "admin")}</span>
-          </div>
-          <div>${escapeHtml(h.summary || "")}</div>
-        </div>
-      `).join("");
-    }
-
-    function saveEditedArchivedInvoice() {
-      const user = getCurrentUser();
-      if (!isAdmin(user)) {
-        showToast("Accès réservé à l'Administrateur.");
-        return;
-      }
-      const id = document.getElementById("editInvoiceId").value;
-      const inv = (state.invoicesArchive || []).find((item) => item.id === id);
-      if (!inv) return;
-
-      const reason = (document.getElementById("editInvReason").value || "").trim();
-      if (!reason) {
-        showToast("Veuillez indiquer le motif de la correction pour l'historique.");
-        return;
-      }
-
-      const newNumber = (document.getElementById("editInvNumber").value || inv.invoiceNumber).trim().toUpperCase();
-      const newRecipient = (document.getElementById("editInvRecipient").value || "").trim();
-      const newStatus = document.getElementById("editInvStatus").value === "PAYEE" ? "PAYEE" : "ENVOYEE_SUPERVISEUR";
-      const newStart = (document.getElementById("editInvRepStart").value || "").trim().toUpperCase();
-      const newEnd = (document.getElementById("editInvRepEnd").value || "").trim().toUpperCase();
-      const { validLines, count, totalAmount, unitPrice, currency } = recalcEditInvoiceLines();
-
-      const prevTotal = Number(inv.totalAmount || 0);
-      const prevCount = Number(inv.count || 0);
-
-      inv.invoiceNumber = newNumber;
-      inv.recipient = newRecipient;
-      inv.repStart = newStart;
-      inv.repEnd = newEnd;
-      inv.unitPrice = unitPrice;
-      inv.currency = currency;
-      inv.lines = validLines;
-      inv.count = count;
-      inv.totalAmount = totalAmount;
-      inv.status = newStatus;
-      if (newStatus === "PAYEE" && !inv.paidAt) {
-        inv.paidAt = new Date().toLocaleString("fr-FR");
-        inv.paidBy = user.name || user.username;
-      } else if (newStatus !== "PAYEE") {
-        inv.paidAt = "";
-        inv.paidBy = "";
-      }
-
-      const nowStr = new Date().toLocaleString("fr-FR");
-      const wasPaid = inv.status === "PAYEE";
-      inv.editHistory = Array.isArray(inv.editHistory) ? inv.editHistory : [];
-      inv.editHistory.unshift({
-        date: nowStr,
-        author: user.username || "admin",
-        reason: (wasPaid ? "[FACTURE PAYÉE DÉVERROUILLÉE] " : "") + reason,
-        summary: `DDU : ${prevCount} → ${count} | Montant : ${prevTotal.toLocaleString("fr-FR")} → ${totalAmount.toLocaleString("fr-FR")} ${currency} | Statut : ${newStatus}`
-      });
-
-      const notifySup = !!document.getElementById("editInvNotifySupervisor")?.checked;
-      state.supervisorMessages = Array.isArray(state.supervisorMessages) ? state.supervisorMessages : [];
-      state.supervisorMessages.forEach((m) => {
-        if (m.invoiceId === inv.id) {
-          m.invoiceNumber = newNumber;
-          if (newStatus === "PAYEE") m.read = true;
-          else if (notifySup) m.read = false;
-        }
-      });
-
-      if (notifySup) {
-        state.supervisorMessages.unshift({
-          id: "msg_edit_" + Date.now(),
-          invoiceId: inv.id,
-          invoiceNumber: newNumber,
-          title: `Correction facture ${newNumber}${wasPaid ? " (ex-PAYÉE)" : ""} — ${reason}`,
-          createdAt: nowStr,
-          from: user.name || user.username || "Administrateur",
-          read: false
-        });
-      }
-
-      saveState();
-      closeModal("editInvoiceModal");
       renderApp();
-      renderInvoiceArchiveList();
-      showToast(`Facture ${inv.invoiceNumber} mise à jour${notifySup ? " et Superviseur notifié" : ""}.`);
+      showToast(`Compte "${username}" créé avec succès.`);
     }
 
-    function deleteArchivedInvoice() {
-      const user = getCurrentUser();
-      if (!isAdmin(user)) return;
-      const id = document.getElementById("editInvoiceId").value;
-      const idx = (state.invoicesArchive || []).findIndex((item) => item.id === id);
-      if (idx < 0) return;
+    function toggleUserRole(userId, role, enabled) {
+      if (!isAdmin(getCurrentUser())) return;
+      const target = state.users.find((u) => u.id === userId);
+      if (!target) return;
 
-      const removedNum = state.invoicesArchive[idx].invoiceNumber;
-      state.invoicesArchive.splice(idx, 1);
-      state.supervisorMessages = (state.supervisorMessages || []).filter((m) => m.invoiceId !== id);
+      const roleSet = new Set(target.roles || []);
+      if (enabled) roleSet.add(role);
+      else roleSet.delete(role);
+      target.roles = Array.from(roleSet);
 
       saveState();
-      closeModal("editInvoiceModal");
       renderApp();
-      renderInvoiceArchiveList();
-      showToast(`Facture archivée ${removedNum} supprimée.`);
+      showToast(`Rôles mis à jour pour ${target.username}.`);
+    }
+
+    function deleteUserAccount(userId) {
+      const current = getCurrentUser();
+      if (!isAdmin(current)) return;
+      if (userId === current.id) {
+        showToast("Vous ne pouvez pas supprimer votre propre compte connecté.");
+        return;
+      }
+      const target = state.users.find((u) => u.id === userId);
+      if (!target) return;
+      if (!confirm(`Supprimer définitivement le compte de ${target.name} (${target.username}) ?`)) return;
+
+      state.users = state.users.filter((u) => u.id !== userId);
+      saveState();
+      openAdminModal();
+      renderApp();
+      showToast(`Compte ${target.username} supprimé.`);
     }
 
     function closeModal(id) {
@@ -3996,18 +1361,8 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-      const form = document.getElementById("loginForm");
-      if (form) form.addEventListener("submit", handleLogin);
-      updateCloudUi();
+      document.getElementById("loginForm").addEventListener("submit", handleLogin);
       renderApp();
-      if (cloudCfg.enabled) {
-        pullCloudNow(true);
-      }
-      setInterval(function () {
-        if (cloudCfg.enabled && getCurrentUser()) {
-          pullCloudNow(true);
-        }
-      }, 15000);
     });
   </script>
 </body>
