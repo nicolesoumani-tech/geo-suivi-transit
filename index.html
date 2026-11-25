@@ -1707,9 +1707,7 @@
           evolutions: [
             { date: "23/11/2026 09:15", stage: "Arrivée navire", note: "Navire accosté au terminal à conteneurs", author: "admin" }
           ],
-          points: "- Arrivée navire à Lomé
-- BAD émis
-- Contrôle documentaire en cours"
+          points: "- Arrivée navire à Lomé\n- BAD émis\n- Contrôle documentaire en cours"
         },
         {
           id: "d2",
@@ -1750,8 +1748,7 @@
           },
           emptyReturn: { date: "", fileName: "" },
           evolutions: [],
-          points: "- Transfert CFS effectué
-- Dépotage programmé"
+          points: "- Transfert CFS effectué\n- Dépotage programmé"
         },
         {
           id: "d3",
@@ -3127,8 +3124,7 @@
         const isSurCamion = (d.transportMode || "SUR_CAMION") === "SUR_CAMION";
         const modeLabel = isSurCamion ? "SUR CAMION" : "DÉPOTAGE";
         const pointsLines = (d.points || "Aucun point renseigné.")
-          .split("
-")
+          .split("\n")
           .filter(Boolean)
           .map((line) => `<li>${escapeHtml(line.replace(/^[-•*]\s*/, ""))}</li>`)
           .join("");
@@ -3506,21 +3502,13 @@
 
       const subject = encodeURIComponent(`Facture ${invoiceRef} - DDU STE GEO (${startLabel} à ${endLabel})`);
       const body = encodeURIComponent(
-        `FACTURE N° : ${invoiceRef}
-` +
-        `Destinataire : STE GEO
-` +
-        `Plage répertoires : ${startLabel} à ${endLabel}
-` +
-        `Nombre de DDU : ${matches.length}
-` +
-        `Tarif unitaire : ${unitPrice.toLocaleString("fr-FR")} ${currency}
-` +
-        `Montant total : ${totalAmount.toLocaleString("fr-FR")} ${currency}
-` +
-        `Détails : ${matches.map((m) => `${m.repertoire} (BL ${m.bl || "-"}, ${m.client || "-"})`).join(" | ") || "Aucun"}
-
-` +
+        `FACTURE N° : ${invoiceRef}\n` +
+        `Destinataire : STE GEO\n` +
+        `Plage répertoires : ${startLabel} à ${endLabel}\n` +
+        `Nombre de DDU : ${matches.length}\n` +
+        `Tarif unitaire : ${unitPrice.toLocaleString("fr-FR")} ${currency}\n` +
+        `Montant total : ${totalAmount.toLocaleString("fr-FR")} ${currency}\n` +
+        `Détails : ${matches.map((m) => `${m.repertoire} (BL ${m.bl || "-"}, ${m.client || "-"})`).join(" | ") || "Aucun"}\n\n` +
         `Facture DDU émise — demande de paiement transmise au Superviseur.`
       );
 
@@ -3796,8 +3784,6 @@
       closeModal("settingsModal");
       showToast("Paramètres enregistrés.");
     }
-
-
 
     function handleEditInvoiceStatusChange() {
       const statusVal = document.getElementById("editInvStatus")?.value;
