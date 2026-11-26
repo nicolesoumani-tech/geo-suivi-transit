@@ -161,32 +161,25 @@
             ⚓
           </div>
           <div>
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight m-0 leading-tight">GEO SUIVI TRANSIT</h1>
+            <p class="text-[11px] text-slate-300 m-0">Suivi Cargaison, Douane &amp; Facturation DDU</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Barre d'actions & profil actif -->
       <div class="flex flex-wrap items-center gap-2">
-        <!-- Sélecteur rapide réservé UNIQUEMENT à Administrateur et Superviseur -->
-        <div id="adminQuickSwitchWrapper" class="hidden items-center gap-2">
-          <label for="roleSwitcherSelect" class="text-xs text-amber-300 font-semibold">Aperçu rôle :</label>
-          <select
-            id="roleSwitcherSelect"
-            onchange="switchActiveRole(this.value)"
-            class="bg-slate-800 text-white border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-          ></select>
-        </div>
+        <!-- Badges statiques des rôles attribués (aucun menu de changement pour les agents) -->
+        <div id="headerAssignedRolesContainer" class="flex flex-wrap items-center gap-1.5"></div>
 
-        <!-- Badge statique du rôle attribué (visible par tous, sans menu de changement pour les agents) -->
-        <span
-          id="headerStaticRolePill"
-          class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-bold text-blue-200"
-        ></span>
-
-        <!-- Bouton Gestion des Rôles & Utilisateurs (UNIQUEMENT Administrateur & Superviseur) -->
+        <!-- Bouton Gestion des Utilisateurs, Mots de passe & Rôles (UNIQUEMENT Administrateur & Superviseur) -->
         <button
           type="button"
           id="btnManageRoles"
           onclick="openRoleAdminModal()"
           class="hidden px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white shadow transition"
         >
-          👥 Gestion des Rôles &amp; Utilisateurs
+          👥 Gestion Utilisateurs &amp; Rôles
         </button>
 
         <!-- Bouton Facturation DDU (Contrôlé par Agent DDU / Facturier + Superviseur/Admin) -->
@@ -226,6 +219,7 @@
         <div class="flex items-center gap-2 flex-wrap">
           <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
           <span>Connecté : <strong id="activeUserDisplay" class="text-white"></strong></span>
+          <span id="activeUsernameDisplay" class="text-slate-400 font-mono"></span>
           <span id="activeRoleBadge" class="px-2 py-0.5 rounded-md bg-blue-900/70 text-blue-200 border border-blue-700/60 font-semibold"></span>
         </div>
         <div id="activeRoleScopeNote" class="text-slate-400"></div>
@@ -236,36 +230,98 @@
   <!-- CONTENU PRINCIPAL -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
-    <!-- ÉCRAN DE SESSION DÉCONNECTÉE / CONNEXION PAR COMPTE UTILISATEUR -->
-    <section id="loggedOutScreen" class="hidden card-surface p-6 sm:p-10 max-w-xl mx-auto my-6 text-center space-y-5 border-slate-300">
-      <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-900 text-white flex items-center justify-center text-2xl font-extrabold shadow">
-        🔒
-      </div>
-      <div class="space-y-1.5">
+    <!-- ÉCRAN DE CONNEXION PAR NOM D'UTILISATEUR ET MOT DE PASSE -->
+    <section id="loggedOutScreen" class="hidden card-surface p-6 sm:p-10 max-w-md mx-auto my-6 space-y-5 border-slate-300">
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-900 text-white flex items-center justify-center text-2xl font-extrabold shadow">
+          🔒
+        </div>
         <h2 class="text-xl font-extrabold text-slate-900 m-0">Connexion — GEO SUIVI TRANSIT</h2>
-        <p class="text-sm text-slate-600 m-0">
-          Sélectionnez votre compte utilisateur pour ouvrir votre session. Le profil et les droits d'accès de chaque agent sont attribués uniquement par l'<strong>Administrateur</strong> ou le <strong>Superviseur</strong>.
+        <p class="text-xs sm:text-sm text-slate-600 m-0">
+          Entrez votre <strong>nom d'utilisateur</strong> et votre <strong>mot de passe</strong> pour accéder à votre espace et consulter les rôles qui vous ont été attribués.
         </p>
       </div>
-      <form id="lockedSessionLoginForm" onsubmit="submitLockedSessionLogin(event)" class="text-left space-y-3.5 max-w-md mx-auto">
+
+      <form id="lockedSessionLoginForm" onsubmit="submitUsernamePasswordLogin(event)" class="space-y-4">
         <div>
-          <label for="lockedUserAccountSelect" class="block text-xs font-bold text-slate-700 mb-1">Compte utilisateur (Rôle attribué)</label>
-          <select id="lockedUserAccountSelect" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-white font-semibold"></select>
+          <label for="loginUsernameInput" class="block text-xs font-bold text-slate-700 mb-1">Nom d'utilisateur *</label>
+          <input
+            type="text"
+            id="loginUsernameInput"
+            autocomplete="username"
+            required
+            placeholder="Ex: koffi.ddu, admin, superviseur..."
+            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
+
         <div>
-          <label for="lockedCodeInput" class="block text-xs font-bold text-slate-700 mb-1">Code d'accès (optionnel en démonstration)</label>
-          <input type="password" id="lockedCodeInput" placeholder="Ex: 1234" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+          <label for="loginPasswordInput" class="block text-xs font-bold text-slate-700 mb-1">Mot de passe *</label>
+          <div class="relative flex items-center">
+            <input
+              type="password"
+              id="loginPasswordInput"
+              autocomplete="current-password"
+              required
+              placeholder="Entrez votre mot de passe"
+              class="w-full px-3.5 py-2.5 pr-11 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="button"
+              onclick="toggleLoginPasswordVisibility()"
+              id="btnToggleLoginPwd"
+              class="absolute right-2.5 px-2 py-1 text-xs font-bold text-slate-500 hover:text-slate-800"
+              title="Afficher / Masquer le mot de passe"
+            >
+              👁️
+            </button>
+          </div>
         </div>
+
+        <div id="loginErrorBanner" class="hidden rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700"></div>
+
         <button
           type="submit"
-          class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow transition"
+          id="btnSubmitLogin"
+          class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow transition cursor-pointer"
         >
-          🔓 Se connecter à la session
+          🔓 Se connecter
         </button>
       </form>
+
+      <!-- Aide discrète dépliable pour afficher les identifiants de test -->
+      <div class="pt-3 border-t border-slate-200 text-center">
+        <button
+          type="button"
+          onclick="toggleDemoCredentialsHelper()"
+          class="text-xs font-semibold text-blue-700 hover:text-blue-900 underline"
+        >
+          Afficher les identifiants de démonstration
+        </button>
+        <div id="demoCredentialsHelperBox" class="hidden mt-3 text-left bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1.5 text-[11.5px] text-slate-700">
+          <div class="font-bold text-slate-900 pb-1 border-b border-slate-200">Comptes initiaux (Nom d'utilisateur / Mot de passe) :</div>
+          <div id="demoCredentialsList"></div>
+        </div>
+      </div>
     </section>
 
     <div id="workspaceContent" class="space-y-5">
+
+    <!-- CARTE MON PROFIL & MES RÔLES ATTRIBUÉS -->
+    <section id="myProfileRolesCard" class="card-surface p-4 bg-gradient-to-r from-slate-900 to-slate-800 text-white border-slate-700">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        <div class="space-y-1">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-blue-300">Mon Profil &amp; Mes Rôles Attribués</div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="profileCardFullName" class="text-base font-extrabold text-white"></span>
+            <span id="profileCardUsername" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-700 text-slate-200"></span>
+          </div>
+          <p id="profileCardPermissionsSummary" class="text-xs text-slate-300 m-0 pt-0.5"></p>
+        </div>
+        <div id="profileCardRolesBadges" class="flex flex-wrap items-center gap-1.5"></div>
+      </div>
+    </section>
+
     <!-- CENTRE D'ALERTES D'EXPIRATION < 72H -->
     <section id="alertCenterSection" class="hidden card-surface p-4 border-rose-300 bg-rose-50/90 badge-alert-pulse">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -396,42 +452,57 @@
 
   <!-- MODAL GESTION DES RÔLES & UTILISATEURS (RÉSERVÉ ADMINISTRATEUR & SUPERVISEUR) -->
   <div id="roleAdminModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'roleAdminModal')">
-    <div class="modal-panel max-w-3xl" onclick="event.stopPropagation()">
+    <div class="modal-panel max-w-4xl" onclick="event.stopPropagation()">
       <div class="px-5 py-4 border-b border-slate-200 bg-indigo-950 text-white flex items-center justify-between gap-3">
         <div>
-          <h3 class="text-base sm:text-lg font-extrabold m-0">👥 Gestion des Rôles &amp; Attribution des Profils</h3>
+          <h3 class="text-base sm:text-lg font-extrabold m-0">👥 Gestion des Utilisateurs, Mots de passe &amp; Attribution des Rôles</h3>
           <p class="text-xs text-indigo-200 m-0 mt-0.5">
-            Accès strictement réservé à l'Administrateur et au Superviseur. Les agents n'ont pas accès au changement de profil.
+            Réservé exclusivement à l'Administrateur et au Superviseur. Attribuez un ou plusieurs rôles et gérez les identifiants de chaque agent.
           </p>
         </div>
         <button type="button" onclick="closeModal('roleAdminModal')" class="px-2.5 py-1.5 rounded-lg bg-indigo-900 hover:bg-indigo-800 text-xs font-bold">✕</button>
       </div>
 
       <div class="p-5 overflow-y-auto space-y-5">
-        <!-- Ajouter un nouveau compte agent -->
-        <form onsubmit="addNewUserAccount(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
-          <div class="sm:col-span-5">
-            <label for="newAgentFullName" class="block text-xs font-bold text-slate-700 mb-1">Nom complet de l'agent *</label>
-            <input type="text" id="newAgentFullName" required placeholder="Ex: Yao Mensah" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm" />
+        <!-- Ajouter un nouveau compte agent avec identifiant, mot de passe et rôles multiples -->
+        <form onsubmit="addNewUserAccount(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <div class="text-xs font-extrabold uppercase tracking-wider text-indigo-950">Créer un nouveau compte agent</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div>
+              <label for="newAgentFullName" class="block text-xs font-bold text-slate-700 mb-1">Nom complet *</label>
+              <input type="text" id="newAgentFullName" required placeholder="Ex: Yao Mensah" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm" />
+            </div>
+            <div>
+              <label for="newAgentUsername" class="block text-xs font-bold text-slate-700 mb-1">Nom d'utilisateur (login) *</label>
+              <input type="text" id="newAgentUsername" required placeholder="Ex: yao.mensah" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-mono lowercase" />
+            </div>
+            <div>
+              <label for="newAgentPassword" class="block text-xs font-bold text-slate-700 mb-1">Mot de passe *</label>
+              <input type="text" id="newAgentPassword" required placeholder="Ex: geo2026" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-mono" />
+            </div>
           </div>
-          <div class="sm:col-span-5">
-            <label for="newAgentAssignedRole" class="block text-xs font-bold text-slate-700 mb-1">Rôle attribué *</label>
-            <select id="newAgentAssignedRole" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold"></select>
+
+          <div>
+            <div class="text-xs font-bold text-slate-700 mb-1.5">Rôles à attribuer à cet agent (1 ou plusieurs) * :</div>
+            <div id="newAgentRolesCheckboxes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"></div>
           </div>
-          <div class="sm:col-span-2">
-            <button type="submit" class="w-full py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow">
-              + Ajouter
+
+          <div class="flex justify-end">
+            <button type="submit" class="py-2 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow">
+              + Créer le compte &amp; attribuer les rôles
             </button>
           </div>
         </form>
 
-        <!-- Liste des comptes utilisateurs et attribution de rôles -->
+        <!-- Liste des comptes utilisateurs, édition des rôles multiples, mot de passe & statut actif -->
         <div class="overflow-x-auto border border-slate-200 rounded-xl">
-          <table class="w-full text-left border-collapse">
+          <table class="w-full text-left border-collapse min-w-[760px]">
             <thead>
               <tr class="bg-slate-100 text-[11px] uppercase text-slate-600 font-bold border-b border-slate-200">
-                <th class="py-2.5 px-3.5">Utilisateur / Agent</th>
-                <th class="py-2.5 px-3.5">Rôle Attribué</th>
+                <th class="py-2.5 px-3.5">Agent &amp; Identifiant</th>
+                <th class="py-2.5 px-3.5">Mot de passe</th>
+                <th class="py-2.5 px-3.5">Rôles Attribués (Multi-sélection)</th>
+                <th class="py-2.5 px-3.5">Statut</th>
                 <th class="py-2.5 px-3.5 text-right">Action</th>
               </tr>
             </thead>
@@ -908,57 +979,64 @@
     (function () {
       "use strict";
 
-      const STORAGE_KEY = "GEO_SUIVI_TRANSIT_DATA_V2";
+      const STORAGE_KEY = "GEO_SUIVI_TRANSIT_DATA_V3";
       const DDU_UNIT_PRICE = 10000; // 10,000 FCFA par DDU
       const DEFAULT_YEAR = 2026;
       const DEFAULT_RECIPIENT_EMAIL = "k@ste-geo.com";
 
       const ROLES = [
         {
-          id: "ADMINISTRATEUR",
+          id: "ADMIN",
+          shortLabel: "Administrateur",
           label: "Administrateur (Attribution des Rôles & Supervision)",
-          scope: "Gestion complète des comptes utilisateurs, attribution des rôles et supervision générale."
+          scope: "Gestion des comptes, mots de passe, attribution des rôles et supervision générale."
         },
         {
           id: "SUPERVISEUR",
+          shortLabel: "Superviseur",
           label: "Superviseur (Attribution des Rôles & Clôture Dossiers)",
           scope: "Attribution des rôles aux agents, validation complète, retour vide et clôture officielle des dossiers."
         },
         {
-          id: "AGENT_DDU_FACTURIER",
+          id: "AGENT_DDU",
+          shortLabel: "Agent DDU / Facturier",
           label: "Agent DDU / Facturier",
-          scope: "Gestion DDU, DFU, déclarations et définition du dernier répertoire pour la facturation DDU (10 000 FCFA/DDU)."
+          scope: "Gestion DDU, DFU et définition du dernier répertoire pour la facturation DDU (10 000 FCFA/DDU)."
         },
         {
           id: "AGENT_BAD",
+          shortLabel: "Agent BAD",
           label: "Agent BAD / Échange",
           scope: "Création des dossiers, gestion du Bon à Délivrer (BAD), BL, navire et alerte < 72h."
         },
         {
-          id: "AGENT_T1_BACT",
+          id: "AGENT_T1",
+          shortLabel: "Agent T1 / BACT",
           label: "Agent T1 / BACT",
           scope: "Gestion des régimes T1, BACT, déclarations transit et échéances T1 (< 72h)."
         },
         {
-          id: "AGENT_PORT_CFS",
+          id: "AGENT_PORT",
+          shortLabel: "Agent Port / CFS",
           label: "Agent Port / PIA / LCT / CFS",
           scope: "Suivi terminal PIA, LCT, opérations de dépotage CFS et manutention portuaire."
         },
         {
-          id: "AGENT_TRANSPORT_HINTERLAND",
+          id: "AGENT_TRANSPORT",
+          shortLabel: "Agent Transport / Hinterland",
           label: "Agent Transport / Hinterland",
           scope: "Modes Sur Camion / Dépotage, affectation camions, HINTERLAND et suivi retour vide."
         }
       ];
 
       const DEFAULT_USERS = [
-        { id: "usr_admin", name: "Admin Système GEO", roleId: "ADMINISTRATEUR" },
-        { id: "usr_sup", name: "Mme soumani Queen", roleId: "SUPERVISEUR" },
-        { id: "usr_ddu", name: "Kossi Mensah (Facturier)", roleId: "AGENT_DDU_FACTURIER" },
-        { id: "usr_bad", name: "Afiwa Lawson", roleId: "AGENT_BAD" },
-        { id: "usr_t1", name: "Koffi Tetteh", roleId: "AGENT_T1_BACT" },
-        { id: "usr_port", name: "Ama Akakpo", roleId: "AGENT_PORT_CFS" },
-        { id: "usr_trans", name: "Kodjo Agbeko", roleId: "AGENT_TRANSPORT_HINTERLAND" }
+        { id: "usr_admin", name: "Admin Système GEO", username: "admin", password: "123", roles: ["ADMIN"], active: true },
+        { id: "usr_sup", name: "Mme soumani Queen", username: "superviseur", password: "123", roles: ["SUPERVISEUR"], active: true },
+        { id: "usr_ddu", name: "Kossi Mensah", username: "koffi.ddu", password: "123", roles: ["AGENT_DDU"], active: true },
+        { id: "usr_bad", name: "Ama Lawson", username: "ama.bad", password: "123", roles: ["AGENT_BAD"], active: true },
+        { id: "usr_t1", name: "Yao Tetteh", username: "yao.t1", password: "123", roles: ["AGENT_T1"], active: true },
+        { id: "usr_port", name: "Akossiwa Akakpo", username: "akossiwa.port", password: "123", roles: ["AGENT_PORT"], active: true },
+        { id: "usr_trans", name: "Kodjo Mensah", username: "mensah.trans", password: "123", roles: ["AGENT_TRANSPORT"], active: true }
       ];
 
       const WORKFLOW_STEPS = [
@@ -979,11 +1057,9 @@
 
       function createInitialState() {
         return {
-          isLoggedIn: true,
-          activeUserId: "usr_sup",
-          activeRoleId: "SUPERVISEUR",
-          activeOperatorName: "Mme soumani Queen",
-          users: DEFAULT_USERS.map((u) => ({ ...u })),
+          isLoggedIn: false,
+          activeUserId: null,
+          users: DEFAULT_USERS.map((u) => ({ ...u, roles: [...u.roles] })),
           lastSeqNumber: 4,
           invoiceCounter: 1,
           invoices: [],
@@ -1003,7 +1079,7 @@
               transportMode: "SUR_CAMION",
               declarationNum: "DEC-2026-1041",
               corridorNote: "Corridor Lomé — Cinkassé — Ouagadougou",
-              badExpiry: hoursFromNowISO(38), // < 72h (Alerte active)
+              badExpiry: hoursFromNowISO(38),
               t1Expiry: hoursFromNowISO(120),
               steps: {
                 BAD: true,
@@ -1044,7 +1120,7 @@
               declarationNum: "DEC-2026-1042",
               corridorNote: "Dépotage CFS Lomé",
               badExpiry: hoursFromNowISO(140),
-              t1Expiry: hoursFromNowISO(54), // < 72h (Alerte active)
+              t1Expiry: hoursFromNowISO(54),
               steps: {
                 BAD: true,
                 DDU: true,
@@ -1124,7 +1200,7 @@
               transportMode: "SUR_CAMION",
               declarationNum: "DEC-2026-1044",
               corridorNote: "En cours d'enlèvement",
-              badExpiry: hoursFromNowISO(-4), // Expiré (< 72h)
+              badExpiry: hoursFromNowISO(-4),
               t1Expiry: hoursFromNowISO(96),
               steps: {
                 BAD: true,
@@ -1156,19 +1232,49 @@
       let workingContainers = [];
       let workingTrucks = [];
 
+      function normalizeLegacyRoleId(roleId) {
+        if (roleId === "ADMINISTRATEUR") return "ADMIN";
+        if (roleId === "AGENT_DDU_FACTURIER") return "AGENT_DDU";
+        if (roleId === "AGENT_T1_BACT") return "AGENT_T1";
+        if (roleId === "AGENT_PORT_CFS") return "AGENT_PORT";
+        if (roleId === "AGENT_TRANSPORT_HINTERLAND") return "AGENT_TRANSPORT";
+        return ROLES.some((r) => r.id === roleId) ? roleId : "AGENT_BAD";
+      }
+
+      function migrateUsersArray(rawUsers) {
+        if (!Array.isArray(rawUsers) || !rawUsers.length) {
+          return DEFAULT_USERS.map((u) => ({ ...u, roles: [...u.roles] }));
+        }
+        return rawUsers.map((u, idx) => {
+          const fallback = DEFAULT_USERS[idx] || { username: `agent${idx + 1}`, password: "123", roles: ["AGENT_BAD"] };
+          const rawRoles = Array.isArray(u.roles) && u.roles.length
+            ? u.roles
+            : u.roleId
+            ? [u.roleId]
+            : fallback.roles;
+          const cleanRoles = Array.from(new Set(rawRoles.map(normalizeLegacyRoleId)));
+          return {
+            id: u.id || `usr_${idx + 1}`,
+            name: u.name || fallback.name || `Agent ${idx + 1}`,
+            username: String(u.username || fallback.username).trim().toLowerCase(),
+            password: String(u.password || fallback.password || "123"),
+            roles: cleanRoles.length ? cleanRoles : ["AGENT_BAD"],
+            active: typeof u.active === "boolean" ? u.active : true
+          };
+        });
+      }
+
       function loadState() {
         try {
-          const raw = localStorage.getItem(STORAGE_KEY);
+          const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("GEO_SUIVI_TRANSIT_DATA_V2");
           if (!raw) return createInitialState();
           const parsed = JSON.parse(raw);
           const def = createInitialState();
-          const users = Array.isArray(parsed.users) && parsed.users.length ? parsed.users : def.users;
-          const activeUser = users.find((u) => u.id === parsed.activeUserId) || users[1] || users[0];
+          const users = migrateUsersArray(parsed.users);
+          const activeUser = parsed.isLoggedIn ? users.find((u) => u.id === parsed.activeUserId && u.active) : null;
           return {
-            isLoggedIn: typeof parsed.isLoggedIn === "boolean" ? parsed.isLoggedIn : true,
-            activeUserId: activeUser.id,
-            activeRoleId: parsed.activeRoleId || activeUser.roleId,
-            activeOperatorName: parsed.activeOperatorName || activeUser.name,
+            isLoggedIn: !!activeUser,
+            activeUserId: activeUser ? activeUser.id : null,
             users,
             lastSeqNumber: Number(parsed.lastSeqNumber) || def.dossiers.length,
             invoiceCounter: Number(parsed.invoiceCounter) || 1,
@@ -1216,36 +1322,69 @@
         return ROLES.find((r) => r.id === roleId) || ROLES[0];
       }
 
-      function isAdminOrSupervisor(roleId = appState.activeRoleId) {
-        return roleId === "ADMINISTRATEUR" || roleId === "SUPERVISEUR";
+      function getCurrentUser() {
+        if (!appState.isLoggedIn || !appState.activeUserId) return null;
+        return appState.users.find((u) => u.id === appState.activeUserId && u.active) || null;
       }
 
+      function getUserRoles(user = getCurrentUser()) {
+        if (!user || !Array.isArray(user.roles)) return [];
+        return user.roles;
+      }
+
+      function isAdminOrSupervisor(user = getCurrentUser()) {
+        const roles = getUserRoles(user);
+        return roles.includes("ADMIN") || roles.includes("SUPERVISEUR");
+      }
+
+      /**
+       * Combine automatiquement les permissions de TOUS les rôles attribués à l'utilisateur connecté
+       */
       function getPermissions() {
-        const role = appState.activeRoleId;
-        const isHighPrivilege = isAdminOrSupervisor(role);
-        const isFacturier = role === "AGENT_DDU_FACTURIER";
+        const user = getCurrentUser();
+        const roles = getUserRoles(user);
+        const isHighPrivilege = isAdminOrSupervisor(user);
+        const hasFacturier = roles.includes("AGENT_DDU");
+        const hasBad = roles.includes("AGENT_BAD");
+        const hasT1 = roles.includes("AGENT_T1");
+        const hasPort = roles.includes("AGENT_PORT");
+        const hasTransport = roles.includes("AGENT_TRANSPORT");
+
+        const allowedStepsSet = new Set();
+        if (isHighPrivilege) {
+          WORKFLOW_STEPS.forEach((s) => allowedStepsSet.add(s.key));
+        } else {
+          if (hasBad) allowedStepsSet.add("BAD");
+          if (hasFacturier) {
+            allowedStepsSet.add("DDU");
+            allowedStepsSet.add("DFU");
+          }
+          if (hasT1) {
+            allowedStepsSet.add("T1");
+            allowedStepsSet.add("BACT");
+          }
+          if (hasPort) {
+            allowedStepsSet.add("PIA");
+            allowedStepsSet.add("LCT");
+            allowedStepsSet.add("CFS");
+          }
+          if (hasTransport) {
+            allowedStepsSet.add("HINTERLAND");
+          }
+        }
+
         return {
           isHighPrivilege,
           canManageRoles: isHighPrivilege,
-          canCreate: isHighPrivilege || role === "AGENT_BAD" || isFacturier,
-          canEditGeneral: isHighPrivilege || role === "AGENT_BAD" || isFacturier,
-          canEditBad: isHighPrivilege || role === "AGENT_BAD",
-          canEditCustoms: isHighPrivilege || isFacturier || role === "AGENT_T1_BACT",
-          canEditExploitation: isHighPrivilege || role === "AGENT_TRANSPORT_HINTERLAND" || role === "AGENT_PORT_CFS",
-          canCloseDossier: role === "SUPERVISEUR" || role === "ADMINISTRATEUR",
-          canAccessDduBilling: isFacturier || isHighPrivilege,
-          canDefineInvoiceCutoff: isFacturier || isHighPrivilege,
-          allowedSteps: isHighPrivilege
-            ? WORKFLOW_STEPS.map((s) => s.key)
-            : isFacturier
-            ? ["DDU", "DFU"]
-            : role === "AGENT_BAD"
-            ? ["BAD"]
-            : role === "AGENT_T1_BACT"
-            ? ["T1", "BACT"]
-            : role === "AGENT_PORT_CFS"
-            ? ["PIA", "LCT", "CFS"]
-            : ["HINTERLAND"]
+          canCreate: isHighPrivilege || hasBad || hasFacturier,
+          canEditGeneral: isHighPrivilege || hasBad || hasFacturier,
+          canEditBad: isHighPrivilege || hasBad,
+          canEditCustoms: isHighPrivilege || hasFacturier || hasT1,
+          canEditExploitation: isHighPrivilege || hasTransport || hasPort,
+          canCloseDossier: isHighPrivilege,
+          canAccessDduBilling: hasFacturier || isHighPrivilege,
+          canDefineInvoiceCutoff: hasFacturier || isHighPrivilege,
+          allowedSteps: Array.from(allowedStepsSet)
         };
       }
 
@@ -1291,43 +1430,57 @@
         return alerts;
       }
 
+      function renderDemoCredentialsHelper() {
+        const listEl = document.getElementById("demoCredentialsList");
+        if (!listEl) return;
+        listEl.innerHTML = appState.users
+          .map((u) => {
+            const rolesLabels = u.roles.map((rId) => getRoleInfo(rId).shortLabel).join(" + ");
+            return `
+              <div class="flex items-center justify-between gap-2 py-0.5">
+                <span><strong class="font-mono text-slate-900">${escapeHtml(u.username)}</strong> / <span class="font-mono text-blue-700">${escapeHtml(u.password)}</span></span>
+                <span class="text-slate-500 text-right">${escapeHtml(rolesLabels)}</span>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      window.toggleDemoCredentialsHelper = function () {
+        const box = document.getElementById("demoCredentialsHelperBox");
+        if (!box) return;
+        renderDemoCredentialsHelper();
+        box.classList.toggle("hidden");
+      };
+
+      window.toggleLoginPasswordVisibility = function () {
+        const pwdInput = document.getElementById("loginPasswordInput");
+        if (!pwdInput) return;
+        pwdInput.type = pwdInput.type === "password" ? "text" : "password";
+      };
+
       function renderRoleControls() {
-        const quickSwitchWrapper = document.getElementById("adminQuickSwitchWrapper");
-        const select = document.getElementById("roleSwitcherSelect");
-        const staticPill = document.getElementById("headerStaticRolePill");
+        const headerRolesContainer = document.getElementById("headerAssignedRolesContainer");
         const btnManageRoles = document.getElementById("btnManageRoles");
         const btnOpenDduBilling = document.getElementById("btnOpenDduBilling");
-        const lockedUserSelect = document.getElementById("lockedUserAccountSelect");
         const logoutBtn = document.getElementById("btnLogout");
         const loggedOutScreen = document.getElementById("loggedOutScreen");
         const workspaceContent = document.getElementById("workspaceContent");
 
-        const roleOptionsHtml = ROLES.map(
-          (r) => `<option value="${r.id}" ${r.id === appState.activeRoleId ? "selected" : ""}>${escapeHtml(r.label)}</option>`
-        ).join("");
-        select.innerHTML = roleOptionsHtml;
+        const currentUser = getCurrentUser();
 
-        if (lockedUserSelect) {
-          lockedUserSelect.innerHTML = appState.users
-            .map((u) => {
-              const rInfo = getRoleInfo(u.roleId);
-              return `<option value="${escapeHtml(u.id)}" ${u.id === appState.activeUserId ? "selected" : ""}>${escapeHtml(u.name)} — [${escapeHtml(rInfo.label)}]</option>`;
-            })
-            .join("");
-        }
-
-        if (!appState.isLoggedIn) {
-          quickSwitchWrapper.classList.add("hidden");
-          quickSwitchWrapper.classList.remove("flex");
-          staticPill.textContent = "Session déconnectée";
+        if (!currentUser) {
+          headerRolesContainer.innerHTML = `<span class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300">Session déconnectée</span>`;
           btnManageRoles.classList.add("hidden");
           btnOpenDduBilling.classList.add("hidden");
           if (logoutBtn) logoutBtn.classList.add("hidden");
           document.getElementById("activeUserDisplay").textContent = "Déconnecté";
-          document.getElementById("activeRoleBadge").textContent = "Aucune session active";
-          document.getElementById("activeRoleScopeNote").textContent = "Veuillez sélectionner votre compte utilisateur pour vous connecter.";
+          document.getElementById("activeUsernameDisplay").textContent = "";
+          document.getElementById("activeRoleBadge").textContent = "Authentification requise";
+          document.getElementById("activeRoleScopeNote").textContent = "Connectez-vous avec votre nom d'utilisateur et votre mot de passe.";
           if (loggedOutScreen) loggedOutScreen.classList.remove("hidden");
           if (workspaceContent) workspaceContent.classList.add("hidden");
+          renderDemoCredentialsHelper();
           return;
         }
 
@@ -1336,26 +1489,38 @@
         if (workspaceContent) workspaceContent.classList.remove("hidden");
 
         const perms = getPermissions();
-        const roleInfo = getRoleInfo(appState.activeRoleId);
+        const userRoleInfos = currentUser.roles.map((rId) => getRoleInfo(rId));
 
-        // STRICT : Seuls Administrateur et Superviseur voient le sélecteur et le bouton Gestion des Rôles
-        if (perms.canManageRoles) {
-          quickSwitchWrapper.classList.remove("hidden");
-          quickSwitchWrapper.classList.add("flex");
-          btnManageRoles.classList.remove("hidden");
-        } else {
-          quickSwitchWrapper.classList.add("hidden");
-          quickSwitchWrapper.classList.remove("flex");
-          btnManageRoles.classList.add("hidden");
-        }
+        // STRICT : Seuls Administrateur et Superviseur voient le bouton Gestion Utilisateurs & Rôles
+        btnManageRoles.classList.toggle("hidden", !perms.canManageRoles);
 
         // Facturation DDU accessible au Facturier (Agent DDU) + Superviseur/Administrateur
         btnOpenDduBilling.classList.toggle("hidden", !perms.canAccessDduBilling);
 
-        staticPill.textContent = `Profil : ${roleInfo.label}`;
-        document.getElementById("activeUserDisplay").textContent = appState.activeOperatorName;
-        document.getElementById("activeRoleBadge").textContent = roleInfo.label;
-        document.getElementById("activeRoleScopeNote").textContent = roleInfo.scope;
+        // Affichage des rôles attribués dans l'en-tête
+        headerRolesContainer.innerHTML = userRoleInfos
+          .map(
+            (r) => `<span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-blue-500/40 text-xs font-bold text-blue-200">🏷️ ${escapeHtml(r.shortLabel)}</span>`
+          )
+          .join("");
+
+        const combinedLabels = userRoleInfos.map((r) => r.shortLabel).join(" • ");
+        const combinedScopes = userRoleInfos.map((r) => r.scope).join(" | ");
+
+        document.getElementById("activeUserDisplay").textContent = currentUser.name;
+        document.getElementById("activeUsernameDisplay").textContent = `(@${currentUser.username})`;
+        document.getElementById("activeRoleBadge").textContent = combinedLabels;
+        document.getElementById("activeRoleScopeNote").textContent = combinedScopes;
+
+        // Mise à jour de la carte "Mon Profil & Mes Rôles Attribués"
+        document.getElementById("profileCardFullName").textContent = currentUser.name;
+        document.getElementById("profileCardUsername").textContent = `@${currentUser.username}`;
+        document.getElementById("profileCardPermissionsSummary").textContent = combinedScopes;
+        document.getElementById("profileCardRolesBadges").innerHTML = userRoleInfos
+          .map(
+            (r) => `<span class="px-3 py-1.5 rounded-xl bg-blue-600/30 border border-blue-400/50 text-xs font-extrabold text-blue-100">✓ ${escapeHtml(r.label)}</span>`
+          )
+          .join("");
 
         const createBtn = document.getElementById("btnCreateDossier");
         createBtn.disabled = !perms.canCreate;
@@ -1363,38 +1528,55 @@
         createBtn.classList.toggle("cursor-not-allowed", !perms.canCreate);
       }
 
-      window.switchActiveRole = function (roleId) {
-        if (!isAdminOrSupervisor(appState.activeRoleId)) {
-          showToast("Action refusée : seuls l'Administrateur et le Superviseur peuvent changer de rôle.");
+      window.submitUsernamePasswordLogin = function (event) {
+        event.preventDefault();
+        const usernameVal = (document.getElementById("loginUsernameInput")?.value || "").trim().toLowerCase();
+        const passwordVal = document.getElementById("loginPasswordInput")?.value || "";
+        const errorBox = document.getElementById("loginErrorBanner");
+
+        if (!usernameVal || !passwordVal) {
+          errorBox.textContent = "Veuillez saisir votre nom d'utilisateur et votre mot de passe.";
+          errorBox.classList.remove("hidden");
           return;
         }
-        const info = getRoleInfo(roleId);
-        appState.activeRoleId = info.id;
+
+        const matchedUser = appState.users.find((u) => u.username.toLowerCase() === usernameVal);
+        if (!matchedUser) {
+          errorBox.textContent = "Nom d'utilisateur inconnu. Vérifiez votre identifiant auprès de l'Administrateur ou du Superviseur.";
+          errorBox.classList.remove("hidden");
+          return;
+        }
+
+        if (matchedUser.password !== passwordVal) {
+          errorBox.textContent = "Mot de passe incorrect.";
+          errorBox.classList.remove("hidden");
+          return;
+        }
+
+        if (!matchedUser.active) {
+          errorBox.textContent = "Ce compte agent est désactivé. Contactez l'Administrateur ou le Superviseur.";
+          errorBox.classList.remove("hidden");
+          return;
+        }
+
+        errorBox.classList.add("hidden");
+        document.getElementById("loginPasswordInput").value = "";
+
+        appState.isLoggedIn = true;
+        appState.activeUserId = matchedUser.id;
         saveState();
         renderAll();
-        showToast("Simulation de rôle activée : " + info.label);
+
+        const rolesNames = matchedUser.roles.map((rId) => getRoleInfo(rId).shortLabel).join(" + ");
+        showToast(`Bienvenue ${matchedUser.name} — Rôle(s) : ${rolesNames}`);
       };
 
       window.logoutSession = function () {
         appState.isLoggedIn = false;
+        appState.activeUserId = null;
         saveState();
         renderAll();
         showToast("Session déconnectée.");
-      };
-
-      window.submitLockedSessionLogin = function (event) {
-        event.preventDefault();
-        const userId = document.getElementById("lockedUserAccountSelect").value;
-        const userObj = appState.users.find((u) => u.id === userId) || appState.users[0];
-        if (!userObj) return;
-        const info = getRoleInfo(userObj.roleId);
-        appState.isLoggedIn = true;
-        appState.activeUserId = userObj.id;
-        appState.activeRoleId = userObj.roleId;
-        appState.activeOperatorName = userObj.name;
-        saveState();
-        renderAll();
-        showToast(`Connecté : ${userObj.name} (${info.label})`);
       };
 
       window.openRoleAdminModal = function () {
@@ -1402,8 +1584,14 @@
           showToast("Accès réservé à l'Administrateur et au Superviseur.");
           return;
         }
-        document.getElementById("newAgentAssignedRole").innerHTML = ROLES.map(
-          (r) => `<option value="${r.id}">${escapeHtml(r.label)}</option>`
+        const checkboxesContainer = document.getElementById("newAgentRolesCheckboxes");
+        checkboxesContainer.innerHTML = ROLES.map(
+          (r) => `
+            <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-800 cursor-pointer hover:bg-indigo-50/50">
+              <input type="checkbox" name="newAgentRoleCb" value="${r.id}" class="w-4 h-4 rounded border-slate-400 text-indigo-600" />
+              <span>${escapeHtml(r.shortLabel)}</span>
+            </label>
+          `
         ).join("");
         renderUsersRoleTable();
         document.getElementById("roleAdminModal").classList.add("open");
@@ -1413,25 +1601,58 @@
         const tbody = document.getElementById("usersRoleTableBody");
         tbody.innerHTML = appState.users
           .map((u) => {
-            const options = ROLES.map(
-              (r) => `<option value="${r.id}" ${r.id === u.roleId ? "selected" : ""}>${escapeHtml(r.label)}</option>`
-            ).join("");
             const isCurrent = u.id === appState.activeUserId;
+            const roleCheckboxesHtml = ROLES.map((r) => {
+              const isChecked = u.roles.includes(r.id);
+              return `
+                <label class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border ${
+                  isChecked ? "bg-indigo-50 border-indigo-300 text-indigo-950 font-bold" : "bg-white border-slate-200 text-slate-600"
+                } text-[11px] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    ${isChecked ? "checked" : ""}
+                    onchange="toggleRoleForUser('${escapeHtml(u.id)}', '${r.id}', this.checked)"
+                    class="w-3.5 h-3.5 rounded text-indigo-600"
+                  />
+                  <span>${escapeHtml(r.shortLabel)}</span>
+                </label>
+              `;
+            }).join("");
+
             return `
-              <tr>
-                <td class="py-2.5 px-3.5 font-bold text-slate-900">
-                  ${escapeHtml(u.name)}
-                  ${isCurrent ? `<span class="ml-1.5 text-[10.5px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Session active</span>` : ""}
+              <tr class="${u.active ? "" : "bg-slate-100/80 opacity-75"}">
+                <td class="py-2.5 px-3.5 align-top">
+                  <div class="font-bold text-slate-900">
+                    ${escapeHtml(u.name)}
+                    ${isCurrent ? `<span class="ml-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Vous</span>` : ""}
+                  </div>
+                  <div class="text-xs font-mono text-slate-500">@${escapeHtml(u.username)}</div>
                 </td>
-                <td class="py-2.5 px-3.5">
-                  <select
-                    onchange="assignRoleToUser('${escapeHtml(u.id)}', this.value)"
-                    class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold"
+                <td class="py-2.5 px-3.5 align-top">
+                  <input
+                    type="text"
+                    value="${escapeHtml(u.password)}"
+                    onchange="updateUserPassword('${escapeHtml(u.id)}', this.value)"
+                    class="w-28 px-2 py-1 rounded border border-slate-300 bg-white text-xs font-mono"
+                    title="Modifier le mot de passe"
+                  />
+                </td>
+                <td class="py-2.5 px-3.5 align-top">
+                  <div class="flex flex-wrap gap-1.5">${roleCheckboxesHtml}</div>
+                </td>
+                <td class="py-2.5 px-3.5 align-top">
+                  <button
+                    type="button"
+                    ${isCurrent ? "disabled" : ""}
+                    onclick="toggleUserActiveStatus('${escapeHtml(u.id)}')"
+                    class="px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                      u.active ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700"
+                    } ${isCurrent ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}"
                   >
-                    ${options}
-                  </select>
+                    ${u.active ? "Actif" : "Désactivé"}
+                  </button>
                 </td>
-                <td class="py-2.5 px-3.5 text-right">
+                <td class="py-2.5 px-3.5 align-top text-right">
                   ${
                     appState.users.length > 1 && !isCurrent
                       ? `<button type="button" onclick="removeUserAccount('${escapeHtml(u.id)}')" class="px-2.5 py-1 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold">Supprimer</button>`
@@ -1444,89 +1665,116 @@
           .join("");
       }
 
-      window.assignRoleToUser = function (userId, newRoleId) {
+      window.toggleRoleForUser = function (userId, roleId, isChecked) {
         if (!getPermissions().canManageRoles) return;
         const user = appState.users.find((u) => u.id === userId);
         if (!user) return;
-        user.roleId = newRoleId;
-        if (appState.activeUserId === user.id) {
-          appState.activeRoleId = newRoleId;
+        if (isChecked) {
+          if (!user.roles.includes(roleId)) {
+            user.roles.push(roleId);
+          }
+        } else {
+          if (user.roles.length <= 1) {
+            showToast("Un utilisateur doit conserver au moins un rôle attribué.");
+            renderUsersRoleTable();
+            return;
+          }
+          user.roles = user.roles.filter((r) => r !== roleId);
         }
         saveState();
         renderUsersRoleTable();
         renderAll();
-        showToast(`Rôle attribué à ${user.name} : ${getRoleInfo(newRoleId).label}`);
+        showToast(`Rôles mis à jour pour ${user.name}.`);
+      };
+
+      window.updateUserPassword = function (userId, newPassword) {
+        if (!getPermissions().canManageRoles) return;
+        const cleanPwd = String(newPassword || "").trim();
+        if (!cleanPwd) {
+          showToast("Le mot de passe ne peut pas être vide.");
+          renderUsersRoleTable();
+          return;
+        }
+        const user = appState.users.find((u) => u.id === userId);
+        if (!user) return;
+        user.password = cleanPwd;
+        saveState();
+        showToast(`Mot de passe mis à jour pour ${user.name} (@${user.username}).`);
+      };
+
+      window.toggleUserActiveStatus = function (userId) {
+        if (!getPermissions().canManageRoles || userId === appState.activeUserId) return;
+        const user = appState.users.find((u) => u.id === userId);
+        if (!user) return;
+        user.active = !user.active;
+        saveState();
+        renderUsersRoleTable();
+        showToast(`Compte ${user.name} ${user.active ? "activé" : "désactivé"}.`);
       };
 
       window.addNewUserAccount = function (event) {
         event.preventDefault();
         if (!getPermissions().canManageRoles) return;
         const nameInput = document.getElementById("newAgentFullName");
-        const roleSelect = document.getElementById("newAgentAssignedRole");
+        const usernameInput = document.getElementById("newAgentUsername");
+        const passwordInput = document.getElementById("newAgentPassword");
+
         const name = nameInput.value.trim();
-        if (!name) return;
+        const username = usernameInput.value.trim().toLowerCase().replace(/\s+/g, ".");
+        const password = passwordInput.value.trim();
+
+        const selectedRoles = Array.from(
+          document.querySelectorAll("input[name='newAgentRoleCb']:checked")
+        ).map((cb) => cb.value);
+
+        if (!name || !username || !password) {
+          showToast("Veuillez remplir le nom, l'identifiant et le mot de passe.");
+          return;
+        }
+        if (!selectedRoles.length) {
+          showToast("Veuillez attribuer au moins un rôle à ce nouvel agent.");
+          return;
+        }
+        if (appState.users.some((u) => u.username.toLowerCase() === username)) {
+          showToast("Ce nom d'utilisateur existe déjà. Choisissez un autre identifiant.");
+          return;
+        }
+
         appState.users.push({
           id: "usr_" + Date.now(),
           name,
-          roleId: roleSelect.value
+          username,
+          password,
+          roles: selectedRoles,
+          active: true
         });
+
         nameInput.value = "";
+        usernameInput.value = "";
+        passwordInput.value = "";
+        document.querySelectorAll("input[name='newAgentRoleCb']").forEach((cb) => (cb.checked = false));
+
         saveState();
         renderUsersRoleTable();
-        showToast(`Compte ajouté : ${name}`);
+        showToast(`Compte créé : ${name} (@${username})`);
       };
 
       window.removeUserAccount = function (userId) {
-        if (!getPermissions().canManageRoles) return;
+        if (!getPermissions().canManageRoles || userId === appState.activeUserId) return;
         appState.users = appState.users.filter((u) => u.id !== userId);
         saveState();
         renderUsersRoleTable();
         showToast("Compte supprimé.");
       };
 
-      window.logoutSession = function () {
-        appState.isLoggedIn = false;
-        saveState();
-        renderAll();
-        showToast("Vous êtes maintenant déconnecté. Choisissez un rôle pour vous reconnecter.");
-      };
-
-      window.submitLockedSessionLogin = function (event) {
-        event.preventDefault();
-        const roleId = document.getElementById("lockedRoleSelect").value || ROLES[0].id;
-        const opName = document.getElementById("lockedAgentName").value.trim();
-        const info = getRoleInfo(roleId);
-        appState.isLoggedIn = true;
-        appState.activeRoleId = info.id;
-        appState.activeOperatorName = opName || info.userName;
-        saveState();
-        renderAll();
-        showToast("Session ouverte : " + appState.activeOperatorName + " (" + info.label + ")");
-      };
-
-      window.openLoginModal = function () {
-        document.getElementById("loginRoleSelect").value = appState.activeRoleId;
-        document.getElementById("loginAgentName").value = appState.activeOperatorName || "";
-        document.getElementById("loginCodeInput").value = "";
-        document.getElementById("loginModal").classList.add("open");
-      };
-
-      window.submitLoginModal = function (event) {
-        event.preventDefault();
-        const roleId = document.getElementById("loginRoleSelect").value;
-        const opName = document.getElementById("loginAgentName").value.trim();
-        const info = getRoleInfo(roleId);
-        appState.isLoggedIn = true;
-        appState.activeRoleId = info.id;
-        appState.activeOperatorName = opName || info.userName;
-        saveState();
-        closeModal("loginModal");
-        renderAll();
-        showToast("Profil connecté : " + appState.activeOperatorName);
-      };
-
       window.resetDemoData = function () {
+        const currentUserId = appState.activeUserId;
+        const wasLoggedIn = appState.isLoggedIn;
         appState = createInitialState();
+        if (wasLoggedIn && currentUserId && appState.users.some((u) => u.id === currentUserId)) {
+          appState.isLoggedIn = true;
+          appState.activeUserId = currentUserId;
+        }
         filterAlertsOnly = false;
         saveState();
         renderAll();
@@ -1535,140 +1783,149 @@
 
       function renderAlertCenter() {
         const section = document.getElementById("alertCenterSection");
-        const itemsContainer = document.getElementById("alertCenterItems");
-        const filterBtn = document.getElementById("btnFilterAlertsOnly");
+        const itemsEl = document.getElementById("alertCenterItems");
+        const btnFilter = document.getElementById("btnFilterAlertsOnly");
+        if (!section || !itemsEl) return;
 
-        const alertEntries = [];
+        const alertsList = [];
         appState.dossiers.forEach((d) => {
           const dAlerts = evaluateDossierAlerts(d);
           dAlerts.forEach((a) => {
-            alertEntries.push({ dossier: d, alert: a });
+            alertsList.push({
+              repertoire: d.repertoire,
+              client: d.client,
+              bl: d.bl,
+              text: a.text,
+              expired: a.expired
+            });
           });
         });
 
-        if (!alertEntries.length) {
+        if (!alertsList.length) {
           section.classList.add("hidden");
           filterAlertsOnly = false;
           return;
         }
 
         section.classList.remove("hidden");
-        itemsContainer.innerHTML = alertEntries
+        itemsEl.innerHTML = alertsList
           .map(
-            (entry) => `
-          <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 border border-rose-200 rounded-lg px-3 py-1.5">
-            <span>
-              <strong>${escapeHtml(entry.dossier.repertoire)}</strong> — ${escapeHtml(entry.dossier.client)} (BL ${escapeHtml(entry.dossier.bl)}) :
-              <strong class="text-rose-700">${escapeHtml(entry.alert.text)}</strong>
-            </span>
-            <button
-              type="button"
-              onclick="openDossierModal('${entry.dossier.id}')"
-              class="text-xs font-bold text-rose-700 underline hover:text-rose-900"
-            >
-              Ouvrir le dossier →
-            </button>
-          </div>
-        `
+            (item) => `
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="font-extrabold text-rose-950">${escapeHtml(item.repertoire)}</span>
+                <span class="text-rose-800">(${escapeHtml(item.client)} — BL ${escapeHtml(item.bl)}) :</span>
+                <span class="px-2 py-0.5 rounded bg-rose-600 text-white text-[11px] font-bold">${escapeHtml(item.text)}</span>
+              </div>
+            `
           )
           .join("");
 
-        filterBtn.textContent = filterAlertsOnly ? "Afficher tous les dossiers" : "Filtrer dossiers en alerte";
+        if (btnFilter) {
+          btnFilter.textContent = filterAlertsOnly
+            ? "Afficher tous les dossiers"
+            : `Filtrer dossiers en alerte (${alertsList.length})`;
+        }
       }
 
       window.toggleAlertsFilter = function () {
         filterAlertsOnly = !filterAlertsOnly;
-        renderAlertCenter();
         renderDossiersList();
+        renderAlertCenter();
       };
 
       function renderKpis() {
+        const grid = document.getElementById("kpiGrid");
+        if (!grid) return;
+
         const total = appState.dossiers.length;
         const openCount = appState.dossiers.filter((d) => !d.closed).length;
-        const closedCount = appState.dossiers.filter((d) => d.closed).length;
         const alertCount = appState.dossiers.filter((d) => evaluateDossierAlerts(d).length > 0).length;
-        const dduCount = appState.dossiers.filter((d) => !!(d.steps && d.steps.DDU)).length;
+        const emptyWaitCount = appState.dossiers.filter(
+          (d) => d.transportMode === "SUR_CAMION" && d.emptyReturn && d.emptyReturn.status === "EN_ATTENTE"
+        ).length;
+        const unbilledDduCount = appState.dossiers.filter(
+          (d) => d.steps && d.steps.DDU && !d.billedInvoiceNumber
+        ).length;
 
-        const kpis = [
-          { title: "Total Dossiers", value: total, sub: `${openCount} actifs • ${closedCount} clôturés`, tone: "text-slate-900" },
-          { title: "Alertes < 72h", value: alertCount, sub: "BAD & T1 critiques", tone: alertCount > 0 ? "text-rose-600" : "text-emerald-600" },
-          { title: "Dossiers DDU", value: dduCount, sub: `${(dduCount * DDU_UNIT_PRICE).toLocaleString("fr-FR")} FCFA brut`, tone: "text-blue-700" },
-          { title: "Retour Vide Attente", value: appState.dossiers.filter((d) => !d.closed && d.transportMode === "SUR_CAMION" && d.emptyReturn?.status === "EN_ATTENTE").length, sub: "Mode Sur Camion", tone: "text-amber-600" },
-          { title: "Factures Émises", value: appState.invoices.length, sub: `Prochaine : GE${String(appState.invoiceCounter).padStart(3, "0")}/FA/${DEFAULT_YEAR}`, tone: "text-emerald-700" }
+        const cards = [
+          { label: "Total Dossiers", value: total, sub: "Répertoires GEO...", accent: "border-slate-300 text-slate-900" },
+          { label: "En cours (Ouverts)", value: openCount, sub: "Suivi actif", accent: "border-blue-300 text-blue-900" },
+          { label: "Alertes < 72h", value: alertCount, sub: "BAD / T1 critiques", accent: "border-rose-300 text-rose-700" },
+          { label: "Retour Vide Attente", value: emptyWaitCount, sub: "Mode Sur Camion", accent: "border-amber-300 text-amber-800" },
+          {
+            label: "DDU à Facturer",
+            value: unbilledDduCount,
+            sub: `${(unbilledDduCount * DDU_UNIT_PRICE).toLocaleString("fr-FR")} FCFA`,
+            accent: "border-emerald-300 text-emerald-800"
+          }
         ];
 
-        document.getElementById("kpiGrid").innerHTML = kpis
+        grid.innerHTML = cards
           .map(
-            (k) => `
-          <div class="card-surface p-3.5 sm:p-4">
-            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">${escapeHtml(k.title)}</div>
-            <div class="text-2xl font-extrabold mt-1 ${k.tone}">${escapeHtml(k.value)}</div>
-            <div class="text-xs text-slate-500 mt-0.5">${escapeHtml(k.sub)}</div>
-          </div>
-        `
+            (c) => `
+              <div class="card-surface p-3.5 sm:p-4 border-l-4 ${c.accent}">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">${escapeHtml(c.label)}</div>
+                <div class="text-xl sm:text-2xl font-extrabold mt-1">${escapeHtml(c.value)}</div>
+                <div class="text-[11.5px] text-slate-500 mt-0.5">${escapeHtml(c.sub)}</div>
+              </div>
+            `
           )
           .join("");
       }
 
-      window.clearAllFilters = function () {
-        document.getElementById("searchInput").value = "";
-        document.getElementById("transportModeFilter").value = "TOUS";
-        document.getElementById("regimeFilter").value = "TOUS";
-        document.getElementById("statusFilter").value = "TOUS";
-        filterAlertsOnly = false;
-        renderAlertCenter();
-        renderDossiersList();
-      };
+      function renderDossiersList() {
+        const tbody = document.getElementById("dossiersTableBody");
+        const countBadge = document.getElementById("dossiersCountBadge");
+        if (!tbody) return;
 
-      function getFilteredDossiers() {
-        const query = (document.getElementById("searchInput")?.value || "").trim().toLowerCase();
-        const mode = document.getElementById("transportModeFilter")?.value || "TOUS";
-        const regime = document.getElementById("regimeFilter")?.value || "TOUS";
-        const status = document.getElementById("statusFilter")?.value || "TOUS";
+        const search = (document.getElementById("searchInput")?.value || "").trim().toLowerCase();
+        const modeFilter = document.getElementById("transportModeFilter")?.value || "TOUS";
+        const regimeFilter = document.getElementById("regimeFilter")?.value || "TOUS";
+        const statusFilter = document.getElementById("statusFilter")?.value || "TOUS";
 
-        return appState.dossiers.filter((d) => {
+        const filtered = appState.dossiers.filter((d) => {
           const alerts = evaluateDossierAlerts(d);
           if (filterAlertsOnly && alerts.length === 0) return false;
-          if (mode !== "TOUS" && d.transportMode !== mode) return false;
-          if (regime !== "TOUS" && !(d.steps && d.steps[regime])) return false;
+          if (modeFilter !== "TOUS" && d.transportMode !== modeFilter) return false;
+          if (regimeFilter !== "TOUS" && !(d.steps && d.steps[regimeFilter])) return false;
 
-          if (status === "OUVERT" && d.closed) return false;
-          if (status === "CLOTURE" && !d.closed) return false;
-          if (status === "ALERTE_72H" && alerts.length === 0) return false;
+          if (statusFilter === "OUVERT" && d.closed) return false;
+          if (statusFilter === "CLOTURE" && !d.closed) return false;
+          if (statusFilter === "ALERTE_72H" && alerts.length === 0) return false;
           if (
-            status === "RETOUR_VIDE_ATTENTE" &&
-            !(d.transportMode === "SUR_CAMION" && d.emptyReturn?.status === "EN_ATTENTE")
+            statusFilter === "RETOUR_VIDE_ATTENTE" &&
+            !(d.transportMode === "SUR_CAMION" && d.emptyReturn && d.emptyReturn.status === "EN_ATTENTE")
           ) {
             return false;
           }
 
-          if (!query) return true;
-          const searchable = [
-            d.repertoire,
-            d.client,
-            d.shipper,
-            d.bl,
-            d.vessel,
-            d.declarationNum,
-            d.marchandise,
-            ...(d.containers || []),
-            ...(d.trucks || []).map((t) => `${t.truck} ${t.assignment}`)
-          ]
-            .join(" ")
-            .toLowerCase();
-          return searchable.includes(query);
+          if (search) {
+            const haystack = [
+              d.repertoire,
+              d.client,
+              d.shipper,
+              d.bl,
+              d.vessel,
+              d.declarationNum,
+              ...(d.containers || []),
+              ...((d.trucks || []).map((t) => `${t.truck} ${t.assignment}`))
+            ]
+              .join(" ")
+              .toLowerCase();
+            if (!haystack.includes(search)) return false;
+          }
+
+          return true;
         });
-      }
 
-      function renderDossiersList() {
-        const list = getFilteredDossiers();
-        const tbody = document.getElementById("dossiersTableBody");
-        document.getElementById("dossiersCountBadge").textContent = `${list.length} dossier(s) affiché(s)`;
+        if (countBadge) {
+          countBadge.textContent = `${filtered.length} dossier(s) affiché(s) sur ${appState.dossiers.length}`;
+        }
 
-        if (!list.length) {
+        if (!filtered.length) {
           tbody.innerHTML = `
             <tr>
-              <td colspan="7" class="py-10 px-4 text-center text-slate-500 text-sm">
+              <td colspan="7" class="py-8 px-4 text-center text-sm text-slate-500">
                 Aucun dossier ne correspond aux critères sélectionnés.
               </td>
             </tr>
@@ -1676,97 +1933,122 @@
           return;
         }
 
-        tbody.innerHTML = list
+        tbody.innerHTML = filtered
           .map((d) => {
             const alerts = evaluateDossierAlerts(d);
-            const activeSteps = WORKFLOW_STEPS.filter((s) => d.steps && d.steps[s.key]).map((s) => s.label);
-            const modeBadge =
-              d.transportMode === "SUR_CAMION"
-                ? `<span class="step-pill bg-blue-100 text-blue-800 border-blue-200">🚛 Sur Camion</span>`
-                : `<span class="step-pill bg-amber-100 text-amber-800 border-amber-200">📦 Dépotage</span>`;
+            const activeSteps = WORKFLOW_STEPS.filter((s) => d.steps && d.steps[s.key])
+              .map(
+                (s) =>
+                  `<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10.5px] font-bold">${s.label}</span>`
+              )
+              .join("");
 
-            const closureBadge = d.closed
-              ? `<span class="step-pill bg-slate-800 text-white ml-1">Clôturé</span>`
-              : `<span class="step-pill step-done ml-1">Actif</span>`;
+            const containersHtml = (d.containers || []).length
+              ? d.containers
+                  .map(
+                    (c) =>
+                      `<span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 border border-slate-300 font-mono text-[11px] font-bold text-slate-800">${escapeHtml(c)}</span>`
+                  )
+                  .join(" ")
+              : `<span class="text-xs text-slate-400">Aucun TC</span>`;
 
-            const containerSummary =
-              d.containers && d.containers.length
-                ? `<div class="font-mono text-xs font-semibold text-slate-800">${escapeHtml(d.containers.join(", "))}</div>`
-                : `<div class="text-xs text-slate-400">Aucun TC</div>`;
+            const trucksHtml = (d.trucks || []).length
+              ? d.trucks
+                  .map(
+                    (t) =>
+                      `<div class="text-[11px] text-slate-700 font-semibold">🚛 ${escapeHtml(t.truck)} <span class="text-slate-500 font-normal">(${escapeHtml(t.assignment || "-")})</span></div>`
+                  )
+                  .join("")
+              : `<div class="text-[11px] text-slate-400">Aucun camion affecté</div>`;
 
-            const truckSummary =
-              d.trucks && d.trucks.length
-                ? `<div class="text-xs text-slate-600 mt-0.5">Camion : <strong>${escapeHtml(d.trucks.map((t) => t.truck).filter(Boolean).join(", ") || "-")}</strong></div>`
-                : `<div class="text-xs text-slate-400 mt-0.5">Camion non affecté</div>`;
-
-            let returnVideText = "";
-            if (d.transportMode === "SUR_CAMION") {
-              if (d.emptyReturn?.status === "RETOURNE") {
-                returnVideText = `<div class="text-[11.5px] text-emerald-700 font-semibold mt-0.5">Retour vide : ${escapeHtml(d.emptyReturn.date || "OK")}</div>`;
-              } else {
-                returnVideText = `<div class="text-[11.5px] text-amber-700 font-semibold mt-0.5">Retour vide : En attente</div>`;
+            let emptyBadge = "";
+            if (d.transportMode === "SUR_CAMION" && d.emptyReturn) {
+              if (d.emptyReturn.status === "RETOURNE") {
+                emptyBadge = `<span class="inline-block mt-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10.5px] font-bold">✓ Retour vide OK ${d.emptyReturn.date ? `(${escapeHtml(d.emptyReturn.date)})` : ""}</span>`;
+              } else if (d.emptyReturn.status === "EN_ATTENTE") {
+                emptyBadge = `<span class="inline-block mt-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10.5px] font-bold">⏳ Retour vide en attente</span>`;
               }
             }
 
-            const alertHtml = alerts.length
+            const alertsHtml = alerts.length
               ? alerts
                   .map(
                     (a) =>
-                      `<span class="step-pill step-alert badge-alert-pulse mt-1 inline-flex">${escapeHtml(a.text)}</span>`
+                      `<div class="px-2 py-0.5 rounded bg-rose-600 text-white text-[10.5px] font-bold">${escapeHtml(a.text)}</div>`
                   )
-                  .join(" ")
-              : `<span class="text-xs text-emerald-700 font-medium">Échéances OK</span>`;
+                  .join("")
+              : `<span class="text-[11px] text-emerald-700 font-semibold">✓ Délais conformes</span>`;
 
             return `
-              <tr class="hover:bg-slate-50/90 transition">
+              <tr class="${d.closed ? "bg-slate-50/90" : "hover:bg-blue-50/30"} transition">
                 <td class="py-3 px-3.5 align-top">
-                  <div class="font-extrabold text-blue-900">${escapeHtml(d.repertoire)}</div>
-                  <div class="mt-1">${closureBadge}</div>
-                </td>
-                <td class="py-3 px-3.5 align-top">
-                  <div class="font-bold text-slate-900">${escapeHtml(d.client)}</div>
-                  <div class="text-xs text-slate-500">${escapeHtml(d.shipper || d.marchandise || "-")}</div>
-                </td>
-                <td class="py-3 px-3.5 align-top">
-                  <div class="font-mono text-xs font-bold text-slate-800">BL: ${escapeHtml(d.bl)}</div>
-                  <div class="text-xs text-slate-600">Navire: ${escapeHtml(d.vessel)}</div>
-                  <div class="text-[11.5px] text-slate-400">Arrivée: ${escapeHtml(d.arrivalDate || "-")}</div>
-                </td>
-                <td class="py-3 px-3.5 align-top space-y-1.5">
-                  <div>${modeBadge}</div>
-                  <div class="flex flex-wrap gap-1">
+                  <div class="font-extrabold text-blue-950">${escapeHtml(d.repertoire)}</div>
+                  <div class="mt-1">
                     ${
-                      activeSteps.length
-                        ? activeSteps
-                            .map((st) => `<span class="step-pill step-done text-[10.5px] py-0.5 px-2">${escapeHtml(st)}</span>`)
-                            .join("")
-                        : `<span class="text-xs text-slate-400">Aucune étape validée</span>`
+                      d.closed
+                        ? `<span class="px-2 py-0.5 rounded-full bg-slate-800 text-white text-[10px] font-bold">CLÔTURÉ</span>`
+                        : `<span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">EN COURS</span>`
                     }
                   </div>
+                  ${
+                    d.billedInvoiceNumber
+                      ? `<div class="mt-1 text-[10.5px] font-bold text-emerald-700">Facturé : ${escapeHtml(d.billedInvoiceNumber)}</div>`
+                      : ""
+                  }
                 </td>
+
                 <td class="py-3 px-3.5 align-top">
-                  ${containerSummary}
-                  ${truckSummary}
-                  ${returnVideText}
+                  <div class="font-bold text-slate-900">${escapeHtml(d.client)}</div>
+                  <div class="text-xs text-slate-500">${escapeHtml(d.shipper || "-")}</div>
+                  <div class="text-[11px] text-slate-500 mt-0.5">${escapeHtml(d.marchandise || "")}</div>
                 </td>
+
                 <td class="py-3 px-3.5 align-top">
-                  ${alertHtml}
+                  <div class="font-mono text-xs font-bold text-slate-800">BL: ${escapeHtml(d.bl)}</div>
+                  <div class="text-xs font-semibold text-slate-700">🚢 ${escapeHtml(d.vessel)}</div>
+                  <div class="text-[11px] text-slate-500">ETA: ${escapeHtml(d.arrivalDate || "-")}</div>
                 </td>
+
+                <td class="py-3 px-3.5 align-top space-y-1.5">
+                  <div>
+                    <span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold ${
+                      d.transportMode === "SUR_CAMION"
+                        ? "bg-indigo-100 text-indigo-900"
+                        : "bg-amber-100 text-amber-900"
+                    }">
+                      ${d.transportMode === "SUR_CAMION" ? "SUR CAMION" : "DÉPOTAGE"}
+                    </span>
+                  </div>
+                  <div class="flex flex-wrap gap-1">${activeSteps || `<span class="text-xs text-slate-400">Aucune étape</span>`}</div>
+                </td>
+
+                <td class="py-3 px-3.5 align-top space-y-1">
+                  <div class="flex flex-wrap gap-1">${containersHtml}</div>
+                  ${trucksHtml}
+                  ${emptyBadge}
+                </td>
+
+                <td class="py-3 px-3.5 align-top space-y-1">
+                  ${alertsHtml}
+                  <div class="text-[10.5px] text-slate-500">BAD: ${d.badExpiry ? escapeHtml(d.badExpiry.replace("T", " ")) : "-"}</div>
+                  <div class="text-[10.5px] text-slate-500">T1: ${d.t1Expiry ? escapeHtml(d.t1Expiry.replace("T", " ")) : "-"}</div>
+                </td>
+
                 <td class="py-3 px-3.5 align-top">
-                  <div class="flex flex-col sm:flex-row gap-1.5">
+                  <div class="flex flex-col gap-1.5">
                     <button
                       type="button"
-                      onclick="openDossierModal('${d.id}')"
-                      class="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition"
+                      onclick="openDossierModal('${escapeHtml(d.id)}')"
+                      class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-sm transition"
                     >
-                      Suivi / Éditer
+                      ✏️ Ouvrir / Suivre
                     </button>
                     <button
                       type="button"
-                      onclick="printBordereauDetaille('${d.id}')"
+                      onclick="printBordereauDetaille('${escapeHtml(d.id)}')"
                       class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold transition"
                     >
-                      Bordereau
+                      📄 Bordereau Détaillé
                     </button>
                   </div>
                 </td>
@@ -1776,763 +2058,18 @@
           .join("");
       }
 
-      /**
-       * Parsing intelligent multi-conteneurs (virgules, espaces, points-virgules, retours à la ligne)
-       */
-      function parseBatchContainersText(rawText) {
-        if (!rawText) return [];
-        const tokens = String(rawText)
-          .toUpperCase()
-          .split(/[\s,;|\n\r\t]+/)
-          .map((t) => t.replace(/[^A-Z0-9-]/g, "").trim())
-          .filter(Boolean);
-        return Array.from(new Set(tokens));
-      }
-
-      window.handleBatchContainersParse = function (rawText) {
-        const parsed = parseBatchContainersText(rawText);
-        if (!parsed.length) return;
-        workingContainers = parsed;
-        renderContainerRows();
-      };
-
-      window.handleBatchContainersPasteEvent = function (event) {
-        const clipboard = event.clipboardData || window.clipboardData;
-        if (!clipboard) return;
-        const pasted = clipboard.getData("text") || "";
-        const parsed = parseBatchContainersText(pasted);
-        if (parsed.length > 0) {
-          event.preventDefault();
-          document.getElementById("batchContainersPasteInput").value = parsed.join(", ");
-          workingContainers = parsed;
-          renderContainerRows();
-          showToast(`${parsed.length} conteneur(s) réparti(s) automatiquement.`);
-        }
-      };
-
-      window.addContainerRow = function (value = "") {
-        workingContainers.push(String(value || "").toUpperCase());
-        renderContainerRows();
-      };
-
-      window.removeContainerRow = function (index) {
-        workingContainers.splice(index, 1);
-        renderContainerRows();
-      };
-
-      function renderContainerRows() {
-        const listEl = document.getElementById("containerRowsList");
-        if (!workingContainers.length) {
-          workingContainers = [""];
-        }
-        listEl.innerHTML = workingContainers
-          .map(
-            (tc, idx) => `
-          <div class="flex items-center gap-1.5">
-            <span class="text-xs font-bold text-slate-500 w-7">TC${idx + 1}</span>
-            <input
-              type="text"
-              value="${escapeHtml(tc)}"
-              oninput="workingContainers[${idx}] = this.value.toUpperCase()"
-              placeholder="Ex: MSCU1234567"
-              class="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs sm:text-sm font-mono uppercase"
-            />
-            <button
-              type="button"
-              onclick="removeContainerRow(${idx})"
-              class="px-2 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold"
-              title="Supprimer ce conteneur"
-            >
-              ✕
-            </button>
-          </div>
-        `
-          )
-          .join("");
-      }
-
-      window.addTruckRow = function (truck = "", assignment = "") {
-        workingTrucks.push({ truck: String(truck || "").toUpperCase(), assignment: String(assignment || "") });
-        renderTruckRows();
-      };
-
-      window.removeTruckRow = function (index) {
-        workingTrucks.splice(index, 1);
-        renderTruckRows();
-      };
-
-      function renderTruckRows() {
-        const container = document.getElementById("truckRowsList");
-        if (!workingTrucks.length) {
-          container.innerHTML = `<div class="text-xs text-slate-400 italic">Aucun camion affecté pour le moment.</div>`;
-          return;
-        }
-        container.innerHTML = workingTrucks
-          .map(
-            (item, idx) => `
-          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2.5 rounded-lg border border-slate-200">
-            <div class="sm:col-span-4">
-              <input
-                type="text"
-                value="${escapeHtml(item.truck)}"
-                oninput="workingTrucks[${idx}].truck = this.value.toUpperCase()"
-                placeholder="Immatriculation camion (ex: TG-4512-MD)"
-                class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm font-mono uppercase"
-              />
-            </div>
-            <div class="sm:col-span-7">
-              <input
-                type="text"
-                value="${escapeHtml(item.assignment)}"
-                oninput="workingTrucks[${idx}].assignment = this.value"
-                placeholder="Affectation (TC concernés ou poids/colis en dépotage)"
-                class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm"
-              />
-            </div>
-            <div class="sm:col-span-1 flex justify-end">
-              <button
-                type="button"
-                onclick="removeTruckRow(${idx})"
-                class="px-2 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        `
-          )
-          .join("");
-      }
-
-      window.syncTransportModeUI = function () {
-        const mode = document.getElementById("fTransportMode").value;
-        const returnSelect = document.getElementById("fEmptyReturnStatus");
-        if (mode === "DEPOTAGE") {
-          returnSelect.value = "NON_APPLICABLE";
-          returnSelect.disabled = true;
-        } else {
-          returnSelect.disabled = false;
-          if (returnSelect.value === "NON_APPLICABLE") {
-            returnSelect.value = "EN_ATTENTE";
-          }
-        }
-      };
-
-      function formatSingleExpiryHint(isoValue, label) {
-        if (!isoValue) return `<span class="text-slate-400">Aucune échéance renseignée</span>`;
-        const ts = new Date(isoValue).getTime();
-        if (Number.isNaN(ts)) return "";
-        const hoursLeft = Math.round((ts - Date.now()) / (3600 * 1000));
-        if (hoursLeft < 0) {
-          return `<span class="text-rose-700 font-bold">⚠️ ${label} expiré (${Math.abs(hoursLeft)}h)</span>`;
-        }
-        if (hoursLeft <= 72) {
-          return `<span class="text-rose-600 font-bold">⚠️ Alerte &lt; 72h : reste ${hoursLeft}h</span>`;
-        }
-        return `<span class="text-emerald-700">✓ Reste ${hoursLeft}h (&gt; 72h)</span>`;
-      }
-
-      window.refreshModalExpirationPreview = function () {
-        document.getElementById("badExpiryStatus").innerHTML = formatSingleExpiryHint(
-          document.getElementById("fBadExpiry").value,
-          "BAD"
-        );
-        document.getElementById("t1ExpiryStatus").innerHTML = formatSingleExpiryHint(
-          document.getElementById("fT1Expiry").value,
-          "T1"
-        );
-      };
-
-      function renderRegimesChecklist(currentSteps = {}) {
-        const perms = getPermissions();
-        const grid = document.getElementById("regimesChecklistGrid");
-        grid.innerHTML = WORKFLOW_STEPS.map((step) => {
-          const checked = !!(currentSteps && currentSteps[step.key]);
-          const canToggle = perms.allowedSteps.includes(step.key);
-          return `
-            <label class="flex items-center gap-2 p-2.5 rounded-lg border ${
-              canToggle ? "bg-white border-slate-300 cursor-pointer" : "bg-slate-100 border-slate-200 opacity-60 cursor-not-allowed"
-            } text-xs font-bold text-slate-800">
-              <input
-                type="checkbox"
-                data-step-key="${step.key}"
-                ${checked ? "checked" : ""}
-                ${canToggle ? "" : "disabled"}
-                class="w-4 h-4 rounded border-slate-400 text-blue-600"
-              />
-              <span>${escapeHtml(step.label)}</span>
-            </label>
-          `;
-        }).join("");
-      }
-
-      window.openDossierModal = function (dossierId) {
-        const perms = getPermissions();
-        const isEditing = !!dossierId;
-
-        if (!isEditing && !perms.canCreate) {
-          showToast("Votre rôle actuel ne permet pas de créer un nouveau dossier.");
-          return;
-        }
-
-        const existing = isEditing ? appState.dossiers.find((d) => d.id === dossierId) : null;
-        if (isEditing && !existing) return;
-
-        const nextSeq = (Number(appState.lastSeqNumber) || appState.dossiers.length) + 1;
-        const repValue = existing ? existing.repertoire : formatRepertoire(nextSeq);
-
-        document.getElementById("editDossierId").value = existing ? existing.id : "";
-        document.getElementById("dossierModalTitle").textContent = existing
-          ? `Suivi Dossier — ${existing.repertoire}`
-          : `Nouveau Dossier — ${repValue}`;
-        document.getElementById("dossierModalSubtitle").textContent = existing
-          ? `Client : ${existing.client} • BL : ${existing.bl} • Navire : ${existing.vessel}`
-          : `Attribution automatique du numéro séquentiel ${repValue}`;
-
-        document.getElementById("dossierClosureBadge").classList.toggle("hidden", !(existing && existing.closed));
-
-        document.getElementById("fRepertoire").value = repValue;
-        document.getElementById("fClient").value = existing ? existing.client || "" : "";
-        document.getElementById("fShipper").value = existing ? existing.shipper || "" : "";
-        document.getElementById("fClientContact").value = existing ? existing.clientContact || "" : "";
-        document.getElementById("fBl").value = existing ? existing.bl || "" : "";
-        document.getElementById("fVessel").value = existing ? existing.vessel || "" : "";
-        document.getElementById("fArrivalDate").value = existing ? existing.arrivalDate || "" : new Date().toISOString().slice(0, 10);
-        document.getElementById("fTransportMode").value = existing ? existing.transportMode || "SUR_CAMION" : "SUR_CAMION";
-        document.getElementById("fMarchandise").value = existing ? existing.marchandise || "" : "";
-        document.getElementById("fPoids").value = existing ? existing.poids || "" : "";
-        document.getElementById("fQuantite").value = existing ? existing.quantite || "" : "";
-
-        document.getElementById("fBadExpiry").value = existing ? existing.badExpiry || "" : "";
-        document.getElementById("fT1Expiry").value = existing ? existing.t1Expiry || "" : "";
-        document.getElementById("fDeclarationNum").value = existing ? existing.declarationNum || "" : "";
-        document.getElementById("fCorridorNote").value = existing ? existing.corridorNote || "" : "";
-
-        document.getElementById("batchContainersPasteInput").value = "";
-        workingContainers = existing && Array.isArray(existing.containers) && existing.containers.length
-          ? [...existing.containers]
-          : [""];
-        renderContainerRows();
-
-        workingTrucks = existing && Array.isArray(existing.trucks)
-          ? existing.trucks.map((t) => ({ truck: t.truck || "", assignment: t.assignment || "" }))
-          : [];
-        renderTruckRows();
-
-        document.getElementById("fEmptyReturnStatus").value = existing?.emptyReturn?.status || "EN_ATTENTE";
-        document.getElementById("fEmptyReturnDate").value = existing?.emptyReturn?.date || "";
-        document.getElementById("fEmptyReturnDepot").value = existing?.emptyReturn?.depot || "";
-
-        const closedCheckbox = document.getElementById("fClosedBySupervisor");
-        closedCheckbox.checked = !!(existing && existing.closed);
-        closedCheckbox.disabled = !perms.canCloseDossier;
-        document.getElementById("supervisorClosureHelp").textContent = perms.canCloseDossier
-          ? "Vous pouvez clôturer ce dossier après contrôle."
-          : "Réservé au Superviseur.";
-
-        document.getElementById("fBadExpiry").disabled = !perms.canEditBad;
-        document.getElementById("fT1Expiry").disabled = !perms.canEditCustoms;
-        document.getElementById("fDeclarationNum").disabled = !perms.canEditCustoms;
-
-        renderRegimesChecklist(existing?.steps || {});
-        syncTransportModeUI();
-        refreshModalExpirationPreview();
-
-        document.getElementById("dossierModal").classList.add("open");
-      };
-
-      window.saveDossierForm = function (event) {
-        event.preventDefault();
-        const perms = getPermissions();
-        const editId = document.getElementById("editDossierId").value;
-        const existingIndex = editId ? appState.dossiers.findIndex((d) => d.id === editId) : -1;
-        const existing = existingIndex >= 0 ? appState.dossiers[existingIndex] : null;
-
-        const stepsPayload = { ...(existing?.steps || {}) };
-        document.querySelectorAll("#regimesChecklistGrid input[type='checkbox'][data-step-key]").forEach((cb) => {
-          if (!cb.disabled) {
-            stepsPayload[cb.getAttribute("data-step-key")] = cb.checked;
-          }
-        });
-
-        const cleanContainers = Array.from(
-          new Set(workingContainers.map((c) => String(c || "").trim().toUpperCase()).filter(Boolean))
-        );
-        const cleanTrucks = workingTrucks
-          .map((t) => ({
-            truck: String(t.truck || "").trim().toUpperCase(),
-            assignment: String(t.assignment || "").trim()
-          }))
-          .filter((t) => t.truck || t.assignment);
-
-        const transportMode = document.getElementById("fTransportMode").value;
-        const emptyReturnStatus =
-          transportMode === "DEPOTAGE"
-            ? "NON_APPLICABLE"
-            : document.getElementById("fEmptyReturnStatus").value;
-
-        let nextSeq = Number(appState.lastSeqNumber) || appState.dossiers.length;
-        let repertoire = existing ? existing.repertoire : document.getElementById("fRepertoire").value.trim().toUpperCase();
-
-        if (!existing) {
-          nextSeq += 1;
-          repertoire = formatRepertoire(nextSeq);
-          appState.lastSeqNumber = Math.max(nextSeq, Number(appState.lastSeqNumber) || 0);
-        }
-
-        const record = {
-          id: existing ? existing.id : "dos_" + Date.now(),
-          repertoire,
-          client: document.getElementById("fClient").value.trim(),
-          shipper: document.getElementById("fShipper").value.trim(),
-          clientContact: document.getElementById("fClientContact").value.trim(),
-          bl: document.getElementById("fBl").value.trim().toUpperCase(),
-          vessel: document.getElementById("fVessel").value.trim().toUpperCase(),
-          arrivalDate: document.getElementById("fArrivalDate").value,
-          marchandise: document.getElementById("fMarchandise").value.trim(),
-          poids: document.getElementById("fPoids").value.trim(),
-          quantite: document.getElementById("fQuantite").value.trim(),
-          transportMode,
-          declarationNum: document.getElementById("fDeclarationNum").value.trim().toUpperCase(),
-          corridorNote: document.getElementById("fCorridorNote").value.trim(),
-          badExpiry: document.getElementById("fBadExpiry").value,
-          t1Expiry: document.getElementById("fT1Expiry").value,
-          steps: stepsPayload,
-          containers: cleanContainers,
-          trucks: cleanTrucks,
-          emptyReturn: {
-            status: emptyReturnStatus,
-            date: transportMode === "DEPOTAGE" ? "" : document.getElementById("fEmptyReturnDate").value,
-            depot: transportMode === "DEPOTAGE" ? "" : document.getElementById("fEmptyReturnDepot").value.trim()
-          },
-          closed: perms.canCloseDossier
-            ? document.getElementById("fClosedBySupervisor").checked
-            : !!(existing && existing.closed),
-          billedInvoiceNumber: existing ? existing.billedInvoiceNumber || null : null
-        };
-
-        if (existingIndex >= 0) {
-          appState.dossiers[existingIndex] = record;
-        } else {
-          appState.dossiers.unshift(record);
-        }
-
-        saveState();
-        closeModal("dossierModal");
-        renderAll();
-        showToast(`Dossier ${record.repertoire} enregistré.`);
-      };
-
-      /**
-       * Bordereau détaillé : STRICTEMENT AUCUNE mention de facturation, tarif ou facture.
-       */
-      window.printBordereauDetaille = function (dossierId) {
-        const d = appState.dossiers.find((item) => item.id === dossierId);
-        if (!d) return;
-
-        const stepsList = WORKFLOW_STEPS.map((s) => {
-          const ok = !!(d.steps && d.steps[s.key]);
-          return `<span style="display:inline-block;padding:3px 8px;margin:2px;border-radius:6px;border:1px solid ${
-            ok ? "#16a34a" : "#cbd5e1"
-          };background:${ok ? "#dcfce7" : "#f8fafc"};color:${
-            ok ? "#166534" : "#64748b"
-          };font-size:11px;font-weight:700;">${escapeHtml(s.label)} : ${ok ? "VALIDÉ" : "EN ATTENTE"}</span>`;
-        }).join("");
-
-        const containersText =
-          d.containers && d.containers.length ? d.containers.join(", ") : "Non renseigné";
-
-        const trucksHtml =
-          d.trucks && d.trucks.length
-            ? `<ul style="margin:6px 0 0 18px;padding:0;">${d.trucks
-                .map(
-                  (t) =>
-                    `<li style="margin-bottom:3px;"><strong>Camion ${escapeHtml(t.truck || "-")}</strong> — ${escapeHtml(
-                      t.assignment || "Affectation en cours"
-                    )}</li>`
-                )
-                .join("")}</ul>`
-            : `<p style="margin:6px 0 0 0;color:#64748b;">Aucun camion affecté.</p>`;
-
-        const returnVideBlock =
-          d.transportMode === "SUR_CAMION"
-            ? `<p style="margin:4px 0;"><strong>Retour vide :</strong> ${
-                d.emptyReturn?.status === "RETOURNE"
-                  ? `Effectué le ${escapeHtml(d.emptyReturn.date || "-")} (${escapeHtml(d.emptyReturn.depot || "Parc TC")})`
-                  : `En attente (${escapeHtml(d.emptyReturn?.depot || "Parc TC")})`
-              }</p>`
-            : `<p style="margin:4px 0;"><strong>Mode d'exploitation :</strong> Dépotage (CFS / Sans retour de conteneur vide)</p>`;
-
-        const html = `
-          <div style="font-family:'Inter',sans-serif;color:#0f172a;padding:24px;max-width:860px;margin:0 auto;">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0f172a;padding-bottom:12px;margin-bottom:18px;">
-              <div>
-                <h1 style="margin:0;font-size:22px;font-weight:800;letter-spacing:0.5px;">GEO SUIVI TRANSIT</h1>
-                <div style="font-size:13px;font-weight:700;color:#1d4ed8;margin-top:2px;">BORDEREAU DÉTAILLÉ DE SUIVI CARGAISON &amp; TRANSIT</div>
-              </div>
-              <div style="text-align:right;font-size:12px;">
-                <div><strong>Répertoire :</strong> ${escapeHtml(d.repertoire)}</div>
-                <div><strong>Date d'édition :</strong> ${escapeHtml(new Date().toLocaleDateString("fr-FR"))}</div>
-                <div><strong>État :</strong> ${d.closed ? "CLÔTURÉ" : "EN COURS"}</div>
-              </div>
-            </div>
-
-            <table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12.5px;">
-              <tr>
-                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;width:22%;"><strong>Client / Importateur</strong></td>
-                <td style="border:1px solid #cbd5e1;padding:8px;width:28%;">${escapeHtml(d.client || "-")}</td>
-                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;width:22%;"><strong>N° Bill of Lading (BL)</strong></td>
-                <td style="border:1px solid #cbd5e1;padding:8px;width:28%;font-family:monospace;font-weight:700;">${escapeHtml(d.bl || "-")}</td>
-              </tr>
-              <tr>
-                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Chargeur</strong></td>
-                <td style="border:1px solid #cbd5e1;padding:8px;">${escapeHtml(d.shipper || "-")}</td>
-                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Navire / Arrivée</strong></td>
-                <td style="border:1px solid #cbd5e1;padding:8px;">${escapeHtml(d.vessel || "-")} (${escapeHtml(d.arrivalDate || "-")})</td>
-              </tr>
-              <tr>
-                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Marchandise</strong></td>
-                <td style="border:1px solid #cbd5e1;padding:8px;">${escapeHtml(d.marchandise || "-")}</td>
-                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Poids / Quantité</strong></td>
-                <td style="border:1px solid #cbd5e1;padding:8px;">${escapeHtml(d.poids || "-")} • ${escapeHtml(d.quantite || "-")}</td>
-              </tr>
-              <tr>
-                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Mode Transport</strong></td>
-                <td style="border:1px solid #cbd5e1;padding:8px;font-weight:700;">${
-                  d.transportMode === "SUR_CAMION" ? "Sur Camion" : "Dépotage"
-                }</td>
-                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>N° Déclaration / T1</strong></td>
-                <td style="border:1px solid #cbd5e1;padding:8px;font-family:monospace;">${escapeHtml(d.declarationNum || "-")}</td>
-              </tr>
-              <tr>
-                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Conteneurs</strong></td>
-                <td colspan="3" style="border:1px solid #cbd5e1;padding:8px;font-family:monospace;font-weight:700;">${escapeHtml(containersText)}</td>
-              </tr>
-              <tr>
-                <td style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;"><strong>Échéances BAD / T1</strong></td>
-                <td colspan="3" style="border:1px solid #cbd5e1;padding:8px;">
-                  BAD : ${escapeHtml(d.badExpiry ? new Date(d.badExpiry).toLocaleString("fr-FR") : "Non défini")} &nbsp;|&nbsp;
-                  T1 : ${escapeHtml(d.t1Expiry ? new Date(d.t1Expiry).toLocaleString("fr-FR") : "Non défini")}
-                </td>
-              </tr>
-            </table>
-
-            <div style="border:1px solid #cbd5e1;border-radius:8px;padding:12px;margin-bottom:14px;">
-              <div style="font-size:12px;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Régimes &amp; Étapes Opérationnelles</div>
-              <div>${stepsList}</div>
-            </div>
-
-            <div style="border:1px solid #cbd5e1;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12.5px;">
-              <div style="font-size:12px;font-weight:800;text-transform:uppercase;margin-bottom:6px;">Affectation Camions &amp; Retour Vide</div>
-              ${trucksHtml}
-              <div style="margin-top:8px;">${returnVideBlock}</div>
-              ${
-                d.corridorNote
-                  ? `<p style="margin:6px 0 0 0;"><strong>Observation transit :</strong> ${escapeHtml(d.corridorNote)}</p>`
-                  : ""
-              }
-            </div>
-
-            <div style="display:flex;justify-content:space-between;margin-top:28px;font-size:12px;">
-              <div style="width:45%;border-top:1px solid #64748b;padding-top:6px;">Visa Exploitation / Transit</div>
-              <div style="width:45%;border-top:1px solid #64748b;padding-top:6px;text-align:right;">Visa Supervision GEO SUIVI TRANSIT</div>
-            </div>
-          </div>
-        `;
-
-        const zone = document.getElementById("printZone");
-        zone.innerHTML = html;
-        window.print();
-      };
-
-      /**
-       * Module Facturation DDU contrôlé par le Facturier (Agent DDU) :
-       * Le facturier définit le dernier répertoire à calculer (ex: GEO00003), 10 000 FCFA / DDU, GE001/FA/ANNÉE, ste GEO.
-       */
-      function parseRepertoireNumber(repStr) {
-        const match = String(repStr || "").toUpperCase().match(/(\d+)/);
-        return match ? parseInt(match[1], 10) : 0;
-      }
-
-      function populateLastRepertoireSelector() {
-        const select = document.getElementById("invoiceLastRepertoireSelect");
-        if (!select) return;
-        const sortedDossiers = [...appState.dossiers].sort(
-          (a, b) => parseRepertoireNumber(a.repertoire) - parseRepertoireNumber(b.repertoire)
-        );
-        if (!sortedDossiers.length) {
-          select.innerHTML = `<option value="">Aucun répertoire</option>`;
-          return;
-        }
-        const previousVal = select.value;
-        select.innerHTML = sortedDossiers
-          .map((d) => {
-            const isDdu = !!(d.steps && d.steps.DDU);
-            const tag = isDdu ? (d.billedInvoiceNumber ? ` [Déjà facturé: ${d.billedInvoiceNumber}]` : " [DDU à facturer]") : " [Hors DDU]";
-            return `<option value="${escapeHtml(d.repertoire)}">Jusqu'à ${escapeHtml(d.repertoire)} — ${escapeHtml(d.client)}${escapeHtml(tag)}</option>`;
-          })
-          .join("");
-
-        if (previousVal && sortedDossiers.some((d) => d.repertoire === previousVal)) {
-          select.value = previousVal;
-        } else {
-          select.value = sortedDossiers[sortedDossiers.length - 1].repertoire;
-        }
-      }
-
-      function getBillableDduDossiers() {
-        const onlyUnbilled = !!document.getElementById("invoiceOnlyUnbilledCheckbox")?.checked;
-        const cutoffRep = document.getElementById("invoiceLastRepertoireSelect")?.value || "";
-        const cutoffNum = parseRepertoireNumber(cutoffRep);
-
-        return [...appState.dossiers]
-          .sort((a, b) => parseRepertoireNumber(a.repertoire) - parseRepertoireNumber(b.repertoire))
-          .filter((d) => {
-            const isDdu = !!(d.steps && d.steps.DDU);
-            if (!isDdu) return false;
-            if (onlyUnbilled && d.billedInvoiceNumber) return false;
-            if (cutoffNum > 0 && parseRepertoireNumber(d.repertoire) > cutoffNum) return false;
-            return true;
-          });
-      }
-
-      function buildCurrentInvoiceObject() {
-        const yearInput = Number(document.getElementById("invoiceYearInput")?.value);
-        const year = yearInput >= 2020 && yearInput <= 2099 ? yearInput : DEFAULT_YEAR;
-        const seqStr = String(Math.max(1, Number(appState.invoiceCounter) || 1)).padStart(3, "0");
-        const invoiceNumber = `GE${seqStr}/FA/${year}`;
-        const recipientEmail = (document.getElementById("invoiceRecipientEmail")?.value || DEFAULT_RECIPIENT_EMAIL).trim() || DEFAULT_RECIPIENT_EMAIL;
-        const cutoffRepertoire = document.getElementById("invoiceLastRepertoireSelect")?.value || "-";
-        const dduList = getBillableDduDossiers();
-        const totalAmount = dduList.length * DDU_UNIT_PRICE;
-
-        return {
-          invoiceNumber,
-          year,
-          billedTo: "ste GEO",
-          recipientEmail,
-          cutoffRepertoire,
-          unitPrice: DDU_UNIT_PRICE,
-          items: dduList,
-          totalAmount,
-          issuedAt: new Date().toLocaleDateString("fr-FR")
-        };
-      }
-
-      function renderInvoiceDocumentMarkup(inv) {
-        const rowsHtml = inv.items.length
-          ? inv.items
-              .map(
-                (d, idx) => `
-              <tr>
-                <td class="py-2 px-3 border-b border-slate-200 text-xs">${idx + 1}</td>
-                <td class="py-2 px-3 border-b border-slate-200 text-xs font-extrabold text-blue-900">${escapeHtml(d.repertoire)}</td>
-                <td class="py-2 px-3 border-b border-slate-200 text-xs font-mono">${escapeHtml(d.bl)}</td>
-                <td class="py-2 px-3 border-b border-slate-200 text-xs font-semibold">${escapeHtml(d.client)}</td>
-                <td class="py-2 px-3 border-b border-slate-200 text-xs font-mono">${escapeHtml(d.declarationNum || "-")}</td>
-                <td class="py-2 px-3 border-b border-slate-200 text-xs text-right font-bold">${inv.unitPrice.toLocaleString("fr-FR")} FCFA</td>
-              </tr>
-            `
-              )
-              .join("")
-          : `
-            <tr>
-              <td colspan="6" class="py-6 px-3 text-center text-xs text-slate-500">
-                Aucun dossier DDU éligible jusqu'au répertoire <strong>${escapeHtml(inv.cutoffRepertoire)}</strong>.
-              </td>
-            </tr>
-          `;
-
-        return `
-          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b-2 border-slate-900 pb-3 mb-4">
-            <div>
-              <div class="text-xs font-extrabold uppercase tracking-wider text-blue-700">GEO SUIVI TRANSIT</div>
-              <h2 class="text-xl font-extrabold text-slate-900 m-0">FACTURE DDU — ${escapeHtml(inv.invoiceNumber)}</h2>
-              <div class="text-xs text-slate-600 mt-1">
-                Facturé à : <strong class="text-slate-900">${escapeHtml(inv.billedTo)}</strong> (${escapeHtml(inv.recipientEmail)})
-              </div>
-              <div class="text-xs text-blue-900 font-semibold mt-0.5">
-                Arrêté au dernier répertoire : <strong>${escapeHtml(inv.cutoffRepertoire)}</strong>
-              </div>
-            </div>
-            <div class="text-left sm:text-right text-xs text-slate-600">
-              <div><strong>N° Facture :</strong> <span class="font-mono font-bold text-slate-900">${escapeHtml(inv.invoiceNumber)}</span></div>
-              <div><strong>Date :</strong> ${escapeHtml(inv.issuedAt)}</div>
-              <div><strong>Tarif unitaire DDU :</strong> ${inv.unitPrice.toLocaleString("fr-FR")} FCFA</div>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-slate-100 text-[11px] uppercase text-slate-600 font-bold">
-                  <th class="py-2 px-3 border-b border-slate-300">#</th>
-                  <th class="py-2 px-3 border-b border-slate-300">Répertoire</th>
-                  <th class="py-2 px-3 border-b border-slate-300">N° BL</th>
-                  <th class="py-2 px-3 border-b border-slate-300">Client</th>
-                  <th class="py-2 px-3 border-b border-slate-300">Déclaration</th>
-                  <th class="py-2 px-3 border-b border-slate-300 text-right">Montant</th>
-                </tr>
-              </thead>
-              <tbody>${rowsHtml}</tbody>
-            </table>
-          </div>
-
-          <div class="mt-4 pt-3 border-t-2 border-slate-900 flex flex-wrap items-center justify-between gap-2">
-            <div class="text-xs font-bold text-slate-700">
-              Nombre de dossiers DDU (jusqu'à ${escapeHtml(inv.cutoffRepertoire)}) : ${inv.items.length} × ${inv.unitPrice.toLocaleString("fr-FR")} FCFA
-            </div>
-            <div class="text-base sm:text-lg font-extrabold text-slate-900">
-              TOTAL FACTURE : ${inv.totalAmount.toLocaleString("fr-FR")} FCFA
-            </div>
-          </div>
-        `;
-      }
-
-      function renderIssuedInvoicesArchive() {
-        const box = document.getElementById("issuedInvoicesList");
-        if (!appState.invoices.length) {
-          box.innerHTML = `<div class="text-slate-400 italic">Aucune facture encore émise.</div>`;
-          return;
-        }
-        box.innerHTML = appState.invoices
-          .map(
-            (arch) => `
-          <div class="flex flex-wrap items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-            <div>
-              <strong class="font-mono text-blue-900">${escapeHtml(arch.invoiceNumber)}</strong>
-              <span class="text-slate-600 ml-2">• ${escapeHtml(arch.billedTo)} (${escapeHtml(arch.recipientEmail)})</span>
-              <span class="text-slate-500 ml-2">• ${arch.count} DDU • <strong>${Number(arch.totalAmount).toLocaleString("fr-FR")} FCFA</strong></span>
-            </div>
-            <span class="text-[11px] text-slate-500">Émise le ${escapeHtml(arch.issuedAt)}</span>
-          </div>
-        `
-          )
-          .join("");
-      }
-
-      window.openDduBillingModal = function () {
-        const perms = getPermissions();
-        if (!perms.canAccessDduBilling) {
-          showToast("Accès refusé : la facturation DDU est réservée à l'Agent DDU (Facturier).");
-          return;
-        }
-        document.getElementById("invoiceYearInput").value = DEFAULT_YEAR;
-        if (!document.getElementById("invoiceRecipientEmail").value) {
-          document.getElementById("invoiceRecipientEmail").value = DEFAULT_RECIPIENT_EMAIL;
-        }
-        populateLastRepertoireSelector();
-        const noticeEl = document.getElementById("dduBillingAccessNotice");
-        if (appState.activeRoleId === "AGENT_DDU_FACTURIER") {
-          noticeEl.classList.add("hidden");
-        } else {
-          noticeEl.classList.remove("hidden");
-          noticeEl.textContent = "Mode supervision : le calcul et le choix du dernier répertoire relèvent normalement de l'Agent DDU (Facturier).";
-        }
-        refreshDduBillingPreview();
-        document.getElementById("dduBillingModal").classList.add("open");
-      };
-
-      window.refreshDduBillingPreview = function () {
-        const inv = buildCurrentInvoiceObject();
-        document.getElementById("dduInvoicePreviewCard").innerHTML = renderInvoiceDocumentMarkup(inv);
-        renderIssuedInvoicesArchive();
-      };
-
-      window.printCurrentDduInvoice = function () {
-        const inv = buildCurrentInvoiceObject();
-        document.getElementById("printZone").innerHTML = `
-          <div style="font-family:'Inter',sans-serif;color:#0f172a;padding:24px;max-width:860px;margin:0 auto;">
-            ${renderInvoiceDocumentMarkup(inv)}
-          </div>
-        `;
-        window.print();
-      };
-
-      window.issueAndArchiveDduInvoice = function () {
-        const inv = buildCurrentInvoiceObject();
-        if (!inv.items.length) {
-          showToast("Aucun dossier DDU à facturer jusqu'au répertoire sélectionné.");
-          return;
-        }
-
-        const reps = inv.items.map((d) => d.repertoire);
-        appState.dossiers.forEach((d) => {
-          if (reps.includes(d.repertoire)) {
-            d.billedInvoiceNumber = inv.invoiceNumber;
-          }
-        });
-
-        appState.invoices.unshift({
-          invoiceNumber: inv.invoiceNumber,
-          billedTo: inv.billedTo,
-          recipientEmail: inv.recipientEmail,
-          cutoffRepertoire: inv.cutoffRepertoire,
-          count: inv.items.length,
-          unitPrice: inv.unitPrice,
-          totalAmount: inv.totalAmount,
-          issuedAt: inv.issuedAt,
-          repertoires: reps
-        });
-
-        appState.invoiceCounter = (Number(appState.invoiceCounter) || 1) + 1;
-        saveState();
-        populateLastRepertoireSelector();
-        refreshDduBillingPreview();
-        renderKpis();
+      window.clearAllFilters = function () {
+        const s = document.getElementById("searchInput");
+        const m = document.getElementById("transportModeFilter");
+        const r = document.getElementById("regimeFilter");
+        const st = document.getElementById("statusFilter");
+        if (s) s.value = "";
+        if (m) m.value = "TOUS";
+        if (r) r.value = "TOUS";
+        if (st) st.value = "TOUS";
+        filterAlertsOnly = false;
         renderDossiersList();
-        showToast(`Facture ${inv.invoiceNumber} enregistrée (${inv.totalAmount.toLocaleString("fr-FR")} FCFA) jusqu'à ${inv.cutoffRepertoire}.`);
-      };
-
-      function buildEmailDraftText(inv) {
-        const lines = inv.items.map(
-          (d, idx) =>
-            `${idx + 1}. ${d.repertoire} | BL: ${d.bl} | Client: ${d.client} | ${inv.unitPrice.toLocaleString("fr-FR")} FCFA`
-        );
-        return [
-          `Bonjour ste GEO,`,
-          ``,
-          `Veuillez trouver ci-dessous le récapitulatif de la facture DDU ${inv.invoiceNumber} émise par GEO SUIVI TRANSIT :`,
-          ``,
-          `Facturé à : ${inv.billedTo}`,
-          `Nombre de dossiers DDU : ${inv.items.length}`,
-          `Tarif unitaire : ${inv.unitPrice.toLocaleString("fr-FR")} FCFA`,
-          `Montant total : ${inv.totalAmount.toLocaleString("fr-FR")} FCFA`,
-          ``,
-          `Détail des répertoires :`,
-          ...(lines.length ? lines : ["Aucun dossier DDU"]),
-          ``,
-          `Cordialement,`,
-          `GEO SUIVI TRANSIT`
-        ].join("\n");
-      }
-
-      window.openEmailComposerForInvoice = function () {
-        const inv = buildCurrentInvoiceObject();
-        const toAddr = document.getElementById("invoiceRecipientEmail").value.trim() || DEFAULT_RECIPIENT_EMAIL;
-        const subject = `Facture DDU ${inv.invoiceNumber} — ste GEO (${inv.totalAmount.toLocaleString("fr-FR")} FCFA)`;
-        const body = buildEmailDraftText(inv);
-
-        document.getElementById("emailToField").value = toAddr;
-        document.getElementById("emailSubjectField").value = subject;
-        document.getElementById("emailBodyField").value = body;
-
-        const mailtoHref = `mailto:${encodeURIComponent(toAddr)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        document.getElementById("mailtoDirectLink").href = mailtoHref;
-
-        document.getElementById("emailComposerModal").classList.add("open");
-      };
-
-      window.copyEmailDraftText = function () {
-        const textarea = document.getElementById("emailBodyField");
-        if (!textarea) return;
-        textarea.select();
-        try {
-          document.execCommand("copy");
-          showToast("Texte de l'e-mail copié dans le presse-papiers.");
-        } catch (err) {
-          showToast("Sélectionnez le texte et copiez-le manuellement.");
-        }
+        renderAlertCenter();
       };
 
       window.closeModal = function (modalId) {
@@ -2546,16 +2083,747 @@
         }
       };
 
+      window.openDossierModal = function (dossierId) {
+        const perms = getPermissions();
+        const existing = dossierId ? appState.dossiers.find((d) => d.id === dossierId) : null;
+
+        if (!existing && !perms.canCreate) {
+          showToast("Votre rôle actuel ne permet pas la création d'un nouveau dossier.");
+          return;
+        }
+
+        document.getElementById("editDossierId").value = existing ? existing.id : "";
+        document.getElementById("dossierModalTitle").textContent = existing
+          ? `Dossier ${existing.repertoire} — ${existing.client}`
+          : "Nouveau Dossier de Transit";
+        document.getElementById("dossierModalSubtitle").textContent = existing
+          ? `BL ${existing.bl} • Navire ${existing.vessel}`
+          : "Saisie initiale et attribution du numéro de répertoire séquentiel";
+
+        const nextRep = existing ? existing.repertoire : formatRepertoire(appState.lastSeqNumber + 1);
+        document.getElementById("fRepertoire").value = nextRep;
+        document.getElementById("fClient").value = existing ? existing.client : "";
+        document.getElementById("fShipper").value = existing ? existing.shipper || "" : "";
+        document.getElementById("fClientContact").value = existing ? existing.clientContact || "" : "";
+        document.getElementById("fBl").value = existing ? existing.bl : "";
+        document.getElementById("fVessel").value = existing ? existing.vessel : "";
+        document.getElementById("fArrivalDate").value = existing ? existing.arrivalDate || "" : "";
+        document.getElementById("fTransportMode").value = existing ? existing.transportMode : "SUR_CAMION";
+        document.getElementById("fMarchandise").value = existing ? existing.marchandise || "" : "";
+        document.getElementById("fPoids").value = existing ? existing.poids || "" : "";
+        document.getElementById("fQuantite").value = existing ? existing.quantite || "" : "";
+
+        document.getElementById("fBadExpiry").value = existing ? existing.badExpiry || "" : "";
+        document.getElementById("fT1Expiry").value = existing ? existing.t1Expiry || "" : "";
+        document.getElementById("fDeclarationNum").value = existing ? existing.declarationNum || "" : "";
+        document.getElementById("fCorridorNote").value = existing ? existing.corridorNote || "" : "";
+
+        const closedCb = document.getElementById("fClosedBySupervisor");
+        const closedBadge = document.getElementById("dossierClosureBadge");
+        const closedHelp = document.getElementById("supervisorClosureHelp");
+
+        closedCb.checked = existing ? !!existing.closed : false;
+        closedCb.disabled = !perms.canCloseDossier;
+        closedBadge.classList.toggle("hidden", !(existing && existing.closed));
+        closedHelp.textContent = perms.canCloseDossier
+          ? "Vous êtes habilité à valider et clôturer ce dossier."
+          : "Seuls le Superviseur et l'Administrateur peuvent clôturer un dossier.";
+
+        const isLockedByClosure = !!(existing && existing.closed && !perms.canCloseDossier);
+
+        // Rendu des cases régimes/étapes
+        const stepsGrid = document.getElementById("regimesChecklistGrid");
+        stepsGrid.innerHTML = WORKFLOW_STEPS.map((s) => {
+          const checked = existing && existing.steps ? !!existing.steps[s.key] : false;
+          const allowed = !isLockedByClosure && perms.allowedSteps.includes(s.key);
+          return `
+            <label class="flex items-center gap-2 p-2.5 rounded-lg border ${
+              checked ? "bg-emerald-50 border-emerald-300 text-emerald-950 font-bold" : "bg-white border-slate-300 text-slate-700"
+            } text-xs ${allowed ? "cursor-pointer" : "opacity-65 cursor-not-allowed"}">
+              <input
+                type="checkbox"
+                name="dossierStepCb"
+                value="${s.key}"
+                ${checked ? "checked" : ""}
+                ${allowed ? "" : "disabled"}
+                class="w-4 h-4 rounded text-emerald-600"
+              />
+              <span>${s.label}</span>
+            </label>
+          `;
+        }).join("");
+
+        workingContainers = existing && Array.isArray(existing.containers) ? [...existing.containers] : [""];
+        if (!workingContainers.length) workingContainers = [""];
+        document.getElementById("batchContainersPasteInput").value = "";
+        renderContainerRows();
+
+        workingTrucks = existing && Array.isArray(existing.trucks) ? existing.trucks.map((t) => ({ ...t })) : [];
+        renderTruckRows();
+
+        const emptyStatusEl = document.getElementById("fEmptyReturnStatus");
+        const emptyDateEl = document.getElementById("fEmptyReturnDate");
+        const emptyDepotEl = document.getElementById("fEmptyReturnDepot");
+
+        emptyStatusEl.value = existing && existing.emptyReturn ? existing.emptyReturn.status : "EN_ATTENTE";
+        emptyDateEl.value = existing && existing.emptyReturn ? existing.emptyReturn.date || "" : "";
+        emptyDepotEl.value = existing && existing.emptyReturn ? existing.emptyReturn.depot || "" : "";
+
+        syncTransportModeUI();
+        refreshModalExpirationPreview();
+
+        document.getElementById("dossierModal").classList.add("open");
+      };
+
+      window.syncTransportModeUI = function () {
+        const mode = document.getElementById("fTransportMode").value;
+        const statusEl = document.getElementById("fEmptyReturnStatus");
+        if (mode === "DEPOTAGE") {
+          statusEl.value = "NON_APPLICABLE";
+        } else if (statusEl.value === "NON_APPLICABLE") {
+          statusEl.value = "EN_ATTENTE";
+        }
+      };
+
+      window.refreshModalExpirationPreview = function () {
+        const badVal = document.getElementById("fBadExpiry").value;
+        const t1Val = document.getElementById("fT1Expiry").value;
+        const badLabel = document.getElementById("badExpiryStatus");
+        const t1Label = document.getElementById("t1ExpiryStatus");
+
+        const formatStatus = (isoStr) => {
+          if (!isoStr) return { text: "Aucune échéance saisie", cls: "text-slate-400" };
+          const diffMs = new Date(isoStr).getTime() - Date.now();
+          const hrs = Math.round(diffMs / (3600 * 1000));
+          if (diffMs < 0) return { text: `EXPIRÉ depuis ${Math.abs(hrs)}h !`, cls: "text-rose-700 font-extrabold" };
+          if (diffMs <= 72 * 3600 * 1000) return { text: `ALERTE < 72h (${hrs}h restantes)`, cls: "text-rose-600 font-extrabold" };
+          return { text: `Valide (${hrs}h restantes)`, cls: "text-emerald-700" };
+        };
+
+        const b = formatStatus(badVal);
+        badLabel.textContent = b.text;
+        badLabel.className = `text-[11.5px] font-semibold mt-1 ${b.cls}`;
+
+        const t = formatStatus(t1Val);
+        t1Label.textContent = t.text;
+        t1Label.className = `text-[11.5px] font-semibold mt-1 ${t.cls}`;
+      };
+
+      function renderContainerRows() {
+        const list = document.getElementById("containerRowsList");
+        list.innerHTML = workingContainers
+          .map(
+            (val, idx) => `
+              <div class="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  value="${escapeHtml(val)}"
+                  oninput="updateContainerRow(${idx}, this.value)"
+                  placeholder="TC #${idx + 1} (ex: MSCU1234567)"
+                  class="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs sm:text-sm font-mono uppercase"
+                />
+                <button
+                  type="button"
+                  onclick="removeContainerRow(${idx})"
+                  class="px-2 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold"
+                  title="Supprimer ce conteneur"
+                >
+                  ✕
+                </button>
+              </div>
+            `
+          )
+          .join("");
+      }
+
+      window.addContainerRow = function (value) {
+        workingContainers.push(value || "");
+        renderContainerRows();
+      };
+
+      window.updateContainerRow = function (idx, value) {
+        workingContainers[idx] = String(value || "").toUpperCase();
+      };
+
+      window.removeContainerRow = function (idx) {
+        workingContainers.splice(idx, 1);
+        if (!workingContainers.length) workingContainers.push("");
+        renderContainerRows();
+      };
+
+      window.handleBatchContainersParse = function (rawText) {
+        const tokens = String(rawText || "")
+          .split(/[\s,;\n\r\t]+/)
+          .map((s) => s.trim().toUpperCase())
+          .filter(Boolean);
+        if (!tokens.length) return;
+        const existingNonEmpty = workingContainers.map((c) => c.trim().toUpperCase()).filter(Boolean);
+        const merged = Array.from(new Set([...existingNonEmpty, ...tokens]));
+        workingContainers = merged.length ? merged : [""];
+        renderContainerRows();
+      };
+
+      window.handleBatchContainersPasteEvent = function (event) {
+        setTimeout(() => {
+          const input = event.target;
+          if (!input) return;
+          handleBatchContainersParse(input.value);
+          input.value = "";
+          showToast("Numéros de conteneurs extraits et ajoutés automatiquement !");
+        }, 10);
+      };
+
+      function renderTruckRows() {
+        const list = document.getElementById("truckRowsList");
+        if (!workingTrucks.length) {
+          list.innerHTML = `<div class="text-xs text-slate-500 italic">Aucun camion affecté pour le moment. Cliquez sur « + Affecter un camion ».</div>`;
+          return;
+        }
+        list.innerHTML = workingTrucks
+          .map(
+            (item, idx) => `
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2.5 rounded-lg border border-slate-200">
+                <div class="sm:col-span-4">
+                  <input
+                    type="text"
+                    value="${escapeHtml(item.truck)}"
+                    oninput="updateTruckRow(${idx}, 'truck', this.value)"
+                    placeholder="Immatriculation (ex: TG-4512-MD)"
+                    class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm font-mono uppercase"
+                  />
+                </div>
+                <div class="sm:col-span-7">
+                  <input
+                    type="text"
+                    value="${escapeHtml(item.assignment)}"
+                    oninput="updateTruckRow(${idx}, 'assignment', this.value)"
+                    placeholder="TC affecté ou détail lot dépotage (ex: MSCU4512091)"
+                    class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm"
+                  />
+                </div>
+                <div class="sm:col-span-1 text-right">
+                  <button
+                    type="button"
+                    onclick="removeTruckRow(${idx})"
+                    class="px-2.5 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            `
+          )
+          .join("");
+      }
+
+      window.addTruckRow = function (truck, assignment) {
+        workingTrucks.push({ truck: truck || "", assignment: assignment || "" });
+        renderTruckRows();
+      };
+
+      window.updateTruckRow = function (idx, field, value) {
+        if (!workingTrucks[idx]) return;
+        workingTrucks[idx][field] = field === "truck" ? String(value || "").toUpperCase() : value;
+      };
+
+      window.removeTruckRow = function (idx) {
+        workingTrucks.splice(idx, 1);
+        renderTruckRows();
+      };
+
+      window.saveDossierForm = function (event) {
+        event.preventDefault();
+        const perms = getPermissions();
+        const editId = document.getElementById("editDossierId").value;
+        const existing = editId ? appState.dossiers.find((d) => d.id === editId) : null;
+
+        if (existing && existing.closed && !perms.canCloseDossier) {
+          showToast("Ce dossier est clôturé. Seul un Superviseur ou Administrateur peut le modifier.");
+          return;
+        }
+
+        const stepsObj = {};
+        WORKFLOW_STEPS.forEach((s) => {
+          stepsObj[s.key] = existing && existing.steps ? !!existing.steps[s.key] : false;
+        });
+        document.querySelectorAll("input[name='dossierStepCb']").forEach((cb) => {
+          if (!cb.disabled) {
+            stepsObj[cb.value] = cb.checked;
+          }
+        });
+
+        const cleanContainers = Array.from(
+          new Set(workingContainers.map((c) => c.trim().toUpperCase()).filter(Boolean))
+        );
+        const cleanTrucks = workingTrucks
+          .map((t) => ({
+            truck: (t.truck || "").trim().toUpperCase(),
+            assignment: (t.assignment || "").trim()
+          }))
+          .filter((t) => t.truck || t.assignment);
+
+        const transportMode = document.getElementById("fTransportMode").value;
+        const emptyStatus =
+          transportMode === "DEPOTAGE" ? "NON_APPLICABLE" : document.getElementById("fEmptyReturnStatus").value;
+
+        const payload = {
+          id: existing ? existing.id : "dos_" + Date.now(),
+          repertoire: existing ? existing.repertoire : formatRepertoire(appState.lastSeqNumber + 1),
+          client: document.getElementById("fClient").value.trim().toUpperCase(),
+          shipper: document.getElementById("fShipper").value.trim().toUpperCase(),
+          clientContact: document.getElementById("fClientContact").value.trim(),
+          bl: document.getElementById("fBl").value.trim().toUpperCase(),
+          vessel: document.getElementById("fVessel").value.trim().toUpperCase(),
+          arrivalDate: document.getElementById("fArrivalDate").value,
+          marchandise: document.getElementById("fMarchandise").value.trim(),
+          poids: document.getElementById("fPoids").value.trim(),
+          quantite: document.getElementById("fQuantite").value.trim(),
+          transportMode,
+          declarationNum: document.getElementById("fDeclarationNum").value.trim().toUpperCase(),
+          corridorNote: document.getElementById("fCorridorNote").value.trim(),
+          badExpiry: document.getElementById("fBadExpiry").value,
+          t1Expiry: document.getElementById("fT1Expiry").value,
+          steps: stepsObj,
+          containers: cleanContainers,
+          trucks: cleanTrucks,
+          emptyReturn: {
+            status: emptyStatus,
+            date: document.getElementById("fEmptyReturnDate").value,
+            depot: document.getElementById("fEmptyReturnDepot").value.trim()
+          },
+          closed: perms.canCloseDossier
+            ? document.getElementById("fClosedBySupervisor").checked
+            : existing
+            ? !!existing.closed
+            : false,
+          billedInvoiceNumber: existing ? existing.billedInvoiceNumber : null
+        };
+
+        if (existing) {
+          const idx = appState.dossiers.findIndex((d) => d.id === existing.id);
+          if (idx !== -1) appState.dossiers[idx] = payload;
+          showToast(`Dossier ${payload.repertoire} mis à jour.`);
+        } else {
+          appState.lastSeqNumber += 1;
+          appState.dossiers.unshift(payload);
+          showToast(`Dossier ${payload.repertoire} créé avec succès.`);
+        }
+
+        saveState();
+        closeModal("dossierModal");
+        renderAll();
+      };
+
+      /**
+       * BORDEREAU DÉTAILLÉ (strictement sans montants ni mentions de facturation)
+       */
+      window.printBordereauDetaille = function (dossierId) {
+        const d = appState.dossiers.find((item) => item.id === dossierId);
+        if (!d) return;
+
+        const activeRegimes = WORKFLOW_STEPS.filter((s) => d.steps && d.steps[s.key])
+          .map((s) => s.label)
+          .join(" • ") || "Aucun";
+
+        const containersRows = (d.containers || []).length
+          ? d.containers
+              .map(
+                (tc, idx) => `
+                  <tr>
+                    <td style="border:1px solid #cbd5e1;padding:6px 10px;">${idx + 1}</td>
+                    <td style="border:1px solid #cbd5e1;padding:6px 10px;font-family:monospace;font-weight:700;">${escapeHtml(tc)}</td>
+                    <td style="border:1px solid #cbd5e1;padding:6px 10px;">${escapeHtml(d.marchandise || "-")}</td>
+                  </tr>
+                `
+              )
+              .join("")
+          : `<tr><td colspan="3" style="border:1px solid #cbd5e1;padding:6px 10px;">Aucun conteneur renseigné</td></tr>`;
+
+        const trucksRows = (d.trucks || []).length
+          ? d.trucks
+              .map(
+                (t, idx) => `
+                  <tr>
+                    <td style="border:1px solid #cbd5e1;padding:6px 10px;">${idx + 1}</td>
+                    <td style="border:1px solid #cbd5e1;padding:6px 10px;font-family:monospace;font-weight:700;">${escapeHtml(t.truck || "-")}</td>
+                    <td style="border:1px solid #cbd5e1;padding:6px 10px;">${escapeHtml(t.assignment || "-")}</td>
+                  </tr>
+                `
+              )
+              .join("")
+          : `<tr><td colspan="3" style="border:1px solid #cbd5e1;padding:6px 10px;">Aucune affectation camion enregistrée</td></tr>`;
+
+        const printZone = document.getElementById("printZone");
+        printZone.innerHTML = `
+          <div style="font-family:Inter,Arial,sans-serif;color:#0f172a;padding:24px;max-width:820px;margin:0 auto;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0f172a;padding-bottom:12px;margin-bottom:16px;">
+              <div>
+                <h1 style="margin:0;font-size:20px;font-weight:800;">GEO SUIVI TRANSIT</h1>
+                <p style="margin:2px 0 0;font-size:12px;color:#475569;">BORDEREAU DÉTAILLÉ DE LIVRAISON &amp; SUIVI CARGAISON</p>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:15px;font-weight:800;">Répertoire : ${escapeHtml(d.repertoire)}</div>
+                <div style="font-size:11px;color:#475569;">Date d'édition : ${new Date().toLocaleDateString("fr-FR")}</div>
+              </div>
+            </div>
+
+            <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px;">
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:7px 10px;width:50%;"><strong>Client / Importateur :</strong> ${escapeHtml(d.client)}</td>
+                <td style="border:1px solid #cbd5e1;padding:7px 10px;width:50%;"><strong>Chargeur :</strong> ${escapeHtml(d.shipper || "-")}</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:7px 10px;"><strong>N° BL :</strong> ${escapeHtml(d.bl)}</td>
+                <td style="border:1px solid #cbd5e1;padding:7px 10px;"><strong>Navire :</strong> ${escapeHtml(d.vessel)} (ETA: ${escapeHtml(d.arrivalDate || "-")})</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:7px 10px;"><strong>Mode Transport :</strong> ${d.transportMode === "SUR_CAMION" ? "SUR CAMION" : "DÉPOTAGE"}</td>
+                <td style="border:1px solid #cbd5e1;padding:7px 10px;"><strong>Régimes validés :</strong> ${escapeHtml(activeRegimes)}</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:7px 10px;"><strong>N° Déclaration / T1 :</strong> ${escapeHtml(d.declarationNum || "-")}</td>
+                <td style="border:1px solid #cbd5e1;padding:7px 10px;"><strong>Poids / Colis :</strong> ${escapeHtml(d.poids || "-")} / ${escapeHtml(d.quantite || "-")}</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="border:1px solid #cbd5e1;padding:7px 10px;"><strong>Destination / Corridor :</strong> ${escapeHtml(d.clientContact || "-")} — ${escapeHtml(d.corridorNote || "-")}</td>
+              </tr>
+            </table>
+
+            <h3 style="font-size:13px;margin:0 0 6px;text-transform:uppercase;">Détail des Conteneurs</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px;">
+              <thead>
+                <tr style="background:#f1f5f9;">
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;width:50px;">#</th>
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">N° Conteneur</th>
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">Nature Marchandise</th>
+                </tr>
+              </thead>
+              <tbody>${containersRows}</tbody>
+            </table>
+
+            <h3 style="font-size:13px;margin:0 0 6px;text-transform:uppercase;">Affectation Camions &amp; Enlèvement</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px;">
+              <thead>
+                <tr style="background:#f1f5f9;">
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;width:50px;">#</th>
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">Camion</th>
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">Affectation / Lot</th>
+                </tr>
+              </thead>
+              <tbody>${trucksRows}</tbody>
+            </table>
+
+            ${
+              d.transportMode === "SUR_CAMION"
+                ? `<div style="border:1px solid #cbd5e1;padding:8px 10px;font-size:12px;margin-bottom:20px;">
+                    <strong>Suivi Retour Vide :</strong> ${escapeHtml(d.emptyReturn?.status || "EN_ATTENTE")}
+                    ${d.emptyReturn?.date ? ` • Date : ${escapeHtml(d.emptyReturn.date)}` : ""}
+                    ${d.emptyReturn?.depot ? ` • Dépôt : ${escapeHtml(d.emptyReturn.depot)}` : ""}
+                  </div>`
+                : ""
+            }
+
+            <div style="display:flex;justify-content:space-between;margin-top:28px;font-size:12px;">
+              <div style="width:45%;border-top:1px solid #64748b;padding-top:6px;">Visa Agent Exploitation / Transit</div>
+              <div style="width:45%;border-top:1px solid #64748b;padding-top:6px;text-align:right;">Visa Réceptionnaire / Chauffeur</div>
+            </div>
+          </div>
+        `;
+
+        window.print();
+      };
+
+      /**
+       * FACTURATION DDU AUTOMATISÉE (10 000 FCFA / DDU — GE001/FA/ANNÉE — ste GEO)
+       */
+      function getSortedDossiersByRepertoire() {
+        return [...appState.dossiers].sort((a, b) => a.repertoire.localeCompare(b.repertoire));
+      }
+
+      function computeDduInvoiceSnapshot() {
+        const sorted = getSortedDossiersByRepertoire();
+        const cutoffRep = document.getElementById("invoiceLastRepertoireSelect")?.value || "";
+        const yearVal = Number(document.getElementById("invoiceYearInput")?.value) || DEFAULT_YEAR;
+        const recipientEmail = (document.getElementById("invoiceRecipientEmail")?.value || DEFAULT_RECIPIENT_EMAIL).trim();
+        const onlyUnbilled = !!document.getElementById("invoiceOnlyUnbilledCheckbox")?.checked;
+
+        const eligibleDossiers = sorted.filter((d) => {
+          if (!d.steps || !d.steps.DDU) return false;
+          if (cutoffRep && d.repertoire.localeCompare(cutoffRep) > 0) return false;
+          if (onlyUnbilled && d.billedInvoiceNumber) return false;
+          return true;
+        });
+
+        const invoiceNumber = `GE${String(appState.invoiceCounter).padStart(3, "0")}/FA/${yearVal}`;
+        const totalAmount = eligibleDossiers.length * DDU_UNIT_PRICE;
+
+        return {
+          invoiceNumber,
+          yearVal,
+          cutoffRep,
+          recipientEmail,
+          onlyUnbilled,
+          eligibleDossiers,
+          unitPrice: DDU_UNIT_PRICE,
+          totalAmount
+        };
+      }
+
+      window.openDduBillingModal = function () {
+        const perms = getPermissions();
+        if (!perms.canAccessDduBilling) {
+          showToast("Accès réservé à l'Agent DDU (Facturier), au Superviseur et à l'Administrateur.");
+          return;
+        }
+
+        const sorted = getSortedDossiersByRepertoire();
+        const selectEl = document.getElementById("invoiceLastRepertoireSelect");
+        selectEl.innerHTML = sorted
+          .map(
+            (d) =>
+              `<option value="${escapeHtml(d.repertoire)}">${escapeHtml(d.repertoire)} — ${escapeHtml(d.client)} ${
+                d.steps && d.steps.DDU ? "(DDU)" : "(Sans DDU)"
+              }</option>`
+          )
+          .join("");
+
+        if (sorted.length) {
+          selectEl.value = sorted[sorted.length - 1].repertoire;
+        }
+
+        const noticeEl = document.getElementById("dduBillingAccessNotice");
+        if (noticeEl) {
+          noticeEl.classList.add("hidden");
+        }
+
+        refreshDduBillingPreview();
+        renderIssuedInvoicesList();
+        document.getElementById("dduBillingModal").classList.add("open");
+      };
+
+      window.refreshDduBillingPreview = function () {
+        const snap = computeDduInvoiceSnapshot();
+        const card = document.getElementById("dduInvoicePreviewCard");
+        const btnIssue = document.getElementById("btnIssueArchiveInvoice");
+        if (!card) return;
+
+        if (btnIssue) {
+          btnIssue.disabled = snap.eligibleDossiers.length === 0;
+          btnIssue.classList.toggle("opacity-50", snap.eligibleDossiers.length === 0);
+        }
+
+        const rowsHtml = snap.eligibleDossiers.length
+          ? snap.eligibleDossiers
+              .map(
+                (d, idx) => `
+                  <tr class="border-b border-slate-200">
+                    <td class="py-2 px-2.5 text-xs">${idx + 1}</td>
+                    <td class="py-2 px-2.5 text-xs font-extrabold text-blue-950">${escapeHtml(d.repertoire)}</td>
+                    <td class="py-2 px-2.5 text-xs">${escapeHtml(d.client)}</td>
+                    <td class="py-2 px-2.5 text-xs font-mono">${escapeHtml(d.bl)}</td>
+                    <td class="py-2 px-2.5 text-xs text-right font-bold">${DDU_UNIT_PRICE.toLocaleString("fr-FR")} FCFA</td>
+                  </tr>
+                `
+              )
+              .join("")
+          : `<tr><td colspan="5" class="py-4 text-center text-xs text-slate-500">Aucun dossier DDU éligible jusqu'au répertoire sélectionné.</td></tr>`;
+
+        card.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b border-slate-200 pb-3">
+            <div>
+              <div class="text-xs font-extrabold uppercase tracking-wider text-blue-700">FACTURE PRESTATION DDU</div>
+              <div class="text-lg font-extrabold text-slate-900 mt-0.5">${escapeHtml(snap.invoiceNumber)}</div>
+              <div class="text-xs text-slate-500">Date : ${new Date().toLocaleDateString("fr-FR")} • Arrêtée au répertoire : <strong>${escapeHtml(snap.cutoffRep || "-")}</strong></div>
+            </div>
+            <div class="sm:text-right bg-slate-50 px-3.5 py-2.5 rounded-xl border border-slate-200">
+              <div class="text-[11px] uppercase font-bold text-slate-500">Client Facturé</div>
+              <div class="text-sm font-extrabold text-slate-900">ste GEO</div>
+              <div class="text-xs font-mono text-blue-700">${escapeHtml(snap.recipientEmail)}</div>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-[11px] uppercase text-slate-600 font-bold border-b border-slate-200">
+                  <th class="py-2 px-2.5">#</th>
+                  <th class="py-2 px-2.5">Répertoire</th>
+                  <th class="py-2 px-2.5">Client Dossier</th>
+                  <th class="py-2 px-2.5">N° BL</th>
+                  <th class="py-2 px-2.5 text-right">Forfait DDU</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-3 border-t border-slate-200">
+            <div class="text-xs text-slate-600">
+              Calcul : <strong>${snap.eligibleDossiers.length} DDU</strong> × <strong>10 000 FCFA</strong>
+            </div>
+            <div class="text-base sm:text-lg font-extrabold text-emerald-800">
+              TOTAL À PAYER : ${snap.totalAmount.toLocaleString("fr-FR")} FCFA
+            </div>
+          </div>
+        `;
+      };
+
+      function renderIssuedInvoicesList() {
+        const listEl = document.getElementById("issuedInvoicesList");
+        if (!listEl) return;
+        if (!appState.invoices.length) {
+          listEl.innerHTML = `<div class="text-slate-500 italic">Aucune facture DDU archivée pour le moment.</div>`;
+          return;
+        }
+        listEl.innerHTML = appState.invoices
+          .map(
+            (inv) => `
+              <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-2.5 rounded-lg border border-slate-200">
+                <div>
+                  <strong class="text-slate-900">${escapeHtml(inv.invoiceNumber)}</strong>
+                  <span class="text-slate-500"> • Jusqu'à ${escapeHtml(inv.cutoffRep)} (${inv.count} DDU)</span>
+                </div>
+                <div class="font-extrabold text-emerald-700">${Number(inv.totalAmount).toLocaleString("fr-FR")} FCFA</div>
+              </div>
+            `
+          )
+          .join("");
+      }
+
+      window.issueAndArchiveDduInvoice = function () {
+        const snap = computeDduInvoiceSnapshot();
+        if (!snap.eligibleDossiers.length) {
+          showToast("Aucun dossier DDU à facturer dans cette plage.");
+          return;
+        }
+
+        const billedIds = new Set(snap.eligibleDossiers.map((d) => d.id));
+        appState.dossiers.forEach((d) => {
+          if (billedIds.has(d.id)) {
+            d.billedInvoiceNumber = snap.invoiceNumber;
+          }
+        });
+
+        appState.invoices.unshift({
+          invoiceNumber: snap.invoiceNumber,
+          date: new Date().toLocaleDateString("fr-FR"),
+          cutoffRep: snap.cutoffRep,
+          recipientEmail: snap.recipientEmail,
+          count: snap.eligibleDossiers.length,
+          totalAmount: snap.totalAmount,
+          repertoires: snap.eligibleDossiers.map((d) => d.repertoire)
+        });
+
+        appState.invoiceCounter += 1;
+        saveState();
+        renderAll();
+        refreshDduBillingPreview();
+        renderIssuedInvoicesList();
+        showToast(`Facture ${snap.invoiceNumber} émise et archivée (${snap.totalAmount.toLocaleString("fr-FR")} FCFA).`);
+      };
+
+      window.printCurrentDduInvoice = function () {
+        const snap = computeDduInvoiceSnapshot();
+        const rows = snap.eligibleDossiers
+          .map(
+            (d, idx) => `
+              <tr>
+                <td style="border:1px solid #cbd5e1;padding:6px 10px;">${idx + 1}</td>
+                <td style="border:1px solid #cbd5e1;padding:6px 10px;font-weight:700;">${escapeHtml(d.repertoire)}</td>
+                <td style="border:1px solid #cbd5e1;padding:6px 10px;">${escapeHtml(d.client)}</td>
+                <td style="border:1px solid #cbd5e1;padding:6px 10px;font-family:monospace;">${escapeHtml(d.bl)}</td>
+                <td style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">10 000 FCFA</td>
+              </tr>
+            `
+          )
+          .join("");
+
+        const printZone = document.getElementById("printZone");
+        printZone.innerHTML = `
+          <div style="font-family:Inter,Arial,sans-serif;color:#0f172a;padding:24px;max-width:820px;margin:0 auto;">
+            <div style="display:flex;justify-content:space-between;border-bottom:2px solid #0f172a;padding-bottom:12px;margin-bottom:16px;">
+              <div>
+                <h1 style="margin:0;font-size:20px;font-weight:800;">FACTURE DDU — ${escapeHtml(snap.invoiceNumber)}</h1>
+                <p style="margin:4px 0 0;font-size:12px;color:#475569;">GEO SUIVI TRANSIT • Arrêtée au répertoire ${escapeHtml(snap.cutoffRep)}</p>
+              </div>
+              <div style="text-align:right;font-size:12px;">
+                <div><strong>Facturé à :</strong> ste GEO</div>
+                <div><strong>E-mail :</strong> ${escapeHtml(snap.recipientEmail)}</div>
+                <div><strong>Date :</strong> ${new Date().toLocaleDateString("fr-FR")}</div>
+              </div>
+            </div>
+
+            <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px;">
+              <thead>
+                <tr style="background:#f1f5f9;">
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">#</th>
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">Répertoire</th>
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">Client</th>
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:left;">N° BL</th>
+                  <th style="border:1px solid #cbd5e1;padding:6px 10px;text-align:right;">Montant</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+
+            <div style="text-align:right;font-size:15px;font-weight:800;margin-top:12px;">
+              Total (${snap.eligibleDossiers.length} DDU × 10 000 FCFA) : ${snap.totalAmount.toLocaleString("fr-FR")} FCFA
+            </div>
+          </div>
+        `;
+        window.print();
+      };
+
+      window.openEmailComposerForInvoice = function () {
+        const snap = computeDduInvoiceSnapshot();
+        const subject = `Facture DDU ${snap.invoiceNumber} — ste GEO (${snap.eligibleDossiers.length} DDU)`;
+        const repsList = snap.eligibleDossiers.map((d) => `- ${d.repertoire} (${d.client} / BL ${d.bl}) : 10 000 FCFA`).join("\n");
+        const body = [
+          `Bonjour,`,
+          ``,
+          `Veuillez trouver ci-dessous le récapitulatif de la facture DDU ${snap.invoiceNumber} adressée à ste GEO (arrêtée au répertoire ${snap.cutoffRep}) :`,
+          ``,
+          repsList || "(Aucun dossier DDU sélectionné)",
+          ``,
+          `Nombre de DDU : ${snap.eligibleDossiers.length}`,
+          `Tarif unitaire : 10 000 FCFA`,
+          `TOTAL FACTURE : ${snap.totalAmount.toLocaleString("fr-FR")} FCFA`,
+          ``,
+          `Cordialement,`,
+          `Service Facturation DDU — GEO SUIVI TRANSIT`
+        ].join("\n");
+
+        document.getElementById("emailToField").value = snap.recipientEmail;
+        document.getElementById("emailSubjectField").value = subject;
+        document.getElementById("emailBodyField").value = body;
+        document.getElementById("mailtoDirectLink").href = `mailto:${encodeURIComponent(snap.recipientEmail)}?subject=${encodeURIComponent(
+          subject
+        )}&body=${encodeURIComponent(body)}`;
+
+        document.getElementById("emailComposerModal").classList.add("open");
+      };
+
+      window.copyEmailDraftText = function () {
+        const bodyEl = document.getElementById("emailBodyField");
+        if (!bodyEl) return;
+        bodyEl.select();
+        document.execCommand("copy");
+        showToast("Texte de la facture copié dans le presse-papiers !");
+      };
+
       function renderAll() {
         renderRoleControls();
+        if (!appState.isLoggedIn || !getCurrentUser()) return;
         renderAlertCenter();
         renderKpis();
         renderDossiersList();
       }
 
-      document.addEventListener("DOMContentLoaded", function () {
+      window.addEventListener("DOMContentLoaded", function () {
         renderAll();
       });
+
+      renderAll();
     })();
   </script>
 </body>
